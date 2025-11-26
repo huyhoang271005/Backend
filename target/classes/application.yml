@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://127.0.0.1:1433;databaseName=user1;encrypt=false
+    username: huy
+    password: 271005
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:public.pem
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: huyhoang271005@gmail.com
+    password: uqxm ajrv ffom tupe
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  jpa:
+    show-sql: true
+jwt:
+  expiration:
+    access-token-seconds: 300       #5 min
+    refresh-token-seconds: 604800   #7 day
+cloudinary:
+  cloud-name: ddbcvzxzq
+  api-key: 784394426995282
+  api-secret: FMKNG113EZDQDPrN_bLirgOQtfg
+server:
+  port: 8080

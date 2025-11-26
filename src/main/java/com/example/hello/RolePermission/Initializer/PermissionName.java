@@ -1,0 +1,24 @@
+package com.example.hello.RolePermission.Initializer;
+
+public enum PermissionName {
+    GET_PROFILE,
+    UPDATE_PROFILE,
+    ADD_EMAIL,
+    ADD_EMAIL_USER,
+    DELETE_EMAIL,
+    GET_ROLE,
+    ADD_ROLE,
+    DELETE_ROLE,
+    GET_PERMISSION,
+    GET_ROLE_PERMISSION,
+    ADD_ROLE_PERMISSION,
+    DELETE_ROLE_PERMISSION,
+    GET_USERS,
+    GET_USER,
+    GET_USER_EXTEND,
+    UPDATE_USER_EXTEND,
+    GET_USER_STATUS,
+    LOGOUT,
+    LOGOUT_USER_ALL,
+    LOGOUT_ALL
+}

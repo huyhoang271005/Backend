@@ -45,7 +45,9 @@ public class RegisterService {
     CloudinaryService  cloudinaryService;
 
     @Transactional
-    public Response<DeviceResponse> register(RegisterRequest registerRequest, MultipartFile avatar, UUID deviceId, String userAgent, String deviceType, String deviceName){
+    public Response<DeviceResponse> register(RegisterRequest registerRequest,
+                                             MultipartFile avatar, UUID deviceId, String userAgent,
+                                             String deviceType, String deviceName){
         //Check sự tồn tại của username
         var usernameDb = userRepository.existsByUsername(registerRequest.getUsername());
         //Check sự tồn tại của email

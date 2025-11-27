@@ -87,7 +87,12 @@ public class UserService {
             extendUserResponse = ExtendUserResponse.builder()
                     .userStatus(user.getUserStatus())
                     .emails(user.getEmails().stream()
-                            .map(userEmail -> new EmailResponse(userEmail.getEmailId(), userEmail.getEmail(), userEmail.getValidated()))
+                            .map(userEmail ->
+                                    EmailResponse.builder()
+                                            .emailId(userEmail.getEmailId())
+                                            .email(userEmail.getEmail())
+                                            .validated(userEmail.getValidated())
+                                            .build())
                             .toList())
                     .roleId(role.getRoleId())
                     .build();

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -34,12 +33,13 @@ public class ProfileService {
         var user = userRepository.findById(userId).orElseThrow(()->
                 new EntityNotFoundException(StringApplication.FIELD.USER + StringApplication.FIELD.NOT_EXIST));
         //Lấy dữ liệu email từ entity gán và response
-        var emails = new ArrayList<EmailResponse>();
-        user.getEmails().forEach(email -> emails.add(EmailResponse.builder()
-                .emailId(email.getEmailId())
-                .email(email.getEmail())
-                .validated(email.getValidated())
-                .build()));
+        var emails = user.getEmails().stream()
+                .map(email -> EmailResponse.builder()
+                        .emailId(email.getEmailId())
+                        .email(email.getEmail())
+                        .validated(email.getValidated())
+                        .build())
+                .toList();
         //Lấy dữ liệu profile
         var profile = user.getProfile();
         return new Response<>(

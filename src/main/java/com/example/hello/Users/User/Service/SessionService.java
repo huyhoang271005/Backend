@@ -49,6 +49,7 @@ public class SessionService {
         );
         //Thu hồi quyền đăng nhập
         session.setRevoked(true);
+        sessionCacheService.updateRevoked(sessionId, true);
         sessionRepository.save(session);
         return new  Response<>(
                 true,

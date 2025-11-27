@@ -82,7 +82,10 @@ public class LoginService {
                 return new Response<>(
                         false,
                         StringApplication.ERROR.NEW_DEVICE,
-                        new LoginResponse(true, false, null, null)
+                        LoginResponse.builder()
+                                .verifiedEmail(true)
+                                .verifiedDevice(false)
+                                .build()
                 );
             }
             if(!session.getValidated()){

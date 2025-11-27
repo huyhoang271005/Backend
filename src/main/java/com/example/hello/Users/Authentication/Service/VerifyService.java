@@ -57,7 +57,8 @@ public class VerifyService {
                 var timeWait = 1*60*Math.pow(2, verificationTokensRepository.countByVerificationTypeAndTypeId(type, typeId));
                 //Nếu thời gian gửi yêu cầu cuối bé hơn thời gian chờ đá exception
                 if(secondsSinceLast < timeWait){
-                    throw new UnprocessableEntityException(StringApplication.FIELD.WAIT_AFTER + (int)(timeWait - secondsSinceLast) + StringApplication.FIELD.SECONDS);
+                    throw new UnprocessableEntityException(StringApplication.FIELD.WAIT_AFTER +
+                            (int)(timeWait - secondsSinceLast) + StringApplication.FIELD.SECONDS);
                 }
             }
         }
@@ -83,8 +84,11 @@ public class VerifyService {
                 .build();
         verificationTokensRepository.save(verificationToken);
         //Gửi email xác thực tới user dẫn tới trang xác thực
-        emailVerifyService.sendEmail(emailRequest.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL, userEmail.getUser().getProfile().getFullName(),
-                CorsConfig.BASE_URL + "/WebProject/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(), timeExpired + StringApplication.FIELD.HOURS);
+        emailVerifyService.sendEmail(emailRequest.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL, userEmail.getUser().getProfile().getFullName(),
+                CorsConfig.BASE_URL +
+                        "/WebProject/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                timeExpired + StringApplication.FIELD.HOURS);
         return new Response<>(
                 true,
                 StringApplication.SUCCESS.CHECK_EMAIL,
@@ -142,8 +146,12 @@ public class VerifyService {
                 .build();
         verificationTokensRepository.save(verificationToken);
         //Gửi email xác thực tới user
-        emailVerifyService.sendEmail(emailRequest.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE, userEmail.getUser().getProfile().getFullName(),
-                CorsConfig.BASE_URL + "/WebProject/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(), timeExpired + StringApplication.FIELD.HOURS);
+        emailVerifyService.sendEmail(emailRequest.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE,
+                userEmail.getUser().getProfile().getFullName(),
+                CorsConfig.BASE_URL +
+                        "/WebProject/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                timeExpired + StringApplication.FIELD.HOURS);
         return new Response<>(
                 true,
                 StringApplication.SUCCESS.CHECK_EMAIL,
@@ -180,7 +188,8 @@ public class VerifyService {
             }
             userRepository.save(user);
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_EMAIL);
+            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(),
+                    VerificationTypes.VERIFY_EMAIL);
             return new  Response<>(
                     true,
                     StringApplication.FIELD.VERIFIED_SUCCESS,
@@ -196,7 +205,8 @@ public class VerifyService {
             session.setValidated(true);
             sessionRepository.save(session);
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_DEVICE);
+            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(),
+                    VerificationTypes.VERIFY_DEVICE);
             return new  Response<>(
                     true,
                     StringApplication.FIELD.VERIFIED_SUCCESS,
@@ -231,8 +241,11 @@ public class VerifyService {
                 .build();
         verificationTokensRepository.save(verifyToken);
         //Gửi email dẫn tới trang thay đổi mật khẩu
-        emailVerifyService.sendEmail(userEmail.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD, user.getProfile().getFullName(),
-                CorsConfig.BASE_URL + "/WebProject/auth/change-password?token="+verifyToken.getVerificationTokenId(),
+        emailVerifyService.sendEmail(userEmail.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD,
+                user.getProfile().getFullName(),
+                CorsConfig.BASE_URL +
+                        "/WebProject/auth/change-password?token="+verifyToken.getVerificationTokenId(),
                 minExpired + StringApplication.FIELD.MINUTES);
         return new Response<>(
                 true,
@@ -245,7 +258,8 @@ public class VerifyService {
     public Response<Void> changePassword(PasswordRequest passwordRequest, String token){
         // Kiểm tra yêu cầu tồn tại không
         var tokenVerify = verificationTokensRepository.findByVerificationTokenId(UUID.fromString(token))
-                .orElseThrow(()-> new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID));
+                .orElseThrow(()->
+                        new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID));
         //Kiểm tra thời gian hết hạn
         if(LocalDateTime.now().isAfter(tokenVerify.getExpiredAt())) {
             throw new ConflictException(StringApplication.FIELD.REQUEST +  StringApplication.FIELD.EXPIRED);
@@ -255,7 +269,8 @@ public class VerifyService {
         user.setPassword(passwordEncoder.encode(passwordRequest.getPassword()));
         userRepository.save(user);
         //Xoá yêu cầu xác thực
-        verificationTokensRepository.deleteByUser_UserIdAndVerificationType(user.getUserId(), VerificationTypes.VERIFY_CHANGE_PASSWORD);
+        verificationTokensRepository.deleteByUser_UserIdAndVerificationType(user.getUserId(),
+                VerificationTypes.VERIFY_CHANGE_PASSWORD);
         return new Response<>(
                 true,
                 StringApplication.FIELD.CHANGE_PASSWORD + StringApplication.FIELD.SUCCESS,

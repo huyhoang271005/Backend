@@ -3,7 +3,7 @@ package com.example.hello.Infrastructure.Cache;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Users.User.Repository.UserRepository;
+import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

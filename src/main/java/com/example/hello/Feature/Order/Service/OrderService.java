@@ -1,0 +1,202 @@
+package com.example.hello.Feature.Order.Service;
+
+import com.example.hello.DataProjection.AttributeValueByVariantId;
+import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.Entity.Variant;
+import com.example.hello.Enum.OrderStatus;
+import com.example.hello.Enum.PaymentMethod;
+import com.example.hello.Feature.Order.DTO.OrderDTO;
+import com.example.hello.Feature.Order.DTO.OrderItemDTO;
+import com.example.hello.Feature.Order.DTO.OrderListDTO;
+import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
+import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
+import com.example.hello.Mapper.OrderMapper;
+import com.example.hello.Middleware.ListResponse;
+import com.example.hello.Middleware.Response;
+import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Repository.*;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class OrderService {
+    OrderRepository orderRepository;
+    ContactRepository contactRepository;
+    UserRepository userRepository;
+    VariantRepository variantRepository;
+    CartItemRepository cartItemRepository;
+    VariantValueRepository variantValueRepository;
+    OrderMapper orderMapper;
+
+    @Transactional
+    public Response<Void> addOrder(UUID userId, OrderDTO  orderDTO) {
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException(StringApplication.FIELD.USER +
+                        StringApplication.FIELD.NOT_EXIST)
+        );
+        var contact = contactRepository.findById(orderDTO.getContactId()).orElseThrow(
+                () -> new EntityNotFoundException(StringApplication.FIELD.CONTACT +
+                        StringApplication.FIELD.NOT_EXIST)
+        );
+        var variants = variantRepository.findByVariantIdIn(orderDTO.getOrderItemDTOList()
+                .stream()
+                .map(OrderItemDTO::getVariantId)
+                .toList())
+                .stream()
+                .collect(Collectors.toMap(Variant::getVariantId, Function.identity()));
+        if(variants.size() != orderDTO.getOrderItemDTOList().size()) {
+            throw new UnprocessableEntityException(StringApplication.FIELD.PRODUCT +
+                    StringApplication.FIELD.NOT_EXIST);
+        }
+        var order = orderMapper.toOrder(contact);
+        order.setPaymentMethod(orderDTO.getPaymentMethod());
+        if(orderDTO.getPaymentMethod() == PaymentMethod.COD){
+            order.setOrderStatus(OrderStatus.PENDING);
+        }
+        else {
+            order.setOrderStatus(OrderStatus.WAITING);
+        }
+        order.setUser(user);
+        var orderItem = orderDTO.getOrderItemDTOList().stream()
+                .map(orderItemDTO -> {
+                    var orderItemCurrent = orderMapper.toOrderItem(orderItemDTO);
+                    var variant = variants.get(orderItemDTO.getVariantId());
+                    orderItemCurrent.setPrice(variant.getPrice());
+                    orderItemCurrent.setOriginalPrice(variant.getOriginalPrice());
+                    orderItemCurrent.setVariant(variant);
+                    orderItemCurrent.setOrder(order);
+                    variant.setStock(variant.getStock() - orderItemDTO.getQuantity());
+                    variant.setSold(variant.getSold() + orderItemDTO.getQuantity());
+                    return orderItemCurrent;
+                })
+                .toList();
+        order.setOrderItems(orderItem);
+        orderRepository.save(order);
+        variantRepository.saveAll(variants.values());
+        var cartItemIds = new ArrayList<UUID>();
+        orderDTO.getOrderItemDTOList().forEach(orderItemDTO -> {
+            if(orderItemDTO.getVariantId() != null) {
+                cartItemIds.add(orderItemDTO.getVariantId());
+            }
+        });
+        cartItemRepository.deleteByCartItemIdIn(cartItemIds);
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                null
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Response<OrderDTO> getOrder(UUID userId, UUID orderId) {
+        var orders = orderRepository.getOrderInfo(userId, orderId)
+                .stream()
+                .collect(Collectors.groupingBy(orderInfo ->  orderInfo.getOrder().getOrderId()));
+        var order = orders.get(orderId).getFirst();
+        var attributeValue = variantValueRepository.getAttributeValuesVariantIdIn(orders.get(orderId)
+                        .stream()
+                        .map(OrderInfo::getVariantId)
+                        .toList())
+                .stream()
+                .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
+        var orderDTO = orderMapper.toOrderDTO(order.getOrder());
+        orderDTO.setOrderItemDTOList(orders.get(orderId)
+                .stream()
+                .map(orderInfo -> {
+                    var orderItemDTO = orderMapper.toOrderItemDTO(orderInfo);
+                    orderItemDTO.setAttributeValues(attributeValue.get(orderInfo.getVariantId())
+                            .stream()
+                            .map(AttributeValueByVariantId::getAttributeName)
+                            .toList());
+                    return orderItemDTO;
+                })
+                .toList());
+
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                orderDTO
+        );
+    }
+
+    private List<OrderListDTO> getOrderList(Page<OrderInfo> orderItems) {
+        var orders = orderItems.getContent()
+                .stream()
+                .collect(Collectors.groupingBy(orderInfo -> orderInfo.getOrder().getOrderId()));
+        var variantValues = variantValueRepository.getAttributeValuesVariantIdIn(orderItems.getContent()
+                        .stream()
+                        .map(OrderInfo::getVariantId)
+                        .distinct()
+                        .toList())
+                .stream()
+                .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
+        return orders.keySet()
+                .stream()
+                .map(uuid -> {
+                    var order = orders.get(uuid);
+                    return OrderListDTO.builder()
+                            .orderId(uuid)
+                            .orderStatus(order.getFirst().getOrder().getOrderStatus())
+                            .orderItemDTOList(order
+                                    .stream()
+                                    .map(orderInfo -> {
+                                        var orderItemDTO = orderMapper.toOrderItemDTO(orderInfo);
+                                        orderItemDTO.setAttributeValues(variantValues.get(orderInfo.getVariantId())
+                                                .stream()
+                                                .map(AttributeValueByVariantId::getAttributeName)
+                                                .toList());
+                                        return orderItemDTO;
+                                    })
+                                    .toList())
+                            .build();
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Response<ListResponse<OrderListDTO>> getOrders(UUID userId, Pageable pageable) {
+        var orderItems = orderRepository.getOrdersInfo(userId, pageable);
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                new ListResponse<>(
+                        orderItems.hasNext(),
+                        getOrderList(orderItems)
+                )
+        );
+    }
+
+    @Transactional
+    public Response<Void> cancelOrder(UUID userId, UUID orderId) {
+        var order = orderRepository.findByOrderIdAndUser_UserId((orderId), userId)
+                .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.ORDER +
+                        StringApplication.FIELD.NOT_EXIST));
+        String message;
+        if(order.getOrderStatus() ==  OrderStatus.WAITING) {
+            order.setOrderStatus(OrderStatus.CANCELED);
+            orderRepository.save(order);
+            message = StringApplication.FIELD.SUCCESS;
+        }
+        else {
+            message = StringApplication.FIELD.CANT_CANCEL;
+        }
+        return new Response<>(
+                true,
+                message,
+                null
+        );
+    }
+}

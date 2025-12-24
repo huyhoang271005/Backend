@@ -1,0 +1,77 @@
+package com.example.hello.Entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "product")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "product_id")
+    UUID productId;
+
+    @Column(name = "product_name")
+    String productName;
+
+    String description;
+
+    @Column(name = "image_id")
+    String imageId;
+
+    @Column(name = "image_url")
+    String imageUrl;
+
+    @Column(name = "original_price")
+    BigDecimal originalPrice;
+
+    BigDecimal price;
+
+    @Column(name = "total_sales")
+    @Builder.Default
+    Integer totalSales = 0;
+
+    @Column(name = "rating_avg")
+    @Builder.Default
+    Double ratingAvg = 0.0;
+
+    @Column(name = "rating_count")
+    @Builder.Default
+    Integer ratingCount = 0;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    Brand brand;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    Category category;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL)
+    List<AttributeValue> attributeValues;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    List<Variant> variants;
+}

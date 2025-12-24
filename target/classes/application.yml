@@ -9,6 +9,10 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:public.pem
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
   mail:
     host: smtp.gmail.com
     port: 587
@@ -30,5 +34,10 @@ cloudinary:
   cloud-name: ddbcvzxzq
   api-key: 784394426995282
   api-secret: FMKNG113EZDQDPrN_bLirgOQtfg
+vnpay:
+  tmnCode: VA19C43H
+  hashSecret: 6SODDKK52LN07PNR78P5MAMPTM37H98G
+  payUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  returnUrl: https://uncoagulative-tyrannisingly-eddie.ngrok-free.dev/auth/payment-return/vnpay
 server:
   port: 8080

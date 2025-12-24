@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FileUploadIOException.class)
     public ResponseEntity<Response<List<ErrorResponse>>> handleFileUploadIOException(FileUploadIOException e) {
-        log.error(e.getMessage());
+        log.error(e.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new Response<>(false, e.getMessage(),
                         List.of(new ErrorResponse(e.getMessage()))
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response<List<ErrorResponse>>> handleGeneric(Exception ex) {
-        log.error(ex.getMessage());
+        log.error(ex.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new Response<>(false, StringApplication.ERROR.INTERNAL_SERVER_ERROR,
                         List.of(new ErrorResponse(ex.getMessage()))

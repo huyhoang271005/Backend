@@ -1,6 +1,6 @@
 package com.example.hello.Infrastructure.Security;
 
-import com.example.hello.Users.Authentication.UserDetail.MyUserDetailsService;
+import com.example.hello.Feature.Authentication.UserDetail.MyUserDetailsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
-                        requests.requestMatchers("/auth/**").permitAll()
+                        requests.requestMatchers("/auth/**", "/websocket/**", "/app/**", "/topic/**")
+                                .permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(customAuthenticationEntryPoint)

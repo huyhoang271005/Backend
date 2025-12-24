@@ -4,12 +4,13 @@ import com.example.hello.Infrastructure.Cache.RoleCache;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
 import com.example.hello.Infrastructure.Cache.UserStatusCacheService;
 import com.example.hello.Infrastructure.Exception.ErrorResponse;
+import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Infrastructure.Cache.RolePermissionCacheService;
-import com.example.hello.Users.User.Enum.TokenName;
-import com.example.hello.Users.User.Enum.UserStatus;
+import com.example.hello.Enum.TokenName;
+import com.example.hello.Enum.UserStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    JwtService jwtService;
+    JwtComponent jwtComponent;
     ObjectMapper objectMapper;
     RolePermissionCacheService rolePermissionCacheService;
     RoleCache roleCache;
@@ -45,14 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        response.setContentType("application/json;charset=UTF-8");
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
                 String token = authHeader.substring(7).trim();
-                UUID userId = jwtService.getUserIdFromToken(token);
-                UUID sessionId = jwtService.getSessionIdFromToken(token);
-                TokenName tokenName = jwtService.getTokenNameFromToken(token);
+                UUID userId = jwtComponent.getUserIdFromToken(token);
+                UUID sessionId = jwtComponent.getSessionIdFromToken(token);
+                TokenName tokenName = jwtComponent.getTokenNameFromToken(token);
                 UserStatus userStatus = userStatusCacheService.getUserStatus(userId);
                 if(!tokenName.equals(TokenName.ACCESS_TOKEN)){
                     var res = new Response<>(

@@ -20,21 +20,27 @@ import java.util.Map;
 public class CloudinaryService {
     Cloudinary cloudinary;
 
-    public CloudinaryResponse uploadImage(final MultipartFile file, String folder) {
-        if(!isImage(file) && !file.isEmpty()) {
+
+    public CloudinaryResponse uploadImage(MultipartFile file, String folder) {
+        if(!isImage(file) && file.isEmpty()) {
             throw new FileUploadException(StringApplication.ERROR.UPLOAD_ERROR);
         }
         try {
-            Map result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", folder));
-            return new CloudinaryResponse((String) result.get("public_id"), (String) result.get("url"));
+            Map<?,?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", folder,
+                    "quality", "auto",
+                    "fetch_format", "auto",
+                    "width", 800,
+                    "crop", "limit"));
+            return new CloudinaryResponse((String) result.get("public_id"), (String) result.get("secure_url"));
         } catch (IOException e) {
-            throw new FileUploadIOException(StringApplication.ERROR.UPLOAD_IO_ERROR);
+            throw new FileUploadIOException(StringApplication.ERROR.UPLOAD_IO_ERROR + e.getMessage());
         }
     }
 
     public Boolean deleteImage(String publicId) {
         try {
-            Map result = cloudinary.uploader()
+            Map<?,?> result = cloudinary.uploader()
                     .destroy(publicId, ObjectUtils.emptyMap());
 
             return result.get("result").equals("ok");

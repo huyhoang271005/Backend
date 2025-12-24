@@ -8,6 +8,8 @@ public class StringApplication {
         public static final String CHECK_EMAIL = "Vui lòng kiểm tra email của bạn";
     }
     public static class ERROR {
+        public static final String NUMBER = "Số lượng phải lớn hơn 0";
+        public static final String MONEY = "Giá tiền phải lớn hơn 0";
         public static final String FORBIDDEN = "Không đủ quyền truy cập";
         public static final String NEW_DEVICE = "Phát hiện đăng nhập trên thiết bị mới";
         public static final String INPUT_INVALID = "Dữ liệu đầu vào không hợp lệ";
@@ -24,6 +26,15 @@ public class StringApplication {
     }
 
     public static class FIELD {
+        public static final String CANT_CANCEL = "Không thể huỷ";
+        public static final String ORDER = "Đơn hàng";
+        public static final String CART = "Giỏ hàng";
+        public static final String MAXIMUM = " đã đạt đến giới hạn";
+        public static final String CONTACT = "Liên hệ";
+        public static final String PRODUCT = "Sản phẩm";
+        public static final String ATTRIBUTE = "Thuộc tính";
+        public static final String BRAND = "Thương hiệu";
+        public static final String CATEGORY = "Danh mục";
         public static final String SESSION_LOGIN = "Phiên đăng nhập";
         public static final String USER = "Người dùng";
         public static final String CANT_REMOVE = "Không thể xoá";

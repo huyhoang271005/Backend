@@ -1,5 +1,6 @@
 package com.example.hello.Feature.User.Service;
 
+import com.example.hello.Feature.User.DTO.EmailResponse;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Middleware.Response;
@@ -25,7 +26,7 @@ public class EmailService {
     EmailRepository emailRepository;
 
     @Transactional
-    public Response<Void> addEmail(UUID userId, EmailRequest emailRequest) {
+    public Response<EmailResponse> addEmail(UUID userId, EmailRequest emailRequest) {
         //Kiểm tra tồn tại user
         var user = userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException(StringApplication.FIELD.USER + StringApplication.FIELD.NOT_EXIST)
@@ -45,7 +46,11 @@ public class EmailService {
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
-                null
+                EmailResponse.builder()
+                        .emailId(userEmail.getEmailId())
+                        .email(userEmail.getEmail())
+                        .validated(false)
+                        .build()
         );
     }
 

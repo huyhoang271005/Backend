@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,9 +25,9 @@ public class VerificationTokens {
     UUID verificationTokenId;
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
     @Column(name = "expired_at")
-    LocalDateTime expiredAt;
+    Instant expiredAt;
 
     @Column(name = "type_id")
     UUID typeId;

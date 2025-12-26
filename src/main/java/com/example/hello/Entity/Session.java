@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,11 +31,11 @@ public class Session {
 
     @Column(name = "last_login")
     @UpdateTimestamp
-    LocalDateTime lastLogin;
+    Instant lastLogin;
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id")

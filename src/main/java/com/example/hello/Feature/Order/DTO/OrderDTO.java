@@ -5,6 +5,7 @@ import com.example.hello.Enum.PaymentMethod;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class OrderDTO {
     PaymentMethod paymentMethod;
     List<OrderItemDTO> orderItemDTOList;
     OrderStatus orderStatus;
-    LocalDateTime createdAt;
-    LocalDateTime paymentAt;
+    Instant createdAt;
+    Instant paymentAt;
 
 }

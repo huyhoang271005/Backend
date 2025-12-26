@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,11 +55,11 @@ public class Product {
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    Instant updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")

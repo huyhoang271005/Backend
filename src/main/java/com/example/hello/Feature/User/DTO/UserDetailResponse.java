@@ -4,6 +4,7 @@ import com.example.hello.Enum.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +22,6 @@ public class UserDetailResponse {
     Gender gender;
     String imageUrl;
     LocalDate birthday;
-    LocalDateTime createdAt;
+    Instant createdAt;
     ExtendUserResponse extendUserResponse;
 }

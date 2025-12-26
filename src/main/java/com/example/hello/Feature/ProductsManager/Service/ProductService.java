@@ -38,7 +38,7 @@ public class ProductService {
     private void checkProductDTO(ProductDTO productDTO, Map<String, MultipartFile> images) {
         productDTO.getVariants().forEach(variant -> {
             if(images.get(variant.getImageName()) == null) {
-                throw new UnprocessableEntityException("Variant " + variant.getImageName() +" Image not found");
+                throw new UnprocessableEntityException("Variant " + variant.getImageName() +" not found");
             }
         });
         var attributeValueSize = productDTO.getAttributes().stream()

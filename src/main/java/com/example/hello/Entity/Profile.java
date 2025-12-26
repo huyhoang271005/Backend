@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -44,11 +45,11 @@ public class Profile {
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")

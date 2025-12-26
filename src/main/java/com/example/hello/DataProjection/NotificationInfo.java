@@ -1,5 +1,6 @@
 package com.example.hello.DataProjection;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,5 +10,5 @@ public interface NotificationInfo {
     String getMessage();
     String getLinkUrl();
     Boolean getIsRead();
-    LocalDateTime getCreatedAt();
+    Instant getCreatedAt();
 }

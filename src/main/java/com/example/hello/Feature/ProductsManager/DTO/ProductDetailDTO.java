@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -32,6 +33,6 @@ public class ProductDetailDTO {
     Integer totalSales;
     Double ratingAvg;
     Integer ratingCount;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    Instant createdAt;
+    Instant updatedAt;
 }

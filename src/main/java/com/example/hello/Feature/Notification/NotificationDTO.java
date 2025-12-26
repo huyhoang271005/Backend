@@ -3,6 +3,7 @@ package com.example.hello.Feature.Notification;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,5 +18,5 @@ public class NotificationDTO {
     String message;
     Boolean isRead;
     String linkUrl;
-    LocalDateTime createdAt;
+    Instant createdAt;
 }

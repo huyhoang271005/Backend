@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public class Cart {
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)

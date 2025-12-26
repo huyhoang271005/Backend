@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +30,7 @@ public class CartItem {
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    Instant updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")

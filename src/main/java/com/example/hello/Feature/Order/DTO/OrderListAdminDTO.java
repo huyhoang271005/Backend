@@ -1,11 +1,10 @@
 package com.example.hello.Feature.Order.DTO;
 
 import com.example.hello.Enum.OrderStatus;
-import com.example.hello.Enum.PaymentMethod;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class OrderListAdminDTO {
     String contactName;
     String phone;
     String address;
-    LocalDateTime createdAt;
-    LocalDateTime paymentAt;
+    Instant createdAt;
+    Instant paymentAt;
     List<OrderItemDTO> orderItemDTOList;
 }

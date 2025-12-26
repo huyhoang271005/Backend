@@ -23,7 +23,7 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
             s.device d
             join s.user u
         where u.userId = :userId
-        order by s.createdAt desc
+        order by s.lastLogin desc
        """)
     Page<SessionInfo> getSessions(UUID userId, Pageable pageable);
 }

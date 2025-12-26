@@ -5,6 +5,7 @@ import com.example.hello.Enum.UserStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,6 @@ public class ProfileResponse {
     String roleName;
     String imageUrl;
     LocalDate birthday;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    Instant createdAt;
+    Instant updatedAt;
 }

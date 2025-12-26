@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.checkerframework.checker.units.qual.N;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class Notification {
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime createdAt;
+    Instant createdAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "notification", cascade = CascadeType.ALL)
     List<UserNotification> userNotifications;

@@ -3,6 +3,7 @@ package com.example.hello.Feature.Contact;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,5 +18,5 @@ public class ContactDTO {
     String contactName;
     String phone;
     String address;
-    LocalDateTime updatedAt;
+    Instant updatedAt;
 }

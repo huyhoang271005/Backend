@@ -5,7 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ public class Category {
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    Instant updatedAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.MERGE)
     List<Product> products;

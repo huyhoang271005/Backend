@@ -16,31 +16,30 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("auth/carts")
+@RequestMapping("carts")
 public class CartController {
     CartService cartService;
-    UUID id = UUID.fromString("7dbdf7a1-4322-408c-853a-e2fdc3fd2f2a");
     @PostMapping
     public ResponseEntity<?> addCartItem(@AuthenticationPrincipal UUID userId,
                                          @Valid @RequestBody CartItemDTO cartItemDTO){
-        return ResponseEntity.ok(cartService.addCartItem(id, cartItemDTO));
+        return ResponseEntity.ok(cartService.addCartItem(userId, cartItemDTO));
     }
 
     @GetMapping
     public ResponseEntity<?> getCartItems(@AuthenticationPrincipal UUID userId,
                                           Pageable pageable){
-        return ResponseEntity.ok(cartService.getCart(id, pageable));
+        return ResponseEntity.ok(cartService.getCart(userId, pageable));
     }
 
     @PutMapping
     public ResponseEntity<?> updateCartItem(@AuthenticationPrincipal UUID userId,
                                             @Valid @RequestBody CartItemDTO cartItemDTO){
-        return ResponseEntity.ok(cartService.updateCartItem(id, cartItemDTO));
+        return ResponseEntity.ok(cartService.updateCartItem(userId, cartItemDTO));
     }
 
     @PostMapping("delete")
     public ResponseEntity<?> deleteCartItem(@AuthenticationPrincipal UUID userId,
                                             @RequestBody List<UUID> cartItemIds) {
-        return ResponseEntity.ok(cartService.deleteCartItem(id, cartItemIds));
+        return ResponseEntity.ok(cartService.deleteCartItem(userId, cartItemIds));
     }
 }

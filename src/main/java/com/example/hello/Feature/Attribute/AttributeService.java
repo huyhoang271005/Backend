@@ -10,12 +10,14 @@ import com.example.hello.Repository.AttributeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +33,7 @@ public class AttributeService {
         attributeRepository.save(Attribute.builder()
                 .attributeName(attributeDTO.getAttributeName())
                 .build());
+        log.info("Attribute added successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -44,6 +47,7 @@ public class AttributeService {
     @Transactional(readOnly = true)
     public Response<ListResponse<AttributeDTO>> getAllAttributes(Pageable pageable) {
         var attributes = attributeRepository.findAllByPageable(pageable);
+        log.info("Get all attributes successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -68,6 +72,7 @@ public class AttributeService {
                         .attributeId(attributeDTO.getAttributeId())
                         .attributeName(attributeDTO.getAttributeName())
                 .build());
+        log.info("Attribute updated successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -81,6 +86,7 @@ public class AttributeService {
                 ()-> new  EntityNotFoundException(StringApplication.FIELD.ATTRIBUTE + StringApplication.FIELD.NOT_EXIST)
         );
         attributeRepository.deleteById(attributeId);
+        log.info("Attribute deleted successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

@@ -19,7 +19,7 @@ public class RolePermissionController {
     RolePermissionService rolePermissionService;
 
     @PreAuthorize("hasAuthority('GET_PERMISSION')")
-    @GetMapping("permission")
+    @GetMapping("permissions")
     public ResponseEntity<?> getAllRolePermissions() {
         return ResponseEntity.ok(rolePermissionService.getAllPermissions());
     }
@@ -31,8 +31,8 @@ public class RolePermissionController {
     }
 
     @PreAuthorize("hasAuthority('DELETE_ROLE_PERMISSION')")
-    @DeleteMapping("role-permission")
-    public ResponseEntity<?> deleteRolePermission(@RequestParam UUID rolePermissionId) {
+    @DeleteMapping("role-permission/{rolePermissionId}")
+    public ResponseEntity<?> deleteRolePermission(@PathVariable UUID rolePermissionId) {
         return ResponseEntity.ok(rolePermissionService.deleteRolePermission(rolePermissionId));
     }
 
@@ -49,14 +49,14 @@ public class RolePermissionController {
     }
 
     @PreAuthorize("hasAuthority('ADD_ROLE')")
-    @PostMapping("role")
+    @PostMapping("roles")
     public ResponseEntity<?>  addRole(@RequestBody RoleRequest roleRequest) {
         return ResponseEntity.ok(rolePermissionService.addRole(roleRequest.getRoleName()));
     }
 
     @PreAuthorize("hasAuthority('DELETE_ROLE')")
-    @DeleteMapping("role")
-    public ResponseEntity<?> deleteRole(@RequestParam UUID roleId) {
+    @DeleteMapping("roles/{roleId}")
+    public ResponseEntity<?> deleteRole(@PathVariable UUID roleId) {
         return ResponseEntity.ok(rolePermissionService.deleteRole(roleId));
     }
 }

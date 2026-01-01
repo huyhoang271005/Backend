@@ -21,6 +21,7 @@ import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -67,11 +69,12 @@ public class RegisterService {
             CloudinaryResponse result = cloudinaryService.uploadImage(avatar, "user1");
             userProfile.setImageUrl(result.getUrl());
             userProfile.setImageId(result.getPublicId());
+            log.info("Image uploaded successfully");
         }
         userProfile.setGender(registerRequest.getGender());
         userProfile.setUser(user);
         user.setProfile(userProfile);
-
+        log.info("Profile uploaded successfully");
         //Set entity email
         Email email = Email.builder()
                 .email(registerRequest.getEmail())
@@ -80,11 +83,13 @@ public class RegisterService {
                 .build();
         user.setEmails(List.of(email));
         user.setUserStatus(UserStatus.PENDING);
+        log.info("User status is PENDING");
 
         //Set role cho user nếu không tìm thấy role này thì đã exception
         Role role = roleRepository.findByRoleName(RoleName.USER.name()).orElseThrow(
                 ()-> new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR)
         );
+        log.info("Role set is USER");
         user.setRole(role);
         userRepository.save(user);
         //Tìm device nếu không tồn tại tạo device mới và lưu
@@ -96,6 +101,7 @@ public class RegisterService {
                                         .deviceType(deviceType)
                                         .build());
         deviceRepository.save(device);
+        log.info("Find or created device");
         //Lưu session dựa trên device và cho phép nó đăng nhập và đã được xác thực
         var session = Session.builder()
                 .user(user)
@@ -104,6 +110,7 @@ public class RegisterService {
                 .revoked(false)
                 .validated(true)
                 .build();
+        log.info("Session created successfully");
         sessionRepository.save(session);
         return new Response<>(
                 true,

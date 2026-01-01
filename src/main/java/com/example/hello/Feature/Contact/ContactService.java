@@ -11,11 +11,13 @@ import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,6 +28,7 @@ public class ContactService {
 
     public Response<ListResponse<ContactDTO>> getContacts(UUID userId, Pageable pageable) {
         var contacts =  contactRepository.findAllByUser_UserIdOrderByUpdatedAtDesc(userId, pageable);
+        log.info("Found contacts successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -43,6 +46,7 @@ public class ContactService {
         var contact = contactMapper.toContact(contactDTO);
         contact.setUser(user);
         contactRepository.save(contact);
+        log.info("Add contact successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -60,6 +64,7 @@ public class ContactService {
         }
         contactMapper.updateContact(contactDTO, contact);
         contactRepository.save(contact);
+        log.info("Update contact successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -73,6 +78,7 @@ public class ContactService {
                 StringApplication.FIELD.NOT_EXIST)
         );
         if(!contact.getUser().getUserId().equals(userId)) {
+            log.info("User contact not match in db");
             throw new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID);
         }
         contactRepository.delete(contact);

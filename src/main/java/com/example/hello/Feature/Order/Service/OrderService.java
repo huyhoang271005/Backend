@@ -8,6 +8,7 @@ import com.example.hello.Enum.PaymentMethod;
 import com.example.hello.Feature.Order.DTO.OrderDTO;
 import com.example.hello.Feature.Order.DTO.OrderItemDTO;
 import com.example.hello.Feature.Order.DTO.OrderListDTO;
+import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.OrderMapper;
@@ -18,6 +19,7 @@ import com.example.hello.Repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,10 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -42,7 +46,7 @@ public class OrderService {
     OrderMapper orderMapper;
 
     @Transactional
-    public Response<Void> addOrder(UUID userId, OrderDTO  orderDTO) {
+    public Response<Map<String, UUID>> addOrder(UUID userId, OrderDTO  orderDTO) {
         var user = userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException(StringApplication.FIELD.USER +
                         StringApplication.FIELD.NOT_EXIST)
@@ -51,13 +55,20 @@ public class OrderService {
                 () -> new EntityNotFoundException(StringApplication.FIELD.CONTACT +
                         StringApplication.FIELD.NOT_EXIST)
         );
+        if(orderDTO.getOrderItemDTOList().isEmpty()){
+            log.info("Order item is empty");
+            throw new ConflictException(StringApplication.FIELD.REQUEST +
+                    StringApplication.FIELD.INVALID);
+        }
         var variants = variantRepository.findByVariantIdIn(orderDTO.getOrderItemDTOList()
                 .stream()
                 .map(OrderItemDTO::getVariantId)
                 .toList())
                 .stream()
                 .collect(Collectors.toMap(Variant::getVariantId, Function.identity()));
+        log.info("Variant found successfully");
         if(variants.size() != orderDTO.getOrderItemDTOList().size()) {
+            log.error("Variant size in db different variant size client ");
             throw new UnprocessableEntityException(StringApplication.FIELD.PRODUCT +
                     StringApplication.FIELD.NOT_EXIST);
         }
@@ -69,6 +80,7 @@ public class OrderService {
         else {
             order.setOrderStatus(OrderStatus.WAITING);
         }
+        log.info("Order generated");
         order.setUser(user);
         var orderItem = orderDTO.getOrderItemDTOList().stream()
                 .map(orderItemDTO -> {
@@ -86,6 +98,7 @@ public class OrderService {
         order.setOrderItems(orderItem);
         orderRepository.save(order);
         variantRepository.saveAll(variants.values());
+        log.info("Order item generated successfully");
         var cartItemIds = new ArrayList<UUID>();
         orderDTO.getOrderItemDTOList().forEach(orderItemDTO -> {
             if(orderItemDTO.getVariantId() != null) {
@@ -93,10 +106,11 @@ public class OrderService {
             }
         });
         cartItemRepository.deleteByCartItemIdIn(cartItemIds);
+        log.info("Deleted cart items successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
-                null
+                Map.of("orderId", order.getOrderId())
         );
     }
 
@@ -105,6 +119,7 @@ public class OrderService {
         var orders = orderRepository.getOrderInfo(userId, orderId)
                 .stream()
                 .collect(Collectors.groupingBy(orderInfo ->  orderInfo.getOrder().getOrderId()));
+        log.info("Orders found successfully");
         var order = orders.get(orderId).getFirst();
         var attributeValue = variantValueRepository.getAttributeValuesVariantIdIn(orders.get(orderId)
                         .stream()
@@ -112,6 +127,7 @@ public class OrderService {
                         .toList())
                 .stream()
                 .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
+        log.info("Attribute values found successfully");
         var orderDTO = orderMapper.toOrderDTO(order.getOrder());
         orderDTO.setOrderItemDTOList(orders.get(orderId)
                 .stream()
@@ -143,6 +159,7 @@ public class OrderService {
                         .toList())
                 .stream()
                 .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
+        log.info("Variant values found successfully");
         return orders.keySet()
                 .stream()
                 .map(uuid -> {
@@ -184,6 +201,7 @@ public class OrderService {
         var order = orderRepository.findByOrderIdAndUser_UserId((orderId), userId)
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.ORDER +
                         StringApplication.FIELD.NOT_EXIST));
+        log.info("Order found successfully");
         String message;
         if(order.getOrderStatus() ==  OrderStatus.WAITING) {
             order.setOrderStatus(OrderStatus.CANCELED);
@@ -193,6 +211,7 @@ public class OrderService {
         else {
             message = StringApplication.FIELD.CANT_CANCEL;
         }
+        log.info("Update order status successfully");
         return new Response<>(
                 true,
                 message,

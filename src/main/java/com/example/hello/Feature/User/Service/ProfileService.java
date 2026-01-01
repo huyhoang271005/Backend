@@ -15,6 +15,7 @@ import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -49,6 +51,7 @@ public class ProfileService {
         profileResponse.setEmails(emails);
         profileResponse.setUsername(user.getUsername());
         profileResponse.setRoleName(user.getRole().getRoleName());
+        log.info("Found profile successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -84,6 +87,7 @@ public class ProfileService {
         }
         user.setProfile(profile);
         userRepository.save(user);
+        log.info("Profile updated successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

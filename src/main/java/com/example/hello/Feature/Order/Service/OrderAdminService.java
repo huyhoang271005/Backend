@@ -13,6 +13,7 @@ import com.example.hello.Repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +33,7 @@ public class OrderAdminService {
     @Transactional(readOnly = true)
     public Response<ListResponse<OrderListAdminDTO>> getOrdersAdmin(OrderStatus orderStatus, Pageable pageable) {
         var orderItems = orderRepository.getOrdersAdminInfo(pageable, orderStatus);
+        log.info("Found orders admin successfully");
         var variantValues = variantValueRepository.getAttributeValuesVariantIdIn(orderItems
                 .stream()
                 .map(OrderInfo::getVariantId)
@@ -38,6 +41,7 @@ public class OrderAdminService {
                 .toList())
                 .stream()
                 .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
+        log.info("Found variant values successfully");
         var orders = orderItems.getContent().stream()
                 .collect(Collectors.groupingBy(orderInfo -> orderInfo.getOrder().getOrderId()));
         var orderListAdmin = orders.keySet()
@@ -74,12 +78,14 @@ public class OrderAdminService {
                 () -> new EntityNotFoundException(StringApplication.FIELD.ORDER +
                         StringApplication.FIELD.NOT_EXIST)
         );
+        log.info("Found order admin successfully");
         if(orderStatus == OrderStatus.CONFIRMED) {
             order.setOrderStatus(OrderStatus.DELIVERING);
         }
         else {
             order.setOrderStatus(OrderStatus.CANCELED);
         }
+        log.info("Update order status successfully");
         orderRepository.save(order);
         return new Response<>(
                 true,

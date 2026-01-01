@@ -123,8 +123,10 @@ public class AuthController {
     }
 
     @PostMapping("send-verify-email")
-    ResponseEntity<?> sendVerifyEmail (@Valid @RequestBody EmailRequest emailRequest) {
-        return ResponseEntity.ok(verifyService.sendVerifyEmail(emailRequest));
+    ResponseEntity<?> sendVerifyEmail (HttpServletRequest request,
+                                       @Valid @RequestBody EmailRequest emailRequest) {
+        String ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
+        return ResponseEntity.ok(verifyService.sendVerifyEmail(emailRequest, ip));
     }
 
     @PostMapping("send-verify-device")
@@ -158,8 +160,10 @@ public class AuthController {
     }
 
     @PostMapping("send-verify-change-password")
-    ResponseEntity<?> sendVerifyChangePassword(@Valid @RequestBody EmailRequest emailRequest) {
-        return ResponseEntity.ok(verifyService.sendVerifyChangePassword(emailRequest));
+    ResponseEntity<?> sendVerifyChangePassword(HttpServletRequest request,
+                                               @Valid @RequestBody EmailRequest emailRequest) {
+        String ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
+        return ResponseEntity.ok(verifyService.sendVerifyChangePassword(emailRequest, ip));
     }
 
     @PostMapping("verify-change-password")

@@ -18,6 +18,7 @@ import com.example.hello.Repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -45,12 +47,16 @@ public class ProductDetailService {
                 ()-> new EntityNotFoundException(StringApplication.FIELD.PRODUCT +
                         StringApplication.FIELD.NOT_EXIST)
         );
+        log.info("Found product detail successfully");
         var attributeValues = attributeValueRepository.getProductAttributes(List.of(productId)).stream()
                 .collect(Collectors.groupingBy(ProductAttributesInfo::getAttributeId));
+        log.info("Found attribute values successfully");
         var variants = cartItemRepository.getProductVariants(List.of(productId));
+        log.info("Found variant values successfully");
         var variantValues = variantValueRepository.getVariantValueInfo(List.of(productId))
                 .stream()
                 .collect(Collectors.groupingBy(VariantValueInfo::getVariantId));
+        log.info("Group by variant values successfully");
         var productDetailResponse = ProductDetailResponse.builder()
                 .productDetailDTO(productMapper.toProductDTO(product))
                 .attributeDTOList(attributeValues.keySet().stream()
@@ -93,6 +99,7 @@ public class ProductDetailService {
                 .and(ProductSpecification.hasBrand(brandId))
                 .and(ProductSpecification.betweenPrice(minPrice, maxPrice));
         var productPage = productRepository.findAll(specification, pageable);
+        log.info("Found product list successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

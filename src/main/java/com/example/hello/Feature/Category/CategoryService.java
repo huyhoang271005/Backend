@@ -10,12 +10,14 @@ import com.example.hello.Repository.CategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -28,6 +30,7 @@ public class CategoryService {
         if(result) {
             throw new ConflictException(StringApplication.FIELD.CATEGORY + StringApplication.FIELD.EXISTED);
         }
+        log.info("Adding new category successfully");
         categoryRepository.save(Category.builder()
                 .categoryId(categoryDTO.getCategoryId())
                 .categoryName(categoryDTO.getCategoryName())
@@ -47,6 +50,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public Response<ListResponse<CategoryDTO>> findAllCategories(Pageable pageable) {
         var categories = categoryRepository.getAll(pageable);
+        log.info("Finding all categories successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -73,6 +77,7 @@ public class CategoryService {
                 .categoryName(categoryDTO.getCategoryName())
                 .description(categoryDTO.getDescription())
                 .build());
+        log.info("Update category successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -86,6 +91,7 @@ public class CategoryService {
                 ()-> new  EntityNotFoundException(StringApplication.FIELD.CATEGORY + StringApplication.FIELD.NOT_EXIST)
         );
         categoryRepository.delete(category);
+        log.info("Remove category successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

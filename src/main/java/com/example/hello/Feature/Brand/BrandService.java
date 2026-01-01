@@ -10,12 +10,14 @@ import com.example.hello.Repository.BrandRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -32,6 +34,7 @@ public class BrandService {
                 .brandName(brandDTO.getBrandName())
                 .description(brandDTO.getDescription())
                 .build());
+        log.info("Brand added successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -46,6 +49,7 @@ public class BrandService {
     @Transactional(readOnly = true)
     public Response<ListResponse<BrandDTO>> getAllBrands(Pageable pageable) {
         var list = brandRepository.findAllByPageable(pageable);
+        log.info("Brands found successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -72,6 +76,7 @@ public class BrandService {
                 .brandName(brandDTO.getBrandName())
                 .description(brandDTO.getDescription())
                 .build());
+        log.info("Brand updated successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -85,6 +90,7 @@ public class BrandService {
                 ()-> new EntityNotFoundException(StringApplication.FIELD.BRAND + StringApplication.FIELD.NOT_EXIST)
         );
         brandRepository.delete(brand);
+        log.info("Brand deleted successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

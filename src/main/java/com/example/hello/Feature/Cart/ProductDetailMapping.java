@@ -10,6 +10,7 @@ import com.example.hello.Repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
@@ -28,17 +30,23 @@ public class ProductDetailMapping {
     public List<CartDTO> mappingProductsDetail(Map<UUID,List<ProductInfo>> products){
         var productIds = products.keySet()
                 .stream().toList();
+        log.info("Get product id successfully");
         var attributeValuesCurrent = attributeValueRepository.getProductAttributes(productIds);
+        log.info("Found attribute values successfully");
         var productAttributeValues = attributeValuesCurrent.stream()
                 .collect(Collectors.groupingBy(ProductAttributesInfo::getProductId));
+        log.info("Group by attribute values successfully");
         var productVariants = cartItemRepository.getProductVariants(productIds)
                 .stream()
                 .collect(Collectors.groupingBy(VariantInfo::getProductId));
+        log.info("Found and group by variant successfully");
         var productVariantValues = variantValueRepository.getVariantValueInfo(productIds)
                 .stream()
                 .collect(Collectors.groupingBy(VariantValueInfo::getProductId));
+        log.info("Found and group by variant values successfully");
         var productCartItem = cartItemRepository.getCartItemByProductId(productIds).stream()
                 .collect(Collectors.groupingBy(CartItemInfo::getProductId));
+        log.info("Found and group by cart item successfully");
         return productIds.stream()
                 .map(productId -> {
                     var variants = productVariants.get(productId);

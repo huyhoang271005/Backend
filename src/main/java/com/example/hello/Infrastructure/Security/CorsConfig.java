@@ -1,5 +1,7 @@
 package com.example.hello.Infrastructure.Security;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -9,14 +11,16 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.List;
 
 @Configuration
+@FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class CorsConfig {
-    public static String BASE_URL= "https://huyhoang271005.github.io";
+    static String SUBDOMAIN = "https://huyhoang271005.github.io";
+    public static String BASE_URL= SUBDOMAIN + "/WebProject";
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(List.of(
-            BASE_URL
+            SUBDOMAIN
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

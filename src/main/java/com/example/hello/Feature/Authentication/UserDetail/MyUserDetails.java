@@ -1,21 +1,21 @@
 package com.example.hello.Feature.Authentication.UserDetail;
 
 import com.example.hello.Entity.Email;
+import com.example.hello.Entity.Role;
 import com.example.hello.Enum.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public record MyUserDetails(Email email) implements UserDetails {
+public record MyUserDetails(Email email, List<String> permissions) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        var role = email.getUser().getRole();
-        return role.getRolePermission().stream()
-                .map(rolePermission -> rolePermission.getPermission().getPermissionName())
+        return permissions.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
     }

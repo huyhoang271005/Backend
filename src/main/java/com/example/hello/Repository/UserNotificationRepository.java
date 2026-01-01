@@ -32,4 +32,6 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
             where un.user.userId = :userId and un.userNotificationId in :userNotificationIds
             """)
     void updateUserNotifications(UUID userId, List<UUID> userNotificationIds);
+
+    Integer countByUser_UserIdAndIsRead(UUID userId, Boolean isRead);
 }

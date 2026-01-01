@@ -35,7 +35,7 @@ public class SessionController {
         return ResponseEntity.ok(sessionService.deleteSession(userId, sessionId));
     }
 
-    @PreAuthorize("hasAuthority('LOGOUT_USER_ALL')")
+    @PreAuthorize("hasAuthority('LOGOUT_USER_ADMIN')")
     @GetMapping("logout-all/{userId}")
     ResponseEntity<?> logoutUserAll(@PathVariable UUID userId) {
         return ResponseEntity.ok(sessionService.logOutAllSession(userId, null));

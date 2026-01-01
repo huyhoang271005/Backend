@@ -85,7 +85,7 @@ public class AddVariantService {
 
         // SAVE tất cả AttributeValues một lần
         attributeValueRepository.saveAll(attributeValues);
-
+        log.info("Attribute values successfully saved");
         return attributeValueMap;
     }
 
@@ -124,7 +124,7 @@ public class AddVariantService {
         }
 
         variantRepository.saveAll(variants);
-
+        log.info("Variant successfully saved");
         return variantMap;
     }
 
@@ -152,6 +152,7 @@ public class AddVariantService {
             variantValues.add(variantValue);
         }
         variantValueRepository.saveAll(variantValues);
+        log.info("Variant values successfully saved");
     }
 
     private void cleanupUploadedImages(List<String> publicIds) {
@@ -159,5 +160,6 @@ public class AddVariantService {
             return;
         }
         publicIds.forEach(cloudinaryService::deleteImage);
+        log.info("Image failure successfully cleaned");
     }
 }

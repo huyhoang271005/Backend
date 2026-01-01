@@ -7,24 +7,22 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("auth/payment")
+@RequestMapping("payment")
 @RequiredArgsConstructor
 public class PaymentController {
 
     VnPayService vnPayService;
-    UUID id = UUID.fromString("22fe0072-d200-4ec4-a90a-d6e56d782f08");
 
-    @GetMapping("/vnpay")
-    public ResponseEntity<Void> pay() throws Exception {
-        String url = vnPayService.createPaymentUrl(id, 100000);
+    @GetMapping("/vn-pay/{orderId}")
+    public ResponseEntity<Void> pay(@AuthenticationPrincipal UUID userId, @PathVariable UUID orderId) {
+        String url = vnPayService.createPaymentUrl(userId, orderId);
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, url)
                 .build();

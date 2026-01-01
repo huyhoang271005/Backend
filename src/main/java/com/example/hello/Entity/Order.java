@@ -47,6 +47,9 @@ public class Order {
     @Column(name = "payment_at")
     Instant paymentAt;
 
+    @Column(name = "payment_id")
+    String paymentId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     User user;

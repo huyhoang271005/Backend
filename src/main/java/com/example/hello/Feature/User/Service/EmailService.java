@@ -12,12 +12,14 @@ import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -43,6 +45,7 @@ public class EmailService {
                 .user(user)
                 .build();
         emailRepository.save(userEmail);
+        log.info("Email generated successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -68,11 +71,13 @@ public class EmailService {
                 .toList();
         //Nếu email đã xác thực < 2 đá exception
         if(listEmail.size() < 2 && userEmail.getValidated()) {
+            log.error("Email validated < 2");
             throw new ConflictException(StringApplication.ERROR.VERIFIED_EMAIL_MUST_EXIST);
         }
         //Xoá email
         user.getEmails().remove(userEmail);
         emailRepository.delete(userEmail);
+        log.info("Email deleted successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

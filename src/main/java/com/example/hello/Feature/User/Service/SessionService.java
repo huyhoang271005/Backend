@@ -14,12 +14,14 @@ import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -41,6 +43,7 @@ public class SessionService {
                     return sessionResponse;
                 })
                 .toList();
+        log.info("Found sessions successfully");
         return  new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -62,10 +65,12 @@ public class SessionService {
                 .forEach(session -> {
             if(!session.getSessionId().equals(sessionId)){
                 sessionCacheService.updateRevoked(session.getSessionId(), true);
+                log.info("Update cache session successfully");
                 session.setRevoked(true);
             }
         });
         userRepository.save(user);
+        log.info("Logout all session successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -82,7 +87,9 @@ public class SessionService {
         //Thu hồi quyền đăng nhập
         session.setRevoked(true);
         sessionCacheService.updateRevoked(sessionId, true);
+        log.info("Logout session cache successfully");
         sessionRepository.save(session);
+        log.info("Logout session successfully");
         return new  Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -96,9 +103,11 @@ public class SessionService {
                 () -> new EntityNotFoundException(StringApplication.FIELD.SESSION_LOGIN + StringApplication.FIELD.NOT_EXIST)
         );
         if(!session.getUser().getUserId().equals(userId)){
+            log.error("User id client not match user id in db");
             throw new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID);
         }
         sessionRepository.delete(session);
+        log.info("Delete session successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

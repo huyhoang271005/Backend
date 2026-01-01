@@ -12,6 +12,6 @@ import java.util.UUID;
 public interface VerificationTokensRepository extends JpaRepository<VerificationTokens, UUID> {
     Optional<VerificationTokens> findByVerificationTokenId(UUID verificationTokenId);
     int countByVerificationTypeAndTypeId(VerificationTypes type, UUID typeId);
-    List<VerificationTokens> findByVerificationTypeAndTypeId(VerificationTypes type, UUID typeId);
+    List<VerificationTokens> findByVerificationTypeAndTypeIdOrderByCreatedAtDesc(VerificationTypes type, UUID typeId);
     void deleteByUser_UserIdAndVerificationType(UUID userId, VerificationTypes type);
 }

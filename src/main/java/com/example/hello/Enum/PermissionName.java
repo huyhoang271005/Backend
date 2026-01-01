@@ -1,7 +1,7 @@
 package com.example.hello.Enum;
 
 public enum PermissionName {
-    ADD_EMAIL_USER,
+    ADD_EMAIL_ADMIN,
     GET_ROLE,
     ADD_ROLE,
     DELETE_ROLE,
@@ -9,10 +9,10 @@ public enum PermissionName {
     GET_ROLE_PERMISSION,
     ADD_ROLE_PERMISSION,
     DELETE_ROLE_PERMISSION,
-    GET_USER_EXTEND,
-    UPDATE_USER_EXTEND,
+    GET_USER_ADMIN,
+    UPDATE_USER_ADMIN,
     GET_USER_STATUS,
-    LOGOUT_USER_ALL,
+    LOGOUT_USER_ADMIN,
     ADD_ATTRIBUTE,
     UPDATE_ATTRIBUTE,
     DELETE_ATTRIBUTE,
@@ -22,4 +22,11 @@ public enum PermissionName {
     ADD_CATEGORY,
     UPDATE_CATEGORY,
     DELETE_CATEGORY,
+    GET_PRODUCT_ADMIN,
+    ADD_PRODUCT,
+    UPDATE_PRODUCT,
+    DELETE_PRODUCT,
+    ADD_VARIANT,
+    UPDATE_VARIANT,
+    DELETE_VARIANT,
 }

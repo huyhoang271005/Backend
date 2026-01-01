@@ -18,12 +18,14 @@ import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -48,14 +50,17 @@ public class RolePermissionService {
                 .permission(entityManager.getReference(Permission.class, rolePermissionRequest.getPermissionId()))
                 .role(entityManager.getReference(Role.class,  rolePermissionRequest.getRoleId()))
                 .build();
+        log.info("Role permission successfully added");
         rolePermissionRepository.save(rolePermission);
         //Lưu vào cache chức vụ này
         rolePermissionCacheService.invalidatePermissionCache(rolePermission.getRole().getRoleId());
+        log.info("Role permission cache successfully added");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
                 RolePermissionResponse.builder()
                         .rolePermissionId(rolePermission.getRolePermissionId())
+                        .permissionName(rolePermission.getPermission().getPermissionName())
                         .build()
         );
     }
@@ -64,6 +69,7 @@ public class RolePermissionService {
     public Response<List<UserRoleResponse>> getRolePermission() {
         //Tìm tất cả quyền cho các chức vụ và map và response
         var userRole = roleRepository.findAll();
+        log.info("Found all role permissions successfully");
         var userRoleResponse = userRole.stream()
                 .map(userRoleEntity -> new UserRoleResponse(
                         userRoleEntity.getRoleId(),
@@ -92,12 +98,15 @@ public class RolePermissionService {
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.ADD_ROLE_PERMISSION.name()))
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.GET_ROLE_PERMISSION.name())
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.GET_PERMISSION.name())) {
+            log.error("Cant delete role permission {}", rolePermission.getPermission().getPermissionName());
             throw new ConflictException(StringApplication.FIELD.CANT_REMOVE);
         }
         //Xoá quyền của chức vụ này
         rolePermissionRepository.deleteById(rolePermissionId);
+        log.info("Role permission successfully deleted");
         //Xoá chức vụ này trong cache
         rolePermissionCacheService.invalidatePermissionCache(rolePermission.getRole().getRoleId());
+        log.info("Role permission cache successfully deleted");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -107,6 +116,7 @@ public class RolePermissionService {
     @Transactional(readOnly = true)
     public Response<List<RoleResponse>> getRole() {
         //Trả về danh sách các chức vụ
+        log.info("Found all roles successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -130,12 +140,15 @@ public class RolePermissionService {
                 .roleName(roleName)
                 .build();
         roleRepository.save(userRole);
+        log.info("Role successfully added");
         rolePermissionCacheService.invalidatePermissionCache(userRole.getRoleId());
+        log.info("Role cache successfully added");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
                 UserRoleResponse.builder()
                         .roleId(userRole.getRoleId())
+                        .roleName(roleName)
                         .build()
         );
     }
@@ -148,12 +161,15 @@ public class RolePermissionService {
         );
         //Kiểm tra nếu thuộc 2 role bên dưới thì không xoá được
         if(userRole.getRoleName().equals(RoleName.ADMIN.name()) || userRole.getRoleName().equals(RoleName.USER.name())) {
+            log.error("Cant delete role {}", userRole.getRoleName());
             throw new ConflictException(StringApplication.FIELD.CANT_REMOVE);
         }
         //Xoá role
         roleRepository.deleteById(roleId);
+        log.info("Role successfully deleted");
         //Giải phóng role khỏi cache
         rolePermissionCacheService.invalidatePermissionCache(userRole.getRoleId());
+        log.info("Role cache successfully deleted");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -168,6 +184,7 @@ public class RolePermissionService {
                 .map(permission -> new PermissionResponse(
                         permission.getPermissionId(), permission.getPermissionName()
                 )).toList();
+        log.info("Found all permissions successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

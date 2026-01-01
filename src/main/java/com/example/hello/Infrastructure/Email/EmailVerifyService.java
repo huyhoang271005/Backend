@@ -1,5 +1,6 @@
 package com.example.hello.Infrastructure.Email;
 
+import com.example.hello.Infrastructure.WebClient.IpService;
 import com.example.hello.Middleware.StringApplication;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -22,17 +24,25 @@ import org.thymeleaf.context.Context;
 public class EmailVerifyService {
     JavaMailSender mailSender;
     TemplateEngine templateEngine;
+    IpService ipService;
     @Async
-    public void sendEmail(String to, String title, String fullName, String verificationLink, String timeExpired) {
+    @Transactional
+    public void sendEmail(String to, String title, String fullName, String activity, String ip,
+                          String verificationLink, String timeExpired) {
         try {
+            var address = ipService.getAddress(ip);
+            String addressSent = address.getCity() + ", " + address.getRegion() + ", " + address.getCountry();
             Context context = new Context();
             context.setVariable("title", title);
             context.setVariable("fullName", fullName);
+            context.setVariable("activity", activity);
+            context.setVariable("address", addressSent);
             context.setVariable("verificationLink", verificationLink);
-            context.setVariable("timeExpired", timeExpired);
+            context.setVariable("timeExpired",  timeExpired);
             String emailContent = templateEngine.process("verifyEmail", context);
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true,  "UTF-8");
+            helper.setFrom("huyhoang6952@huyhoang271.id.vn", "Huy Hoàng Support");
             helper.setTo(to);
             helper.setSubject(title);
             helper.setText(emailContent, true);

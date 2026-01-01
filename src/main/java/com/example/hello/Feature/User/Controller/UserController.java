@@ -37,9 +37,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserStatuses());
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_USER_EXTEND')")
+    @PreAuthorize("hasAuthority('UPDATE_USER_ADMIN')")
     @PatchMapping("users")
     ResponseEntity<?> updateUser(@RequestBody ExtendUserRequest extendUserRequest){
         return ResponseEntity.ok(userService.updateUser(extendUserRequest));
+    }
+
+    @GetMapping("home")
+    ResponseEntity<?> getHome(@AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(userService.getHome(userId));
     }
 }

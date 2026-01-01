@@ -107,6 +107,10 @@ public class DeviceTypeFilter extends OncePerRequestFilter {
             }
         }
 
+        else if(deviceType == DeviceType.SWING){
+            return "SWING";
+        }
+
         return browser.name() + " " + device.name();
     }
 }

@@ -14,6 +14,7 @@ import com.example.hello.SseEmitter.SseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,6 +37,7 @@ public class NotificationService {
     public void sendNotification(List<User> userList, NotificationDTO notificationDTO) {
         var notification = notificationMapper.toNotification(notificationDTO);
         notificationRepository.save(notification);
+        log.info("Notification generated successfully");
         var userNotifications = userList.stream()
                 .map(user ->  UserNotification.builder()
                         .notification(notification)
@@ -43,10 +46,12 @@ public class NotificationService {
                         .build())
                 .toList();
         userNotificationRepository.saveAll(userNotifications);
+        log.info("Notifications for user generated successfully");
         String topicName = "notifications";
-        sseService.sendNotification(topicName, notificationDTO, userList.stream()
+        sseService.sendSse(topicName, notificationDTO, userList.stream()
                 .map(User::getUserId)
                 .toList());
+        log.info("Sent notifications for user successfully");
     }
 
     @Transactional
@@ -66,6 +71,7 @@ public class NotificationService {
         var notificationDTOs = notifications.getContent().stream()
                 .map(notificationMapper::toNotificationDTO)
                 .toList();
+        log.info("Get notifications successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

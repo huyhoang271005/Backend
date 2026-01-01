@@ -1,5 +1,6 @@
 package com.example.hello.Repository;
 
+import com.example.hello.DataProjection.HomeInfo;
 import com.example.hello.Entity.User;
 import com.example.hello.DataProjection.UserInfo;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Page<UserInfo> getListUser(Pageable pageable);
 
     List<User> findByRole_RoleId(UUID roleRoleId);
+
+    @Query("""
+            select u.username as username, p.imageUrl as imageUrl, u.role.roleName as roleName
+            from User u
+            join u.profile p
+            where u.userId = :userId
+            """)
+    HomeInfo getHomeInfo(UUID userId);
 
 
 }

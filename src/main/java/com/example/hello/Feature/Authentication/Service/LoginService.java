@@ -56,10 +56,13 @@ public class LoginService {
                 sessionId = jwtComponent.getSessionIdFromToken(oldRefreshToken);
                 var session = sessionRepository.findById(sessionId).orElseThrow(()->
                         new EntityNotFoundException(StringApplication.FIELD.SESSION_LOGIN + StringApplication.FIELD.NOT_EXIST));
+                log.info("Session id from jwt {}", sessionId);
                 idDevice = session.getDevice().getDeviceId();
+                log.info("Device id from session {}", idDevice);
             } catch (Exception e){
                 //Nếu hết hạn thì lấy deviceId dự phòng
                 idDevice = deviceId;
+                log.info("Device id from cookie or header {}", idDevice);
             }
             //Check bảo mật thông qua userDetail của spring
             Authentication authentication = authenticationManager.authenticate(
@@ -77,8 +80,9 @@ public class LoginService {
                     .flatMap(deviceRepository::findById)
                     .flatMap(device -> sessionRepository.findByUserAndDevice(user, device))
                     .orElse(null);
-            if(session == null){
+            if(session == null || !session.getValidated()){
                 //Nếu không có session hiện tại => Thiết bị mới
+                log.info("Session not exist or not validated");
                 return new Response<>(
                         true,
                         StringApplication.ERROR.NEW_DEVICE,
@@ -88,21 +92,20 @@ public class LoginService {
                                 .build()
                 );
             }
-            if(!session.getValidated()){
-                //Nếu session chưa được xác thực
-                throw new ConflictException(StringApplication.FIELD.DEVICE + StringApplication.FIELD.UNVERIFIED);
-            }
             //Tạo refresh token và access token
             String refreshToken = jwtComponent.generateToken(user.getUserId(), TokenName.REFRESH_TOKEN,
                     session.getSessionId(),
                     Instant.now().plusSeconds(jwtProperties.getRefreshTokenSeconds()));
+            log.info("Created refresh token");
             String accessToken = jwtComponent.generateToken(user.getUserId(), TokenName.ACCESS_TOKEN,
                     session.getSessionId(),
                     Instant.now().plusSeconds(jwtProperties.getAccessTokenSeconds()));
+            log.info("Created access token");
             if(session.getRevoked()) {
                 //Cho phép quyền đăng nhập cho session này
                 sessionCacheService.updateRevoked(session.getSessionId(), false);
                 session.setRevoked(false);
+                log.info("Set revoked session is false");
             }
             //Check refresh token của user
             var userToken = tokenRepository.findBySessionAndTokenName(session, TokenName.REFRESH_TOKEN)
@@ -114,6 +117,7 @@ public class LoginService {
                                     .tokenName(TokenName.REFRESH_TOKEN)
                                     .build());
             userToken.setTokenValue(refreshToken);
+            log.info("Created user token");
             tokenRepository.save(userToken);
             return new Response<>(
                     true,

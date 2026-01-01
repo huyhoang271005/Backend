@@ -61,6 +61,8 @@ public class StringApplication {
         public static final String PASSWORD = "Mật khẩu";
         public static final String USERNAME = "Biệt danh";
         public static final String FULL_NAME = "Tên đầy đủ";
+        public static final String LOGIN_NEW_DEVICE = "Đăng nhập trên thiết bị mới";
+        public static final String ADD_NEW_EMAIL = "Thêm email mới";
         public static final String DATE = "Ngày";
         public static final String TIME = "Thời gian";
         public static final String GENDER = "Giới tính";

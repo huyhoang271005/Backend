@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
-                        requests.requestMatchers("/auth/**", "/websocket/**", "/app/**", "/topic/**")
+                        requests.requestMatchers("/auth/**", "/ws/**", "/app/**", "/topic/**",
+                                        "/sse/**", "/payment-return/**")
                                 .permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(exception ->

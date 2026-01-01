@@ -15,6 +15,7 @@ import com.example.hello.Repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -38,6 +40,7 @@ public class ProductService {
     private void checkProductDTO(ProductDTO productDTO, Map<String, MultipartFile> images) {
         productDTO.getVariants().forEach(variant -> {
             if(images.get(variant.getImageName()) == null) {
+                log.error("Not found image name {}", variant.getImageName());
                 throw new UnprocessableEntityException("Variant " + variant.getImageName() +" not found");
             }
         });
@@ -45,6 +48,7 @@ public class ProductService {
                 .map(attributeDTO -> attributeDTO.getAttributeValues().size())
                 .reduce(1, (a, b) -> a * b);
         if(attributeValueSize != productDTO.getVariants().size()) {
+            log.error("attribute values are not equal variants size");
             throw new UnprocessableEntityException("AttributeValue and Variant not match");
         }
         Map<UUID, Set<String>> attributeValueMap =
@@ -58,11 +62,13 @@ public class ProductService {
         var variantValuesById =
                 productDTO.getVariantValues().stream()
                         .collect(Collectors.groupingBy(VariantValueDTO::getVariantId));
+        log.info("Group by variant values successfully");
 
         for (var variant : productDTO.getVariants()) {
             var values = variantValuesById.get(variant.getVariantId());
 
             if (values == null || values.size() != productDTO.getAttributes().size()) {
+                log.error("Variant size mismatch attribute values");
                 throw new UnprocessableEntityException("Variant missing attribute values");
             }
 
@@ -74,6 +80,7 @@ public class ProductService {
                 for (var entry : attributeValueMap.entrySet()) {
                     if (entry.getValue().contains(vv.getAttributeValueId())) {
                         if (!usedAttributes.add(entry.getKey())) {
+                            log.error("Attribute values duplicated {}", entry.getKey());
                             throw new UnprocessableEntityException("Duplicate attribute in variant");
                         }
                         matched = true;
@@ -90,16 +97,18 @@ public class ProductService {
     public Response<Product> addProduct(ProductDTO productDTO, Map<String, MultipartFile> images) {
         checkProductDTO(productDTO, images);
         if(images.get("productImage") == null) {
+            log.error("Not found product image");
             throw new UnprocessableEntityException("Product Image not found");
         }
         //Lấy dữ liệu category và brand
         Category category = categoryRepository.findById(productDTO.getProductDetailDTO().getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.CATEGORY +
                         StringApplication.FIELD.NOT_EXIST));
+        log.info("Foud category successfully");
         Brand brand = brandRepository.findById(productDTO.getProductDetailDTO().getBrandId())
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.BRAND +
                         StringApplication.FIELD.NOT_EXIST));
-
+        log.info("Foud brand successfully");
         //upload product
 //        CloudinaryResponse imageProduct = cloudinaryService
 //                .uploadImage(images.get("productImage"), "product");
@@ -111,6 +120,7 @@ public class ProductService {
 //        product.setImageId(imageProduct.getPublicId());
 //        product.setImageUrl(imageProduct.getUrl());
         productRepository.save(product);
+        log.info("Product successfully added successfully");
 
         //Tạo và lưu các biến thể
         addVariantService.processAttributesAndVariants(product, productDTO, images);
@@ -126,6 +136,7 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST));
 
+        log.info("Foud product successfully");
         //Build product detail
         ProductDetailDTO productDetail = productMapper.toProductDTO(product);
 
@@ -155,6 +166,7 @@ public class ProductService {
 
         // Build variants list
         var variantCurrent = product.getVariants();
+        log.info("Foud variant successfully");
         List<VariantDTO> variants = variantCurrent.stream()
                 .map(variantMapper::toVariantDTO)
                 .toList();
@@ -169,6 +181,7 @@ public class ProductService {
                     .build())
                     .toList();
             variantValuesDTO.addAll(variantValue);
+            log.info("Add variant values successfully");
         });
         //Build complete response
         ProductDTO response = ProductDTO.builder()
@@ -177,6 +190,8 @@ public class ProductService {
                 .variantValues(variantValuesDTO)
                 .variants(variants)
                 .build();
+
+        log.info("Response successfully");
 
         return new Response<>(true, StringApplication.FIELD.SUCCESS, response);
     }
@@ -213,7 +228,9 @@ public class ProductService {
             }
         });
         variantRepository.deleteAll(product.getVariants());
+        log.info("Variant successfully deleted");
         productRepository.delete(product);
+        log.info("Product successfully deleted");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
 
@@ -242,6 +259,7 @@ public class ProductService {
             }
         }
         variantRepository.save(variant);
+        log.info("Variant successfully updated");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
 
@@ -257,6 +275,7 @@ public class ProductService {
             throw new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR);
         }
         variantRepository.delete(variant);
+        log.info("Variant successfully deleted");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
 }

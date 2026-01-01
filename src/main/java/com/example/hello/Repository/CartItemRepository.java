@@ -59,4 +59,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
 
     @Modifying
     void deleteByCartItemIdIn(List<UUID> cartItemIds);
+
+    Integer countByCart_User_UserId(UUID userId);
 }

@@ -1,5 +1,6 @@
 package com.example.hello.SseEmitter;
 
+import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SseService {
+    JwtComponent jwtComponent;
     Map<UUID, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     private void removeEmitter(UUID userId, SseEmitter emitter) {
@@ -31,7 +33,8 @@ public class SseService {
         log.info("remove emitter {} for user {}", emitter, userId);
     }
 
-    public SseEmitter createSseEmitter(UUID userId) {
+    public SseEmitter createSseEmitter(String refreshToken) {
+        UUID userId = jwtComponent.getUserIdFromToken(refreshToken);
         SseEmitter emitter = new SseEmitter(60L * 60 * 1000);
         emitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
         emitters.get(userId).add(emitter);

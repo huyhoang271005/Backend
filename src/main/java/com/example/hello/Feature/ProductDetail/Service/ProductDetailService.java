@@ -1,7 +1,7 @@
 package com.example.hello.Feature.ProductDetail.Service;
 
-import com.example.hello.DataProjection.ProductAttributesInfo;
-import com.example.hello.DataProjection.VariantValueInfo;
+import com.example.hello.Feature.Authentication.DataProjection.ProductAttributesInfo;
+import com.example.hello.Feature.Authentication.DataProjection.VariantValueInfo;
 import com.example.hello.Entity.Product;
 import com.example.hello.Feature.ProductDetail.DTO.ProductDetailResponse;
 import com.example.hello.Feature.ProductDetail.DTO.ProductList;
@@ -90,12 +90,14 @@ public class ProductDetailService {
         );
     }
 
-    public Response<ListResponse<ProductList>> getProductList(UUID categoryId,
+    @Transactional(readOnly = true)
+    public Response<ListResponse<ProductList>> getProductList(String productName, UUID categoryId,
                                                               UUID brandId,
                                                               BigDecimal minPrice,
                                                               BigDecimal maxPrice,
                                                               Pageable pageable) {
         Specification<Product> specification = ProductSpecification.hasCategory(categoryId)
+                .and(ProductSpecification.likeName(productName))
                 .and(ProductSpecification.hasBrand(brandId))
                 .and(ProductSpecification.betweenPrice(minPrice, maxPrice));
         var productPage = productRepository.findAll(specification, pageable);

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.List;
@@ -49,6 +50,10 @@ public class Order {
 
     @Column(name = "payment_id")
     String paymentId;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    Instant updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

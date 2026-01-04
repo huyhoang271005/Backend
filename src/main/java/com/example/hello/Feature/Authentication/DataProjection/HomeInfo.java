@@ -1,4 +1,4 @@
-package com.example.hello.DataProjection;
+package com.example.hello.Feature.Authentication.DataProjection;
 
 public interface HomeInfo {
     String getImageUrl();

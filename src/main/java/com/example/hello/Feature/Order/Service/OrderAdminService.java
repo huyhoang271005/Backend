@@ -1,10 +1,12 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.DataProjection.AttributeValueByVariantId;
-import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
+import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Order.DTO.OrderListAdminDTO;
+import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
+import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.OrderMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
@@ -31,8 +33,8 @@ public class OrderAdminService {
     OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
-    public Response<ListResponse<OrderListAdminDTO>> getOrdersAdmin(OrderStatus orderStatus, Pageable pageable) {
-        var orderItems = orderRepository.getOrdersAdminInfo(pageable, orderStatus);
+    public Response<ListResponse<OrderListAdminDTO>> getOrdersAdmin(OrderStatus orderStatus, UUID orderId, Pageable pageable) {
+        var orderItems = orderRepository.getOrdersAdminInfo(pageable, orderStatus, orderId);
         log.info("Found orders admin successfully");
         var variantValues = variantValueRepository.getAttributeValuesVariantIdIn(orderItems
                 .stream()
@@ -80,13 +82,31 @@ public class OrderAdminService {
         );
         log.info("Found order admin successfully");
         if(orderStatus == OrderStatus.CONFIRMED) {
-            order.setOrderStatus(OrderStatus.DELIVERING);
+            if(order.getOrderStatus() == OrderStatus.PENDING){
+                order.setOrderStatus(OrderStatus.DELIVERING);
+                log.info("Order {} was set status is delivering", orderId);
+            }
+            else if(order.getOrderStatus() == OrderStatus.DELIVERING){
+                order.setOrderStatus(OrderStatus.DELIVERED);
+                log.info("Order {} was set status is delivered", orderId);
+            }
+            else {
+                log.error("Order cant change status on {}", order.getOrderStatus());
+                throw new ConflictException(StringApplication.FIELD.REQUEST +
+                        StringApplication.FIELD.INVALID);
+            }
+        }
+        else if(orderStatus == OrderStatus.CANCELED) {
+            if(order.getOrderStatus() == OrderStatus.PENDING || order.getOrderStatus() == OrderStatus.DELIVERING) {
+                order.setOrderStatus(OrderStatus.CANCELED);
+                log.info("Order {} was canceled", orderId);
+            }
         }
         else {
-            order.setOrderStatus(OrderStatus.CANCELED);
+            log.error("Order status not confirmed");
+            throw new UnprocessableEntityException(StringApplication.FIELD.REQUEST +
+                    StringApplication.FIELD.INVALID);
         }
-        log.info("Update order status successfully");
-        orderRepository.save(order);
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

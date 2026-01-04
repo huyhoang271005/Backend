@@ -177,7 +177,7 @@ public class RolePermissionService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Response<List<PermissionResponse>> getAllPermissions() {
         //Lấy tất cả các quyền tồn tại
         var permissions = permissionRepository.findAll().stream()

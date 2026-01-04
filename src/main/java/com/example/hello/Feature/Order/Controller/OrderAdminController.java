@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,12 +19,15 @@ import java.util.UUID;
 public class OrderAdminController {
     OrderAdminService orderAdminService;
 
-    @GetMapping("{orderStatus}")
-    public ResponseEntity<?> getOrderAdmin(@PathVariable OrderStatus orderStatus,
+//    @PreAuthorize("hasAuthority('GET_ORDERS_BY_STATUS')")
+    @GetMapping
+    public ResponseEntity<?> getOrderAdmin(@RequestParam(required = false) OrderStatus orderStatus,
+                                           @RequestParam(required = false) UUID orderId,
                                            Pageable pageable){
-        return ResponseEntity.ok(orderAdminService.getOrdersAdmin(orderStatus, pageable));
+        return ResponseEntity.ok(orderAdminService.getOrdersAdmin(orderStatus, orderId, pageable));
     }
 
+//    @PreAuthorize("hasAuthority('CONFIRM_ORDER')")
     @PatchMapping("{orderId}")
     public ResponseEntity<?> updateOrderStatus(@PathVariable UUID orderId,
                                                @RequestBody OrderStatus orderStatus){

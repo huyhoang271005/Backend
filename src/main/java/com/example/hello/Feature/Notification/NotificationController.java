@@ -14,18 +14,17 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("auth/notifications")
+@RequestMapping("notifications")
 public class NotificationController {
     NotificationService notificationService;
-    UUID id = UUID.fromString("8e9bad10-ef93-4d4c-92d7-fd096b21fc94");
     @PostMapping
     public ResponseEntity<?> sendNotificationAll(@RequestBody NotificationDTO notificationDTO) {
         return ResponseEntity.ok(notificationService.sendAll(notificationDTO));
     }
 
     @PostMapping("{userId}")
-    public ResponseEntity<?> sendNotification(@PathVariable String userId, @RequestBody NotificationDTO notificationDTO) {
-        return ResponseEntity.ok(notificationService.sendNotificationToUser(id, notificationDTO));
+    public ResponseEntity<?> sendNotification(@PathVariable UUID userId, @RequestBody NotificationDTO notificationDTO) {
+        return ResponseEntity.ok(notificationService.sendNotificationToUser(userId, notificationDTO));
     }
 
     @PostMapping("roles/{roleId}")
@@ -36,18 +35,18 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<?> getNotifications(@AuthenticationPrincipal UUID  userId, Pageable pageable) {
-        return ResponseEntity.ok(notificationService.getNotifications(id, pageable));
+        return ResponseEntity.ok(notificationService.getNotifications(userId, pageable));
     }
 
     @PatchMapping
     public ResponseEntity<?> readNotifications(@AuthenticationPrincipal UUID  userId,
                                                @RequestBody List<UUID> userNotificationIds) {
-        return ResponseEntity.ok(notificationService.updateNotification(id, userNotificationIds));
+        return ResponseEntity.ok(notificationService.updateNotification(userId, userNotificationIds));
     }
 
     @PostMapping("delete")
     public ResponseEntity<?> deleteNotifications(@AuthenticationPrincipal UUID  userId,
                                                  @RequestBody List<UUID> userNotificationIds) {
-        return ResponseEntity.ok(notificationService.deleteNotification(id, userNotificationIds));
+        return ResponseEntity.ok(notificationService.deleteNotification(userId, userNotificationIds));
     }
 }

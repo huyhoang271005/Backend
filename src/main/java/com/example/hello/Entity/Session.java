@@ -44,6 +44,14 @@ public class Session {
     @Column(name = "ip_address")
     String ipAddress;
 
+    String city;
+
+    String country;
+
+    String region;
+
+    String timezone;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     User user;

@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -54,7 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UUID sessionId = jwtComponent.getSessionIdFromToken(token);
                 TokenName tokenName = jwtComponent.getTokenNameFromToken(token);
                 UserStatus userStatus = userStatusCacheService.getUserStatus(userId);
+                log.info("Access token can use");
                 if(!tokenName.equals(TokenName.ACCESS_TOKEN)){
+                    log.error("Token not is access token");
                     var res = new Response<>(
                             false,
                             StringApplication.FIELD.ACCESS_TOKEN + StringApplication.FIELD.INVALID,
@@ -66,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
                 if(sessionCacheService.getRevoked(sessionId)){
+                    log.error("User revoked session");
                     var res = new Response<>(
                             false,
                             StringApplication.FIELD.SESSION_LOGIN + StringApplication.FIELD.EXPIRED,
@@ -82,6 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     default -> null;
                 };
                 if(userStatus != UserStatus.ACTIVE){
+                    log.error("User not active");
                     var res = new Response<>(
                             false,
                             userStatusString,
@@ -103,6 +109,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(tokenName);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (Exception e) {
+                log.error("Access token expired");
                 var res = new Response<>(
                         false,
                         StringApplication.FIELD.TOKEN +  StringApplication.FIELD.INVALID,

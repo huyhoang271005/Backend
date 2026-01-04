@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class NotificationService {
     SseService sseService;
 
     @Transactional
+    @Async
     public void sendNotification(List<User> userList, NotificationDTO notificationDTO) {
         var notification = notificationMapper.toNotification(notificationDTO);
         notificationRepository.save(notification);

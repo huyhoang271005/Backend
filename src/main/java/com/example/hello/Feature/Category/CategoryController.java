@@ -37,6 +37,6 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
     @DeleteMapping("{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable UUID categoryId) {
-        return ResponseEntity.ok(categoryService.removeCategory(categoryId));
+        return ResponseEntity.ok(categoryService.deleteCategory(categoryId));
     }
 }

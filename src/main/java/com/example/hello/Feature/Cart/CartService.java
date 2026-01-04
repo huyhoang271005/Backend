@@ -1,7 +1,8 @@
 package com.example.hello.Feature.Cart;
 
-import com.example.hello.DataProjection.*;
 import com.example.hello.Entity.Cart;
+import com.example.hello.Entity.CartItem;
+import com.example.hello.Feature.Authentication.DataProjection.ProductInfo;
 import com.example.hello.Feature.Cart.CartDTO.CartDTO;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,17 +52,17 @@ public class CartService {
         );
         log.info("Found variant successfully");
         if(cartItemDTO.getQuantity() > variant.getStock()){
+            log.error("Quantity > stock");
             throw new ConflictException(StringApplication.FIELD.PRODUCT +
                     StringApplication.FIELD.MAXIMUM);
         }
-        log.info("Quantity < Stock successfully");
         var cart = cartRepository.findByUser(user).orElseGet(
                 ()-> {
-                    var c = Cart.builder()
+                    var cartCurrent = Cart.builder()
                             .user(user)
                             .build();
-                    cartRepository.save(c);
-                    return c;
+                    cartRepository.save(cartCurrent);
+                    return cartCurrent;
                 }
         );
         log.info("Found or generated cart successfully");
@@ -74,16 +76,16 @@ public class CartService {
                     }
                     var cartItemCurrent = cartItemMapper.toCartItem(cartItemDTO);
                     cartItemCurrent.setQuantity(0);
+                    cartItemCurrent.setVariant(variant);
+                    cartItemCurrent.setCart(cart);
                     sseService.sendSse("cart", 1, List.of(userId));
                     log.info("Send sse cart successfully");
                     return cartItemCurrent;
                 });
         cartItem.setOldPrice(variant.getPrice());
         cartItem.setQuantity(cartItem.getQuantity() + cartItemDTO.getQuantity());
-        cartItem.setVariant(variant);
-        cartItem.setCart(cart);
-        log.info("Cart saved successfully");
         cartItemRepository.save(cartItem);
+        log.info("Cart saved successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -103,22 +105,15 @@ public class CartService {
                 .stream()
                 .collect(Collectors.groupingBy(ProductInfo::getProductId));
         log.info("Group by product id successfully");
-        cartRepository.findByUser(user).orElseGet(
-                ()-> {
-                    log.info("Cart generated successfully");
-                    var c = Cart.builder()
-                            .user(user)
-                            .build();
-                    cartRepository.save(c);
-                    return c;
-                }
-        );
+        List<CartDTO> cartDTOS = new ArrayList<>();
+        cartRepository.findByUser(user).ifPresent(cart ->
+                cartDTOS.addAll(productDetailMapping.mappingProductsDetail(products, userId)));
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
                 new ListResponse<>(
                         productIds.hasNext(),
-                        productDetailMapping.mappingProductsDetail(products)
+                        cartDTOS
                 )
         );
     }
@@ -155,13 +150,14 @@ public class CartService {
             }
             log.info("Cart item set quantity successfully");
             log.info("Cart item updated successfully");
-            cartItemRepository.save(item);
-        }, () -> {
-            log.info("Cart item not found");
-            cartItem.setVariant(variant);
-            cartItem.setQuantity(cartItemDTO.getQuantity());
-            cartItemRepository.save(cartItem);
-            log.info("Cart item generated successfully");
+        }, ()->{
+            var cartItemCurrent = CartItem.builder()
+                    .quantity(cartItem.getQuantity())
+                    .oldPrice(cartItem.getOldPrice())
+                    .variant(variant)
+                    .cart(cart)
+                    .build();
+            cartItemRepository.save(cartItemCurrent);
         });
         return new Response<>(
                 true,

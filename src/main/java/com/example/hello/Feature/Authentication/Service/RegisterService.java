@@ -1,5 +1,7 @@
 package com.example.hello.Feature.Authentication.Service;
 
+import com.example.hello.Feature.Notification.NotificationDTO;
+import com.example.hello.Feature.Notification.NotificationService;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Enum.RoleName;
@@ -43,6 +45,7 @@ public class RegisterService {
     DeviceRepository deviceRepository;
     SessionRepository sessionRepository;
     CloudinaryService  cloudinaryService;
+    NotificationService notificationService;
 
     @Transactional
     public Response<DeviceResponse> register(RegisterRequest registerRequest,
@@ -93,6 +96,13 @@ public class RegisterService {
         user.setRole(role);
         userRepository.save(user);
         //Tìm device nếu không tồn tại tạo device mới và lưu
+        notificationService.sendNotification(List.of(user),
+                NotificationDTO.builder()
+                        .title(StringApplication.NOTIFICATION.WELCOME_TITLE)
+                        .message(StringApplication.NOTIFICATION.WELCOME_MESSAGE0 +
+                                userProfile.getFullName() +
+                                StringApplication.NOTIFICATION.WELCOME_MESSAGE1)
+                        .build());
         var device = Optional.ofNullable(deviceId)
                         .flatMap(deviceRepository::findById)
                                 .orElseGet(()->Device.builder()

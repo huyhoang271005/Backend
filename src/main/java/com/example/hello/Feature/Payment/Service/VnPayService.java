@@ -1,9 +1,11 @@
 package com.example.hello.Feature.Payment.Service;
 
 import com.example.hello.Enum.OrderStatus;
+import com.example.hello.Feature.Payment.Model.PaymentResponse;
 import com.example.hello.Feature.Payment.Model.VnPayProperties;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
+import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Repository.OrderRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -25,7 +28,9 @@ import java.util.*;
 public class VnPayService {
     VnPayProperties vnPayProperties;
     OrderRepository orderRepository;
-    public String createPaymentUrl(UUID userId, UUID orderId){
+
+    @Transactional
+    public Response<PaymentResponse> createPaymentUrl(UUID userId, UUID orderId, String ip){
         var order = orderRepository.findById(orderId).orElseThrow(
                 ()-> new EntityNotFoundException(StringApplication.FIELD.ORDER +
                         StringApplication.FIELD.NOT_EXIST)
@@ -36,9 +41,10 @@ public class VnPayService {
                     StringApplication.FIELD.INVALID);
         }
         if(order.getOrderStatus() != OrderStatus.WAITING){
-            log.error("Order is {} not WAITING", order.getOrderStatus());
-            throw new ConflictException(StringApplication.FIELD.REQUEST +
-                    StringApplication.FIELD.INVALID);
+            log.error("Payment cant create because order status is {}", order.getOrderStatus());
+            throw new ConflictException(StringApplication.FIELD.WAIT_AFTER +
+                    StringApplication.FIELD.SOME +
+                    StringApplication.FIELD.MINUTES);
         }
         var amount = order.getOrderItems().stream()
                 .map(orderItem -> orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())))
@@ -48,7 +54,7 @@ public class VnPayService {
             throw new ConflictException(StringApplication.FIELD.INVALID);
         }
         long vnp_Amount = amount.multiply(new BigDecimal(100)).longValue();
-        String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
+        String vnp_TxnRef = String.valueOf(UUID.randomUUID());
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
@@ -57,11 +63,11 @@ public class VnPayService {
         vnp_Params.put("vnp_Amount", String.valueOf(vnp_Amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef); // Theo mẫu: "Thanh toan don hang:" + vnp_TxnRef
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId); // Theo mẫu: "Thanh toan don hang:" + vnp_TxnRef
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", vnPayProperties.getReturnUrl());
-        vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+        vnp_Params.put("vnp_IpAddr", ip);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -105,17 +111,21 @@ public class VnPayService {
         // 5. Lưu DB
         order.setPaymentId(vnp_TxnRef);
         order.setOrderStatus(OrderStatus.PAYING);
-        orderRepository.save(order);
         log.info("Payment URL is {}", paymentUrl);
-        return paymentUrl;
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                new PaymentResponse(paymentUrl)
+        );
     }
 
+    @Transactional
     public void paymentReturn(HttpServletRequest request){
         Map<String, String> params = new HashMap<>();
         request.getParameterMap().forEach(
                 (key, value) -> params.put(key, value[0])
         );
-        log.info("Pay return url is {}", request.getPathInfo());
+        log.info("Pay return url is {}", request.getRequestURL());
         String responseCode = params.get("vnp_ResponseCode");
         String vnp_TxnRef = params.get("vnp_TxnRef");
         var order = orderRepository.findByPaymentId(vnp_TxnRef).orElseThrow(
@@ -129,6 +139,5 @@ public class VnPayService {
         } else {
             order.setOrderStatus(OrderStatus.WAITING);
         }
-        orderRepository.save(order);
     }
 }

@@ -42,6 +42,7 @@ public class StringApplication {
         public static final String ROLE_PERMISSION = "Quyền hạn cho chức vụ này";
         public static final String CHANGE_PASSWORD = "Thay đổi mật khẩu ";
         public static final String WAIT_AFTER = "Vui lòng thử lại sau ";
+        public static final String SOME = "ít ";
         public static final String SECONDS= " giây";
         public static final String MINUTES= " phút";
         public static final String HOURS = " giờ";
@@ -69,5 +70,12 @@ public class StringApplication {
         public static final String TOKEN = "Khoá";
         public static final String ACCESS_TOKEN = "Access token";
         public static final String REFRESH_TOKEN = "Refresh token";
+    }
+
+    public static class NOTIFICATION{
+        public static final String CANCELED_BY_SYSTEM = " đã bị huỷ bởi hệ thống";
+        public static final String WELCOME_TITLE = "Chào mừng";
+        public static final String WELCOME_MESSAGE0 = "Chào mừng người dùng ";
+        public static final String WELCOME_MESSAGE1 = " đến với bách hoá xanh, hãy trải nghiệm và cho chúng tôi những đánh giá tích cực :D";
     }
 }

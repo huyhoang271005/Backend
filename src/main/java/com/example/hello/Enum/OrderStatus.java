@@ -10,7 +10,8 @@ public enum OrderStatus {
     CONFIRMED,
     CANCELED,
     DELIVERING,
-    DELIVERED;
+    DELIVERED,
+    SUCCESS;
 
     @JsonCreator
     public static OrderStatus forValue(String value) {

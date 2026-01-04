@@ -3,6 +3,7 @@ package com.example.hello.Infrastructure.Security;
 import com.example.hello.Enum.BrowserName;
 import com.example.hello.Enum.DeviceName;
 import com.example.hello.Enum.DeviceType;
+import com.example.hello.Feature.User.DTO.Address;
 import com.example.hello.Middleware.ParamName;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,12 +13,14 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,38 +29,57 @@ public class DeviceTypeFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+        //Device type
+        DeviceType deviceType = getDeviceType(request);
+        request.setAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE, deviceType);
+        log.info("deviceType is {}", deviceType);
+        //Device name
+        request.setAttribute(ParamName.DEVICE_NAME_ATTRIBUTE, getDeviceName(request, deviceType));
+        //Ip address
+        request.setAttribute(ParamName.IP_ADDRESS_ATTRIBUTE, getIpAddress(request));
 
-        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+        request.setAttribute(ParamName.ADDRESS_ATTRIBUTE, getAddress(request));
+        filterChain.doFilter(request, response);
+    }
+
+    private Address getAddress(HttpServletRequest request) {
+        return Address.builder()
+                .city(request.getHeader("CF-IPCity"))
+                .country(request.getHeader("CF-IPCountry"))
+                .region(request.getHeader("CF-Region"))
+                .timezone(request.getHeader("CF-Timezone"))
+                .build();
+    }
+
+    private String getIpAddress(HttpServletRequest request) {
+        String ipAddress;
+        try {
+            ipAddress = request.getHeader("CF-CONNECTING-IP");
+            if (ipAddress == null || ipAddress.isEmpty()) {
+                log.info("IP not pass cloudflared");
+                ipAddress = request.getRemoteAddr();
+            }
+        } catch (Exception e) {
+            ipAddress = "unknow";
+        }
+        log.info("IP address: {}", ipAddress);
+        return ipAddress;
+    }
+
+
+    private DeviceType getDeviceType(HttpServletRequest request) {
         DeviceType deviceType;
-        if("22fe0072-d200-4ec4-a90a-d6e56d782f08".equals(request.getHeader("Device-type"))){
+        if("22fe0072-d200-4ec4-a90a-d6e56d782f08".equals(request.getHeader("X-client-x"))){
             deviceType = DeviceType.SWING;
         }
         else{
             deviceType = DeviceType.WEB;
         }
-        request.setAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE, deviceType);
-        String deviceName = getDeviceName(userAgent, deviceType);
-        // --- lưu vào attribute ---
-        request.setAttribute(ParamName.DEVICE_NAME_ATTRIBUTE, deviceName);
-
-        // Detect IP
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-
-        request.setAttribute(ParamName.IP_ADDRESS_ATTRIBUTE, ip);
-
-        filterChain.doFilter(request, response);
+        return deviceType;
     }
 
-    private String getDeviceName(String userAgent, DeviceType deviceType) {
+    private String getDeviceName(HttpServletRequest request, DeviceType deviceType) {
+        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         if (userAgent == null) {
             userAgent = "";
         }

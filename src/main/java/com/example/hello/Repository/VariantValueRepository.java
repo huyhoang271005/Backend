@@ -1,7 +1,7 @@
 package com.example.hello.Repository;
 
-import com.example.hello.DataProjection.AttributeValueByVariantId;
-import com.example.hello.DataProjection.VariantValueInfo;
+import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
+import com.example.hello.Feature.Authentication.DataProjection.VariantValueInfo;
 import com.example.hello.Entity.VariantValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

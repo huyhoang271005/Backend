@@ -1,6 +1,6 @@
 package com.example.hello.Infrastructure.Email;
 
-import com.example.hello.Infrastructure.WebClient.IpService;
+import com.example.hello.Feature.User.DTO.Address;
 import com.example.hello.Middleware.StringApplication;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
@@ -24,14 +24,13 @@ import org.thymeleaf.context.Context;
 public class EmailVerifyService {
     JavaMailSender mailSender;
     TemplateEngine templateEngine;
-    IpService ipService;
     @Async
     @Transactional
-    public void sendEmail(String to, String title, String fullName, String activity, String ip,
+    public void sendEmail(String to, String title, String fullName, String activity, Address address,
                           String verificationLink, String timeExpired) {
         try {
-            var address = ipService.getAddress(ip);
-            String addressSent = address.getCity() + ", " + address.getRegion() + ", " + address.getCountry();
+            String addressSent = address.getCity() + ", " + address.getRegion() + ", " +
+                    address.getCountry();
             Context context = new Context();
             context.setVariable("title", title);
             context.setVariable("fullName", fullName);

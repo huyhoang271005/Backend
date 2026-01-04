@@ -1,8 +1,8 @@
-package com.example.hello.DataProjection;
+package com.example.hello.Feature.Authentication.DataProjection;
 
 import com.example.hello.Entity.User;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -13,5 +13,5 @@ public interface UserInfo {
     String getUsername();
     String getFullName();
     String getImageUrl();
-    LocalDateTime getCreatedAt();
+    Instant getCreatedAt();
 }

@@ -3,7 +3,6 @@ package com.example.hello.Feature.User.Service;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Infrastructure.WebClient.IpService;
 import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
@@ -30,7 +29,6 @@ public class SessionService {
     SessionCacheService sessionCacheService;
     UserRepository userRepository;
     SessionMapper sessionMapper;
-    IpService ipService;
     @Transactional(readOnly = true)
     public Response<ListResponse<SessionResponse>> getSessions(UUID userId, UUID mySessionId,
                                                                Pageable pageable){
@@ -39,7 +37,7 @@ public class SessionService {
                 .map(sessionInfo -> {
                     var sessionResponse = sessionMapper.toSessionResponse(sessionInfo);
                     sessionResponse.setThisSession(sessionInfo.getSessionId().equals(mySessionId));
-                    sessionResponse.setAddress(ipService.getAddress(sessionInfo.getIpAddress()));
+                    sessionResponse.setAddress(sessionMapper.toAddress(sessionInfo));
                     return sessionResponse;
                 })
                 .toList();
@@ -69,7 +67,6 @@ public class SessionService {
                 session.setRevoked(true);
             }
         });
-        userRepository.save(user);
         log.info("Logout all session successfully");
         return new Response<>(
                 true,
@@ -88,7 +85,6 @@ public class SessionService {
         session.setRevoked(true);
         sessionCacheService.updateRevoked(sessionId, true);
         log.info("Logout session cache successfully");
-        sessionRepository.save(session);
         log.info("Logout session successfully");
         return new  Response<>(
                 true,

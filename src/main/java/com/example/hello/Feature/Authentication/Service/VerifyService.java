@@ -3,6 +3,8 @@ package com.example.hello.Feature.Authentication.Service;
 import com.example.hello.Infrastructure.Email.EmailVerifyService;
 import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
+import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Repository.VerificationTokensRepository;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
@@ -19,7 +21,6 @@ import com.example.hello.Repository.SessionRepository;
 import com.example.hello.Entity.Device;
 import com.example.hello.Entity.Session;
 import com.example.hello.Enum.UserStatus;
-import com.example.hello.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,9 +45,9 @@ public class VerifyService {
     VerificationTokensRepository verificationTokensRepository;
     DeviceRepository deviceRepository;
     SessionRepository sessionRepository;
-    UserRepository userRepository;
     PasswordEncoder passwordEncoder;
-    int timeExpired = 24 * 60 * 60;   // Hours
+    int timeExpired = 24;   // Hours
+    private final SessionMapper sessionMapper;
 
     private void checkResendRateLimit(UUID typeId, VerificationTypes type) {
         //Tìm yêu cầu xác thực dựa trên typeId(có thể là deviceId, emailId...) và loại xác thực
@@ -60,7 +62,8 @@ public class VerifyService {
                 var timeWait = 1 * 60 * Math.pow(2, verificationTokensRepository.countByVerificationTypeAndTypeId(type, typeId));
                 //Nếu thời gian gửi yêu cầu cuối bé hơn thời gian chờ đá exception
                 if (secondsSinceLast < timeWait) {
-                    throw new UnprocessableEntityException(StringApplication.FIELD.WAIT_AFTER + (int) (timeWait - secondsSinceLast) + StringApplication.FIELD.SECONDS);
+                    throw new UnprocessableEntityException(StringApplication.FIELD.WAIT_AFTER +
+                            (int) (timeWait - secondsSinceLast) + StringApplication.FIELD.SECONDS);
                 }
             }
         }
@@ -69,9 +72,11 @@ public class VerifyService {
 
     @Transactional
     public Response<Void> sendVerifyEmail(EmailRequest emailRequest,
-                                          String ip) {
+                                          Address address) {
         //Tìm email
-        var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EXIST));
+        var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() ->
+                new EntityNotFoundException(StringApplication.FIELD.EMAIL +
+                        StringApplication.FIELD.NOT_EXIST));
         //Kiểm tra tình trạng xác thực
         if (userEmail.getValidated()) {
             throw new ConflictException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.VERIFIED);
@@ -79,13 +84,21 @@ public class VerifyService {
         //Check số lần gửi yêu cầu xác thực (có thể bắt chờ đợi nếu cần)
         checkResendRateLimit(userEmail.getEmailId(), VerificationTypes.VERIFY_EMAIL);
         //Sinh yêu cầu xác thực và lưu vào db
-        var verificationToken = VerificationTokens.builder().expiredAt(Instant.now().plusSeconds(timeExpired)).verificationType(VerificationTypes.VERIFY_EMAIL).typeId(userEmail.getEmailId()).user(userEmail.getUser()).build();
+        var verificationToken = VerificationTokens.builder()
+                .expiredAt(Instant.now().plus(timeExpired, ChronoUnit.HOURS))
+                .verificationType(VerificationTypes.VERIFY_EMAIL)
+                .typeId(userEmail.getEmailId())
+                .user(userEmail.getUser())
+                .build();
         verificationTokensRepository.save(verificationToken);
         log.info("Verification email generated");
         //Gửi email xác thực tới user dẫn tới trang xác thực
-        emailVerifyService.sendEmail(emailRequest.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL, userEmail.getUser().getProfile().getFullName(),
-                StringApplication.FIELD.ADD_NEW_EMAIL, ip,
-                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(), timeExpired/(60*60) + StringApplication.FIELD.HOURS);
+        emailVerifyService.sendEmail(emailRequest.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL,
+                userEmail.getUser().getProfile().getFullName(),
+                StringApplication.FIELD.ADD_NEW_EMAIL, address,
+                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                timeExpired + StringApplication.FIELD.HOURS);
         log.info("Email verification email has been sent async");
         return new Response<>(true, StringApplication.SUCCESS.CHECK_EMAIL, null);
     }
@@ -93,9 +106,11 @@ public class VerifyService {
 
     @Transactional
     public Response<DeviceResponse> sendVerifyDevice(EmailRequest emailRequest, UUID deviceId, String userAgent,
-                                                     String deviceType, String deviceName, String ip) {
+                                                     String deviceType, String deviceName, String ip, Address address) {
         //Kiểm tra email
-        var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EXIST));
+        var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() ->
+                new EntityNotFoundException(StringApplication.FIELD.EMAIL +
+                        StringApplication.FIELD.NOT_EXIST));
         //Kiểm tra email xác thực chưa
         if (!userEmail.getValidated()) {
             throw new ConflictException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.UNVERIFIED);
@@ -112,10 +127,12 @@ public class VerifyService {
                         .device(device)
                         .user(user)
                         .ipAddress(ip)
-                        .revoked(false)
+                        .revoked(true)
                         .validated(false)
                         .build());
         log.info("Session has been found or generated");
+        sessionMapper.updateSession(address, session);
+        log.info("Address session updated");
         //Nếu deviceId có trên máy (đã từng xác thực) thì check số lần gửi yêu cầu
         checkResendRateLimit(session.getSessionId(), VerificationTypes.VERIFY_DEVICE);
         if (session.getValidated()) {
@@ -126,7 +143,7 @@ public class VerifyService {
         sessionRepository.save(session);
         //Tạo yêu cầu xác thực và lưu vào db
         var verificationToken = VerificationTokens.builder()
-                .expiredAt(Instant.now().plusSeconds(timeExpired))
+                .expiredAt(Instant.now().plus(timeExpired, ChronoUnit.HOURS))
                 .verificationType(VerificationTypes.VERIFY_DEVICE)
                 .typeId(session.getSessionId())
                 .user(user)
@@ -134,11 +151,16 @@ public class VerifyService {
         log.info("Verification device generated");
         verificationTokensRepository.save(verificationToken);
         //Gửi email xác thực tới user
-        emailVerifyService.sendEmail(emailRequest.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE, userEmail.getUser().getProfile().getFullName(),
-                StringApplication.FIELD.LOGIN_NEW_DEVICE, ip,
-                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(), timeExpired/(60*60) + StringApplication.FIELD.HOURS);
+        emailVerifyService.sendEmail(emailRequest.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE,
+                userEmail.getUser().getProfile().getFullName(),
+                StringApplication.FIELD.LOGIN_NEW_DEVICE, address,
+                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                timeExpired + StringApplication.FIELD.HOURS);
         log.info("Device verification email has been sent async");
-        return new Response<>(true, StringApplication.SUCCESS.CHECK_EMAIL, new DeviceResponse(session.getDevice().getDeviceId()));
+        return new Response<>(true,
+                StringApplication.SUCCESS.CHECK_EMAIL,
+                new DeviceResponse(session.getDevice().getDeviceId()));
     }
 
     @Transactional
@@ -163,16 +185,15 @@ public class VerifyService {
             }
             //Xác thực thành công
             userEmail.setValidated(true);
-            emailRepository.save(userEmail);
             var user = userEmail.getUser();
             //Nếu trạng thái người dùng là đang xác thực thì set sang hoạt động
             if (user.getUserStatus() == UserStatus.PENDING) {
                 user.setUserStatus(UserStatus.ACTIVE);
                 log.info("User has been activated {}", user.getUserId());
             }
-            userRepository.save(user);
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_EMAIL);
+            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(
+                    tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_EMAIL);
             log.info("Verification email deleted");
             return new Response<>(true, StringApplication.FIELD.VERIFIED_SUCCESS, null);
         }
@@ -181,13 +202,15 @@ public class VerifyService {
             log.info("Verify device");
             //Tìm session
             var session = sessionRepository.findById(tokenVerify.getTypeId()).orElseThrow(
-                    () -> new EntityNotFoundException(StringApplication.FIELD.SESSION_LOGIN + StringApplication.FIELD.INVALID));
+                    () -> new EntityNotFoundException(StringApplication.FIELD.SESSION_LOGIN +
+                            StringApplication.FIELD.INVALID));
             //Set xác thực thành công
             session.setValidated(true);
             log.info("Set validated is true");
-            sessionRepository.save(session);
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_DEVICE);
+            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(
+                    tokenVerify.getUser().getUserId(),
+                    VerificationTypes.VERIFY_DEVICE);
             log.info("Verification device deleted");
             return new Response<>(true, StringApplication.FIELD.VERIFIED_SUCCESS, null);
         }
@@ -195,7 +218,7 @@ public class VerifyService {
     }
 
     @Transactional
-    public Response<Void> sendVerifyChangePassword(EmailRequest emailRequest, String ip) {
+    public Response<Void> sendVerifyChangePassword(EmailRequest emailRequest, Address address) {
         //Tìm email
         var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EXIST));
         //Kiểm tra email đã xác thực chưa
@@ -207,15 +230,22 @@ public class VerifyService {
         //Kiểm tra các yêu cầu xác thực
         checkResendRateLimit(user.getUserId(), VerificationTypes.VERIFY_CHANGE_PASSWORD);
         //Thời gian hết hạn yêu cầu xác thực (phút)
-        int minExpired = 15 * 60;
+        int minExpired = 15;
         //Sinh yêu cầu xác thực
-        var verifyToken = VerificationTokens.builder().user(user).verificationType(VerificationTypes.VERIFY_CHANGE_PASSWORD).expiredAt(Instant.now().plusSeconds(minExpired)).typeId(user.getUserId()).build();
+        var verifyToken = VerificationTokens.builder()
+                .user(user).verificationType(VerificationTypes.VERIFY_CHANGE_PASSWORD)
+                .expiredAt(Instant.now().plus(minExpired, ChronoUnit.MINUTES))
+                .typeId(user.getUserId())
+                .build();
         verificationTokensRepository.save(verifyToken);
         log.info("Verification change password generated");
         //Gửi email dẫn tới trang thay đổi mật khẩu
-        emailVerifyService.sendEmail(userEmail.getEmail(), StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD, user.getProfile().getFullName(),
-                StringApplication.FIELD.CHANGE_PASSWORD, ip,
-                CorsConfig.BASE_URL + "/auth/change-password?token=" + verifyToken.getVerificationTokenId(), minExpired/60 + StringApplication.FIELD.MINUTES);
+        emailVerifyService.sendEmail(userEmail.getEmail(),
+                StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD,
+                user.getProfile().getFullName(),
+                StringApplication.FIELD.CHANGE_PASSWORD, address,
+                CorsConfig.BASE_URL + "/auth/change-password?token=" + verifyToken.getVerificationTokenId(),
+                minExpired + StringApplication.FIELD.MINUTES);
         log.info("Verification change password has been sent async");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
@@ -232,7 +262,6 @@ public class VerifyService {
         //Set password mới kèm bcrypt
         var user = tokenVerify.getUser();
         user.setPassword(passwordEncoder.encode(passwordRequest.getPassword()));
-        userRepository.save(user);
         log.info("Password was change");
         //Xoá yêu cầu xác thực
         verificationTokensRepository.deleteByUser_UserIdAndVerificationType(user.getUserId(), VerificationTypes.VERIFY_CHANGE_PASSWORD);

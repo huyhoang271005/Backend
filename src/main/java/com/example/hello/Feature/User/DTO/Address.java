@@ -1,4 +1,4 @@
-package com.example.hello.Infrastructure.WebClient;
+package com.example.hello.Feature.User.DTO;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IpResponse {
+public class Address {
     String city;
     String region;
     String country;

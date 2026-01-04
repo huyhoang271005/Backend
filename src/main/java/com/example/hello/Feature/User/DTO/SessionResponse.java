@@ -1,6 +1,5 @@
 package com.example.hello.Feature.User.DTO;
 
-import com.example.hello.Infrastructure.WebClient.IpResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,7 +20,7 @@ public class SessionResponse {
     String deviceName;
     String deviceType;
     String userAgent;
-    IpResponse address;
+    Address address;
     LocalDateTime lastLogin;
     LocalDateTime createdAt;
 }

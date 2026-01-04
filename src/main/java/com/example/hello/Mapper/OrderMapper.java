@@ -1,6 +1,6 @@
 package com.example.hello.Mapper;
 
-import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
 import com.example.hello.Entity.Contact;
 import com.example.hello.Entity.Order;
 import com.example.hello.Entity.OrderItem;

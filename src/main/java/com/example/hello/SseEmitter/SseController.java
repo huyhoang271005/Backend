@@ -1,5 +1,6 @@
 package com.example.hello.SseEmitter;
 
+import com.example.hello.Middleware.ParamName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +18,7 @@ public class SseController {
     SseService sseService;
 
     @GetMapping(value = "sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter connect(@AuthenticationPrincipal UUID userId) {
-        return sseService.createSseEmitter(userId);
+    public SseEmitter connect(@CookieValue(ParamName.REFRESH_TOKEN_COOKIE) String refreshToken) {
+        return sseService.createSseEmitter(refreshToken);
     }
 }

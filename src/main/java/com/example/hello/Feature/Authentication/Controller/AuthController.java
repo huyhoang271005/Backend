@@ -5,6 +5,7 @@ import com.example.hello.Feature.Authentication.Service.RegisterService;
 import com.example.hello.Feature.Authentication.Service.TokenService;
 import com.example.hello.Feature.Authentication.Service.VerifyService;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
+import com.example.hello.Feature.User.DTO.Address;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Feature.Authentication.DTO.EmailRequest;
@@ -42,9 +43,11 @@ public class AuthController {
             HttpServletRequest request
     ) {
         DeviceType deviceType = (DeviceType) request.getAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE);
+        String ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
+        Address address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
         Response<LoginResponse> responseRefresh;
         if(deviceType == DeviceType.WEB){
-            responseRefresh = tokenService.refreshToken(refreshToken);
+            responseRefresh = tokenService.refreshToken(refreshToken, ip, address);
             ResponseCookie cookie = ResponseCookie.from(ParamName.REFRESH_TOKEN_COOKIE, responseRefresh.getData().getRefreshToken())
                     .secure(true)
                     .httpOnly(true)
@@ -57,7 +60,7 @@ public class AuthController {
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(responseRefresh);
         }
-        responseRefresh = tokenService.refreshToken(loginResponse.getRefreshToken());
+        responseRefresh = tokenService.refreshToken(loginResponse.getRefreshToken(), ip, address);
         return ResponseEntity.ok().body(responseRefresh);
     }
 
@@ -101,7 +104,7 @@ public class AuthController {
             loginResponse = loginService.login(loginRequest, oldRefreshToken, deviceId);
         }
         else {
-            loginResponse = loginService.login(loginRequest, oldRefreshToken, deviceIdHeader);
+            loginResponse = loginService.login(loginRequest, loginRequest.getRefreshToken(), deviceIdHeader);
         }
         if(loginResponse.getSuccess()){
             if(deviceType ==  DeviceType.WEB){
@@ -125,19 +128,23 @@ public class AuthController {
     @PostMapping("send-verify-email")
     ResponseEntity<?> sendVerifyEmail (HttpServletRequest request,
                                        @Valid @RequestBody EmailRequest emailRequest) {
-        String ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
-        return ResponseEntity.ok(verifyService.sendVerifyEmail(emailRequest, ip));
+        Address address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
+        return ResponseEntity.ok(verifyService.sendVerifyEmail(emailRequest, address));
     }
 
     @PostMapping("send-verify-device")
     ResponseEntity<?> sendVerifyDevice(
             HttpServletRequest request, @Valid @RequestBody EmailRequest emailRequest,
             @CookieValue(name = ParamName.DEVICE_ID_COOKIE, required = false) UUID deviceId,
+            @RequestHeader(value = ParamName.DEVICE_ID_HEADER, required = false) UUID deviceIdHeader,
             @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         String deviceName = (String) request.getAttribute(ParamName.DEVICE_NAME_ATTRIBUTE);
         DeviceType deviceType = (DeviceType) request.getAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE);
         String  ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
-        var response = verifyService.sendVerifyDevice(emailRequest, deviceId, userAgent, deviceType.name(), deviceName, ip);
+        Address address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
+        var response = verifyService.sendVerifyDevice(emailRequest, deviceType == DeviceType.WEB ?
+                deviceId : deviceIdHeader, userAgent,
+                deviceType.name(), deviceName, ip, address);
         if(deviceType == DeviceType.WEB){
             ResponseCookie cookie = ResponseCookie.from(ParamName.DEVICE_ID_COOKIE, response.getData().getDeviceId().toString())
                     .httpOnly(true)
@@ -162,8 +169,8 @@ public class AuthController {
     @PostMapping("send-verify-change-password")
     ResponseEntity<?> sendVerifyChangePassword(HttpServletRequest request,
                                                @Valid @RequestBody EmailRequest emailRequest) {
-        String ip = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
-        return ResponseEntity.ok(verifyService.sendVerifyChangePassword(emailRequest, ip));
+        Address address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
+        return ResponseEntity.ok(verifyService.sendVerifyChangePassword(emailRequest, address));
     }
 
     @PostMapping("verify-change-password")

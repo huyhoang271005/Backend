@@ -5,6 +5,8 @@ import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
 import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
+import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Repository.DeviceRepository;
 import com.example.hello.Repository.SessionRepository;
 import com.example.hello.Middleware.StringApplication;
@@ -43,6 +45,7 @@ public class LoginService {
     SessionCacheService sessionCacheService;
     JwtComponent jwtComponent;
     JwtProperties jwtProperties;
+    private final SessionMapper sessionMapper;
 
     @Transactional
     public Response<LoginResponse> login(LoginRequest loginRequest, String oldRefreshToken,
@@ -75,6 +78,7 @@ public class LoginService {
             Email email = userDetails.email();
             //Lấy user từ email
             User user = email.getUser();
+            log.info("User id is {}", user.getUserId());
             //Lấy session từ deviceId
             var session = Optional.ofNullable(idDevice)
                     .flatMap(deviceRepository::findById)
@@ -82,7 +86,12 @@ public class LoginService {
                     .orElse(null);
             if(session == null || !session.getValidated()){
                 //Nếu không có session hiện tại => Thiết bị mới
-                log.info("Session not exist or not validated");
+                if(session != null){
+                    log.info("Session id is {}", session.getSessionId());
+                    log.info("Session validated {}", session.getValidated());
+                }else {
+                    log.info("Session id is null");
+                }
                 return new Response<>(
                         true,
                         StringApplication.ERROR.NEW_DEVICE,
@@ -103,6 +112,7 @@ public class LoginService {
             log.info("Created access token");
             if(session.getRevoked()) {
                 //Cho phép quyền đăng nhập cho session này
+                log.info("Set revoked cache is false");
                 sessionCacheService.updateRevoked(session.getSessionId(), false);
                 session.setRevoked(false);
                 log.info("Set revoked session is false");
@@ -117,8 +127,8 @@ public class LoginService {
                                     .tokenName(TokenName.REFRESH_TOKEN)
                                     .build());
             userToken.setTokenValue(refreshToken);
-            log.info("Created user token");
             tokenRepository.save(userToken);
+            log.info("Created user refresh token");
             return new Response<>(
                     true,
                     StringApplication.SUCCESS.LOGIN_SUCCESS,

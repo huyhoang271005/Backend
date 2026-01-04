@@ -69,14 +69,11 @@ public class CategoryService {
 
     @Transactional
     public Response<Void> updateCategory(CategoryDTO categoryDTO) {
-        if(!categoryRepository.existsById(categoryDTO.getCategoryId())){
-            throw new ConflictException(StringApplication.FIELD.CATEGORY + StringApplication.FIELD.NOT_EXIST);
-        }
-        categoryRepository.save(Category.builder()
-                .categoryId(categoryDTO.getCategoryId())
-                .categoryName(categoryDTO.getCategoryName())
-                .description(categoryDTO.getDescription())
-                .build());
+        var category = categoryRepository.findById(categoryDTO.getCategoryId()).orElseThrow(
+                ()-> new ConflictException(StringApplication.FIELD.CATEGORY + StringApplication.FIELD.NOT_EXIST)
+        );
+        category.setDescription(categoryDTO.getDescription());
+        category.setCategoryName(categoryDTO.getCategoryName());
         log.info("Update category successfully");
         return new Response<>(
                 true,
@@ -86,7 +83,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public Response<Void> removeCategory(UUID categoryId) {
+    public Response<Void> deleteCategory(UUID categoryId) {
         var category = categoryRepository.findById(categoryId).orElseThrow(
                 ()-> new  EntityNotFoundException(StringApplication.FIELD.CATEGORY + StringApplication.FIELD.NOT_EXIST)
         );

@@ -24,12 +24,14 @@ public class ProductDetailController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getProducts(@RequestParam(required = false) UUID categoryId,
+    public ResponseEntity<?> getProducts(@RequestParam(required = false) String productName,
+                                         @RequestParam(required = false) UUID categoryId,
                                          @RequestParam(required = false) UUID brandId,
                                          @RequestParam(required = false) BigDecimal minPrice,
                                          @RequestParam(required = false) BigDecimal maxPrice,
                                          Pageable pageable) {
-        return ResponseEntity.ok(productDetailService.getProductList(categoryId, brandId,
+        return ResponseEntity.ok(productDetailService.getProductList(productName,
+                categoryId, brandId,
                 minPrice, maxPrice, pageable));
     }
 }

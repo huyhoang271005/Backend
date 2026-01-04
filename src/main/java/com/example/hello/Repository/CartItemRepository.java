@@ -1,14 +1,13 @@
 package com.example.hello.Repository;
 
-import com.example.hello.DataProjection.CartItemInfo;
-import com.example.hello.DataProjection.VariantInfo;
-import com.example.hello.DataProjection.ProductInfo;
+import com.example.hello.Feature.Authentication.DataProjection.CartItemInfo;
+import com.example.hello.Feature.Authentication.DataProjection.VariantInfo;
+import com.example.hello.Feature.Authentication.DataProjection.ProductInfo;
 import com.example.hello.Entity.Cart;
 import com.example.hello.Entity.CartItem;
 import com.example.hello.Entity.Variant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -39,9 +38,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
 
     Optional<CartItem> findByCartAndVariant(Cart cart, Variant variant);
 
-    @EntityGraph(attributePaths = {"cart", "cart.user"})
-    Optional<CartItem> findByCartItemId(UUID cartItemId);
-
     Integer countByCart(Cart cart);
 
     @Query("""
@@ -50,9 +46,9 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
             from CartItem ci
             join ci.variant v
             join v.product p
-            where p.productId in :listProductId
+            where p.productId in :listProductId and ci.cart.user.userId = :userId
             """)
-    List<CartItemInfo> getCartItemByProductId(List<UUID> listProductId);
+    List<CartItemInfo> getCartItemByProductId(List<UUID> listProductId, UUID userId);
 
     @Modifying
     void deleteByCart_User_UserIdAndCartItemIdIn(UUID cartUserUserId, List<UUID> cartItemIds);

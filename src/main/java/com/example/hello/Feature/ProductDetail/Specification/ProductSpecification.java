@@ -27,6 +27,15 @@ public class ProductSpecification {
         };
     }
 
+    public static Specification<Product> likeName(String productName){
+        return (root, criteriaQuery, criteriaBuilder) ->{
+            if(productName == null){
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get("productName"), "%" + productName + "%");
+        };
+    }
+
     public static Specification<Product> betweenPrice(BigDecimal minPrice, BigDecimal maxPrice){
         return (root, criteriaQuery, criteriaBuilder) ->
         {

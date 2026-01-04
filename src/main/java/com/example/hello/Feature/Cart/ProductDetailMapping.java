@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Cart;
 
-import com.example.hello.DataProjection.*;
+import com.example.hello.Feature.Authentication.DataProjection.*;
 import com.example.hello.Feature.Cart.CartDTO.CartDTO;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
 import com.example.hello.Feature.ProductsManager.DTO.AttributeDTO;
@@ -27,9 +27,10 @@ public class ProductDetailMapping {
     VariantValueRepository variantValueRepository;
     CartItemMapper cartItemMapper;
     AttributeValueRepository attributeValueRepository;
-    public List<CartDTO> mappingProductsDetail(Map<UUID,List<ProductInfo>> products){
+    public List<CartDTO> mappingProductsDetail(Map<UUID,List<ProductInfo>> products, UUID userId) {
         var productIds = products.keySet()
-                .stream().toList();
+                .stream()
+                .toList();
         log.info("Get product id successfully");
         var attributeValuesCurrent = attributeValueRepository.getProductAttributes(productIds);
         log.info("Found attribute values successfully");
@@ -44,7 +45,7 @@ public class ProductDetailMapping {
                 .stream()
                 .collect(Collectors.groupingBy(VariantValueInfo::getProductId));
         log.info("Found and group by variant values successfully");
-        var productCartItem = cartItemRepository.getCartItemByProductId(productIds).stream()
+        var productCartItem = cartItemRepository.getCartItemByProductId(productIds, userId).stream()
                 .collect(Collectors.groupingBy(CartItemInfo::getProductId));
         log.info("Found and group by cart item successfully");
         return productIds.stream()

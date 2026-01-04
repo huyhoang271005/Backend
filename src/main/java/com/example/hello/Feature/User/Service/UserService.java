@@ -95,6 +95,7 @@ public class UserService {
         ExtendUserResponse extendUserResponse = null;
         //Nếu có quyền thì sẽ Build thông tin nâng cao còn không trả null
         if(extendUser != null) {
+            log.info("User can get extend user");
             var role = user.getRole();
             extendUserResponse = ExtendUserResponse.builder()
                     .userStatus(user.getUserStatus())
@@ -139,8 +140,6 @@ public class UserService {
         user.setUserStatus(extendUserRequest.getUserStatus());
         var userRole = entityManager.getReference(Role.class, extendUserRequest.getRoleId());
         user.setRole(userRole);
-        //Lưu vào db và set vào cache
-        userRepository.save(user);
         log.info("User updated successfully");
         userStatusCacheService.updateUserStatus(user.getUserId(), extendUserRequest.getUserStatus());
         log.info("User status cache updated successfully");

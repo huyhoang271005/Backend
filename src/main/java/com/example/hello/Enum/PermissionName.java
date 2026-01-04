@@ -29,4 +29,6 @@ public enum PermissionName {
     ADD_VARIANT,
     UPDATE_VARIANT,
     DELETE_VARIANT,
+    GET_ORDERS_BY_STATUS,
+    CONFIRM_ORDER
 }

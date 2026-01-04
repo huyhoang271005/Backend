@@ -25,6 +25,7 @@ public class OrderDTO {
     List<OrderItemDTO> orderItemDTOList;
     OrderStatus orderStatus;
     Instant createdAt;
+    Instant updatedAt;
     Instant paymentAt;
 
 }

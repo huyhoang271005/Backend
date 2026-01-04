@@ -1,4 +1,4 @@
-package com.example.hello.DataProjection;
+package com.example.hello.Feature.Authentication.DataProjection;
 
 import com.example.hello.Entity.Session;
 
@@ -25,5 +25,9 @@ public interface SessionInfo {
 
     String getDeviceType();
 
+    String getCity();
+    String getRegion();
+    String getCountry();
+    String getTimezone();
     String getIpAddress();
 }

@@ -94,6 +94,7 @@ public class ProductService {
             }
         }
     }
+    @Transactional
     public Response<Product> addProduct(ProductDTO productDTO, Map<String, MultipartFile> images) {
         checkProductDTO(productDTO, images);
         if(images.get("productImage") == null) {
@@ -130,6 +131,7 @@ public class ProductService {
 
     }
 
+    @Transactional(readOnly = true)
     public Response<ProductDTO> getProduct(UUID productId) {
         //Get product
         Product product = productRepository.findById(productId)
@@ -210,7 +212,6 @@ public class ProductService {
             product.setImageUrl(imageCurrent.getUrl());
             product.setImageId(imageCurrent.getPublicId());
         }
-        productRepository.save(product);
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
 
@@ -258,7 +259,6 @@ public class ProductService {
                 variant.setImageId(imageCurrent.getPublicId());
             }
         }
-        variantRepository.save(variant);
         log.info("Variant successfully updated");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }

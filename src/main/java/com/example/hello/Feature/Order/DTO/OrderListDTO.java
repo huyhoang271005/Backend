@@ -4,6 +4,7 @@ import com.example.hello.Enum.OrderStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,5 +17,6 @@ import java.util.UUID;
 public class OrderListDTO {
     UUID orderId;
     OrderStatus orderStatus;
+    Instant updatedAt;
     List<OrderItemDTO> orderItemDTOList;
 }

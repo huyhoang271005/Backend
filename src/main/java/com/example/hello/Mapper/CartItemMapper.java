@@ -1,6 +1,6 @@
 package com.example.hello.Mapper;
 
-import com.example.hello.DataProjection.VariantInfo;
+import com.example.hello.Feature.Authentication.DataProjection.VariantInfo;
 import com.example.hello.Entity.CartItem;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
 import com.example.hello.Feature.Cart.CartDTO.ProductVariantsDTO;

@@ -1,6 +1,7 @@
 package com.example.hello.Middleware;
 
 public final class ParamName {
+    public static final String ADDRESS_ATTRIBUTE = "address";
     public static final String DEVICE_TYPE_ATTRIBUTE = "deviceType";
     public static final String DEVICE_ID_COOKIE = "deviceId";
     public static final String DEVICE_ID_HEADER = "Device-id";

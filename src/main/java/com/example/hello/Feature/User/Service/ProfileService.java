@@ -85,8 +85,6 @@ public class ProfileService {
             profile.setImageUrl(uploadImage.getUrl());
             profile.setImageId(uploadImage.getPublicId());
         }
-        user.setProfile(profile);
-        userRepository.save(user);
         log.info("Profile updated successfully");
         return new Response<>(
                 true,

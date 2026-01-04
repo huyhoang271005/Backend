@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class ContactService {
     UserRepository userRepository;
     ContactMapper contactMapper;
 
+    @Transactional(readOnly = true)
     public Response<ListResponse<ContactDTO>> getContacts(UUID userId, Pageable pageable) {
         var contacts =  contactRepository.findAllByUser_UserIdOrderByUpdatedAtDesc(userId, pageable);
         log.info("Found contacts successfully");
@@ -38,6 +40,7 @@ public class ContactService {
                 )
         );
     }
+    @Transactional
     public Response<ContactDTO> addContact(UUID userId, ContactDTO contactDTO) {
         var user = userRepository.findById(userId).orElseThrow(
                 ()-> new EntityNotFoundException(StringApplication.FIELD.USER +
@@ -54,6 +57,7 @@ public class ContactService {
         );
     }
 
+    @Transactional
     public Response<ContactDTO> updateContact(UUID userId, ContactDTO contactDTO) {
         var contact = contactRepository.findById(contactDTO.getContactId()).orElseThrow(
                 ()-> new EntityNotFoundException(StringApplication.FIELD.CONTACT +
@@ -72,6 +76,7 @@ public class ContactService {
         );
     }
 
+    @Transactional
     public Response<Void> deleteContact(UUID userId, UUID contactId) {
         var contact = contactRepository.findById(contactId).orElseThrow(
                 ()-> new EntityNotFoundException(StringApplication.FIELD.CONTACT +

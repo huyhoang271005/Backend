@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Order.Controller;
 
+import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Order.DTO.OrderDTO;
 import com.example.hello.Feature.Order.Service.OrderService;
 import lombok.AccessLevel;
@@ -32,9 +33,10 @@ public class OrderController {
     }
 
     @PatchMapping("{orderId}")
-    public ResponseEntity<?> cancelOrder(@AuthenticationPrincipal UUID userId,
-                                         @PathVariable UUID orderId){
-        return ResponseEntity.ok(orderService.cancelOrder(userId, orderId));
+    public ResponseEntity<?> updateStatusOrder(@AuthenticationPrincipal UUID userId,
+                                               @PathVariable UUID orderId,
+                                               @RequestBody OrderStatus orderStatus){
+        return ResponseEntity.ok(orderService.updateOrder(userId, orderId, orderStatus));
     }
 
     @GetMapping

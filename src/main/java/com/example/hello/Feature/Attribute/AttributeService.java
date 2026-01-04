@@ -65,13 +65,11 @@ public class AttributeService {
 
     @Transactional
     public Response<Void> updateAttribute(AttributeDTO attributeDTO) {
-        if(!attributeRepository.existsById(attributeDTO.getAttributeId())){
-            throw new ConflictException(StringApplication.FIELD.ATTRIBUTE + StringApplication.FIELD.NOT_EXIST);
-        }
-        attributeRepository.save(Attribute.builder()
-                        .attributeId(attributeDTO.getAttributeId())
-                        .attributeName(attributeDTO.getAttributeName())
-                .build());
+        var attribute = attributeRepository.findById(attributeDTO.getAttributeId())
+                        .orElseThrow(
+                                ()-> new ConflictException(StringApplication.FIELD.ATTRIBUTE + StringApplication.FIELD.NOT_EXIST)
+                        );
+        attribute.setAttributeName(attributeDTO.getAttributeName());
         log.info("Attribute updated successfully");
         return new Response<>(
                 true,

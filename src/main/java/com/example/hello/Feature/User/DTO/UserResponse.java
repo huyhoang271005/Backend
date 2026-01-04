@@ -3,7 +3,7 @@ package com.example.hello.Feature.User.DTO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -17,5 +17,5 @@ public class UserResponse {
     String fullName;
     String username;
     String imageUrl;
-    LocalDateTime createdAt;
+    Instant createdAt;
 }

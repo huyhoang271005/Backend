@@ -19,4 +19,5 @@ public class LoginRequest {
     @NotBlank(message = StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EMPTY)
     @Email(message = StringApplication.FIELD.EMAIL + StringApplication.FIELD.INVALID)
     String email;
+    String refreshToken;
 }

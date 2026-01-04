@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.DataProjection.AttributeValueByVariantId;
-import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
+import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
 import com.example.hello.Entity.Variant;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Enum.PaymentMethod;
@@ -84,6 +84,10 @@ public class OrderService {
         order.setUser(user);
         var orderItem = orderDTO.getOrderItemDTOList().stream()
                 .map(orderItemDTO -> {
+                    if(orderItemDTO.getQuantity() > variants.get(orderItemDTO.getVariantId()).getStock()){
+                        log.error("Order quantity exceeds stock");
+                        throw new ConflictException("Order quantity exceeds stock");
+                    }
                     var orderItemCurrent = orderMapper.toOrderItem(orderItemDTO);
                     var variant = variants.get(orderItemDTO.getVariantId());
                     orderItemCurrent.setPrice(variant.getPrice());
@@ -97,7 +101,6 @@ public class OrderService {
                 .toList();
         order.setOrderItems(orderItem);
         orderRepository.save(order);
-        variantRepository.saveAll(variants.values());
         log.info("Order item generated successfully");
         var cartItemIds = new ArrayList<UUID>();
         orderDTO.getOrderItemDTOList().forEach(orderItemDTO -> {
@@ -140,7 +143,7 @@ public class OrderService {
                     return orderItemDTO;
                 })
                 .toList());
-
+        log.info("Order mapping successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -160,6 +163,7 @@ public class OrderService {
                 .stream()
                 .collect(Collectors.groupingBy(AttributeValueByVariantId::getVariantId));
         log.info("Variant values found successfully");
+        log.info("Orders list mapping successfully");
         return orders.keySet()
                 .stream()
                 .map(uuid -> {
@@ -167,6 +171,7 @@ public class OrderService {
                     return OrderListDTO.builder()
                             .orderId(uuid)
                             .orderStatus(order.getFirst().getOrder().getOrderStatus())
+                            .updatedAt(order.getFirst().getUpdatedAt())
                             .orderItemDTOList(order
                                     .stream()
                                     .map(orderInfo -> {
@@ -197,24 +202,40 @@ public class OrderService {
     }
 
     @Transactional
-    public Response<Void> cancelOrder(UUID userId, UUID orderId) {
+    public Response<Void> updateOrder(UUID userId, UUID orderId, OrderStatus orderStatus) {
         var order = orderRepository.findByOrderIdAndUser_UserId((orderId), userId)
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.ORDER +
                         StringApplication.FIELD.NOT_EXIST));
         log.info("Order found successfully");
-        String message;
-        if(order.getOrderStatus() ==  OrderStatus.WAITING) {
-            order.setOrderStatus(OrderStatus.CANCELED);
-            orderRepository.save(order);
-            message = StringApplication.FIELD.SUCCESS;
+        if(orderStatus == OrderStatus.CANCELED) {
+            if(order.getOrderStatus() == OrderStatus.WAITING){
+                log.info("Order {} was set status cancelled", orderId);
+                order.setOrderStatus(OrderStatus.CANCELED);
+            }
+            else {
+                log.error("Order {} cant cancelled with status {}", orderId, order.getOrderStatus());
+                throw new ConflictException(StringApplication.FIELD.CANT_CANCEL);
+            }
+        }
+        else if(orderStatus == OrderStatus.SUCCESS) {
+            if(order.getOrderStatus() == OrderStatus.DELIVERED) {
+                log.info("Order {} was set status success", orderId);
+                order.setOrderStatus(OrderStatus.SUCCESS);
+            }
+            else {
+                log.error("Order {} cant success with status {}", orderId, order.getOrderStatus());
+                throw new ConflictException(StringApplication.FIELD.REQUEST +
+                        StringApplication.FIELD.INVALID);
+            }
         }
         else {
-            message = StringApplication.FIELD.CANT_CANCEL;
+            log.error("Request order status invalid with {}", orderStatus);
+            throw new ConflictException(StringApplication.FIELD.REQUEST +
+                    StringApplication.FIELD.INVALID);
         }
-        log.info("Update order status successfully");
         return new Response<>(
                 true,
-                message,
+                StringApplication.FIELD.SUCCESS,
                 null
         );
     }

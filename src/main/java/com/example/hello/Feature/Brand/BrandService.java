@@ -68,14 +68,11 @@ public class BrandService {
 
     @Transactional
     public Response<Void> updateBrand(BrandDTO brandDTO) {
-        if(!brandRepository.existsById(brandDTO.getBrandId())){
-            throw new ConflictException(StringApplication.FIELD.BRAND + StringApplication.FIELD.NOT_EXIST);
-        }
-        brandRepository.save(Brand.builder()
-                .brandId(brandDTO.getBrandId())
-                .brandName(brandDTO.getBrandName())
-                .description(brandDTO.getDescription())
-                .build());
+        var brand = brandRepository.findById(brandDTO.getBrandId()).orElseThrow(
+                () -> new ConflictException(StringApplication.FIELD.BRAND + StringApplication.FIELD.NOT_EXIST)
+        );
+        brand.setBrandName(brandDTO.getBrandName());
+        brand.setDescription(brandDTO.getDescription());
         log.info("Brand updated successfully");
         return new Response<>(
                 true,

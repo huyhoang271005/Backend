@@ -11,6 +11,4 @@ import java.util.UUID;
 
 public interface TokenRepository extends JpaRepository<Token, UUID> {
     Optional<Token> findBySessionAndTokenName(Session session, TokenName tokenName);
-    @EntityGraph(attributePaths = {"session"})
-    Optional<Token> findByTokenValue(String tokenValue);
 }

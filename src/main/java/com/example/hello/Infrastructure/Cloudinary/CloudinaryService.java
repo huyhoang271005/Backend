@@ -25,6 +25,7 @@ public class CloudinaryService {
 
     public CloudinaryResponse uploadImage(MultipartFile file, String folder) {
         if(!isImage(file) && file.isEmpty()) {
+            log.error("Image file is empty or file not image");
             throw new FileUploadException(StringApplication.ERROR.UPLOAD_ERROR);
         }
         try {
@@ -37,18 +38,21 @@ public class CloudinaryService {
             log.info("Image upload successfully");
             return new CloudinaryResponse((String) result.get("public_id"), (String) result.get("secure_url"));
         } catch (IOException e) {
+            log.error("Image upload failed");
             throw new FileUploadIOException(StringApplication.ERROR.UPLOAD_IO_ERROR + e.getMessage());
         }
     }
 
-    public Boolean deleteImage(String publicId) {
+    public void deleteImage(String publicId) {
         try {
             Map<?,?> result = cloudinary.uploader()
                     .destroy(publicId, ObjectUtils.emptyMap());
 
-            log.info("Image {} delete successfully", publicId);
-            return result.get("result").equals("ok");
+            if(result.get("result").equals("oke")){
+                log.info("Image {} delete successfully", publicId);
+            }
         } catch (IOException e) {
+            log.error("Image {} delete failure", publicId);
             throw new FileUploadIOException(StringApplication.ERROR.DELETE_IO_ERROR);
         }
     }

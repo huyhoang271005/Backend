@@ -192,8 +192,8 @@ public class VerifyService {
                 log.info("User has been activated {}", user.getUserId());
             }
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(
-                    tokenVerify.getUser().getUserId(), VerificationTypes.VERIFY_EMAIL);
+            verificationTokensRepository.deleteByUser_UserIdAndTypeId(
+                    tokenVerify.getUser().getUserId(), tokenVerify.getTypeId());
             log.info("Verification email deleted");
             return new Response<>(true, StringApplication.FIELD.VERIFIED_SUCCESS, null);
         }
@@ -208,9 +208,8 @@ public class VerifyService {
             session.setValidated(true);
             log.info("Set validated is true");
             //Xoá yêu cầu xác thực
-            verificationTokensRepository.deleteByUser_UserIdAndVerificationType(
-                    tokenVerify.getUser().getUserId(),
-                    VerificationTypes.VERIFY_DEVICE);
+            verificationTokensRepository.deleteByUser_UserIdAndTypeId(
+                    tokenVerify.getUser().getUserId(), tokenVerify.getTypeId());
             log.info("Verification device deleted");
             return new Response<>(true, StringApplication.FIELD.VERIFIED_SUCCESS, null);
         }
@@ -264,7 +263,8 @@ public class VerifyService {
         user.setPassword(passwordEncoder.encode(passwordRequest.getPassword()));
         log.info("Password was change");
         //Xoá yêu cầu xác thực
-        verificationTokensRepository.deleteByUser_UserIdAndVerificationType(user.getUserId(), VerificationTypes.VERIFY_CHANGE_PASSWORD);
+        verificationTokensRepository.deleteByUser_UserIdAndTypeId(user.getUserId(),
+                tokenVerify.getTypeId());
         log.info("Verification change password deleted");
         return new Response<>(true, StringApplication.FIELD.CHANGE_PASSWORD + StringApplication.FIELD.SUCCESS, null);
     }

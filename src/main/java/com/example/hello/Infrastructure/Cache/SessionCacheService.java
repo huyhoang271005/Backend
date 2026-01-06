@@ -7,6 +7,7 @@ import com.example.hello.Repository.SessionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -33,4 +34,7 @@ public class SessionCacheService {
     public Boolean updateRevoked(UUID sessionId, Boolean revoked) {
         return revoked;
     }
+
+    @CacheEvict(cacheNames = ParamName.SESSION_CACHE, key = "#sessionId")
+    public void evictRevoked(UUID sessionId) {}
 }

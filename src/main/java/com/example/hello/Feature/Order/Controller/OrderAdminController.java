@@ -15,11 +15,11 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("auth/admin/orders")
+@RequestMapping("admin/orders")
 public class OrderAdminController {
     OrderAdminService orderAdminService;
 
-//    @PreAuthorize("hasAuthority('GET_ORDERS_BY_STATUS')")
+    @PreAuthorize("hasAuthority('GET_ORDERS_ADMIN')")
     @GetMapping
     public ResponseEntity<?> getOrderAdmin(@RequestParam(required = false) OrderStatus orderStatus,
                                            @RequestParam(required = false) UUID orderId,
@@ -27,7 +27,7 @@ public class OrderAdminController {
         return ResponseEntity.ok(orderAdminService.getOrdersAdmin(orderStatus, orderId, pageable));
     }
 
-//    @PreAuthorize("hasAuthority('CONFIRM_ORDER')")
+    @PreAuthorize("hasAuthority('CONFIRM_ORDER')")
     @PatchMapping("{orderId}")
     public ResponseEntity<?> updateOrderStatus(@PathVariable UUID orderId,
                                                @RequestBody OrderStatus orderStatus){

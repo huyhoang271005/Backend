@@ -1,6 +1,6 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.NotificationInfo;
+import com.example.hello.DataProjection.NotificationInfo;
 import com.example.hello.Entity.UserNotification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

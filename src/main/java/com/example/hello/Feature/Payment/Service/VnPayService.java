@@ -120,12 +120,11 @@ public class VnPayService {
     }
 
     @Transactional
-    public void paymentReturn(HttpServletRequest request){
+    public Boolean paymentReturn(HttpServletRequest request){
         Map<String, String> params = new HashMap<>();
         request.getParameterMap().forEach(
                 (key, value) -> params.put(key, value[0])
         );
-        log.info("Pay return url is {}", request.getRequestURL());
         String responseCode = params.get("vnp_ResponseCode");
         String vnp_TxnRef = params.get("vnp_TxnRef");
         var order = orderRepository.findByPaymentId(vnp_TxnRef).orElseThrow(
@@ -136,8 +135,10 @@ public class VnPayService {
         if ("00".equals(responseCode)) {
             order.setOrderStatus(OrderStatus.PENDING);
             order.setPaymentAt(Instant.now());
+            return true;
         } else {
             order.setOrderStatus(OrderStatus.WAITING);
+            return false;
         }
     }
 }

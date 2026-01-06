@@ -1,7 +1,7 @@
 package com.example.hello.Feature.ProductDetail.Service;
 
-import com.example.hello.Feature.Authentication.DataProjection.ProductAttributesInfo;
-import com.example.hello.Feature.Authentication.DataProjection.VariantValueInfo;
+import com.example.hello.DataProjection.ProductAttributesInfo;
+import com.example.hello.DataProjection.VariantValueInfo;
 import com.example.hello.Entity.Product;
 import com.example.hello.Feature.ProductDetail.DTO.ProductDetailResponse;
 import com.example.hello.Feature.ProductDetail.DTO.ProductList;

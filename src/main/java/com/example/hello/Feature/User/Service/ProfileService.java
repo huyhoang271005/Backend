@@ -4,7 +4,6 @@ import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Infrastructure.Exception.FileUploadIOException;
 import com.example.hello.Mapper.UserMapper;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Slf4j
@@ -72,14 +70,11 @@ public class ProfileService {
         user.setUsername(profileRequest.getUsername());
         var profile = user.getProfile();
         profile.setGender(profileRequest.getGender());
-        profile.setBirthday(LocalDate.parse(profileRequest.getBirthday()));
+        profile.setBirthday(profile.getBirthday());
         profile.setFullName(profileRequest.getFullName());
         if(avatar != null) {
             if(profile.getImageId() != null){
-                Boolean deleteImage = cloudinaryService.deleteImage(profile.getImageId());
-                if(!deleteImage){
-                    throw new FileUploadIOException(StringApplication.ERROR.UPLOAD_IO_ERROR);
-                }
+                cloudinaryService.deleteImage(profile.getImageId());
             }
             CloudinaryResponse uploadImage = cloudinaryService.uploadImage(avatar, "user1");
             profile.setImageUrl(uploadImage.getUrl());

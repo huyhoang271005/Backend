@@ -11,6 +11,7 @@ import com.example.hello.Repository.NotificationRepository;
 import com.example.hello.Repository.UserNotificationRepository;
 import com.example.hello.Repository.UserRepository;
 import com.example.hello.SseEmitter.SseService;
+import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -49,7 +50,7 @@ public class NotificationService {
                 .toList();
         userNotificationRepository.saveAll(userNotifications);
         log.info("Notifications for user generated successfully");
-        String topicName = "notifications";
+        String topicName = SseTopicName.notification.name();
         sseService.sendSse(topicName, notificationDTO, userList.stream()
                 .map(User::getUserId)
                 .toList());

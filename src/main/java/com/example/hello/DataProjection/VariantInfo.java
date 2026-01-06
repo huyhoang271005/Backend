@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Authentication.DataProjection;
+package com.example.hello.DataProjection;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,6 +16,8 @@ public interface VariantInfo {
     UUID getVariantId();
 
     Integer getStock();
+
+    Integer getSold();
 
     String getImageUrl();
 

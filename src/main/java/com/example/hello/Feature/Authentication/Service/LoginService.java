@@ -5,8 +5,6 @@ import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
 import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
-import com.example.hello.Feature.User.DTO.Address;
-import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Repository.DeviceRepository;
 import com.example.hello.Repository.SessionRepository;
 import com.example.hello.Middleware.StringApplication;
@@ -45,7 +43,6 @@ public class LoginService {
     SessionCacheService sessionCacheService;
     JwtComponent jwtComponent;
     JwtProperties jwtProperties;
-    private final SessionMapper sessionMapper;
 
     @Transactional
     public Response<LoginResponse> login(LoginRequest loginRequest, String oldRefreshToken,

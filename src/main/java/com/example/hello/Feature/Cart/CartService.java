@@ -2,7 +2,7 @@ package com.example.hello.Feature.Cart;
 
 import com.example.hello.Entity.Cart;
 import com.example.hello.Entity.CartItem;
-import com.example.hello.Feature.Authentication.DataProjection.ProductInfo;
+import com.example.hello.DataProjection.ProductInfo;
 import com.example.hello.Feature.Cart.CartDTO.CartDTO;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
@@ -13,6 +13,7 @@ import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Repository.*;
 import com.example.hello.SseEmitter.SseService;
+import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -78,7 +79,7 @@ public class CartService {
                     cartItemCurrent.setQuantity(0);
                     cartItemCurrent.setVariant(variant);
                     cartItemCurrent.setCart(cart);
-                    sseService.sendSse("cart", 1, List.of(userId));
+                    sseService.sendSse(SseTopicName.cart.name(), 1, List.of(userId));
                     log.info("Send sse cart successfully");
                     return cartItemCurrent;
                 });
@@ -141,6 +142,7 @@ public class CartService {
             if(!item.getCartItemId().equals(cartItem.getCartItemId())) {
                 log.info("When cart item exist");
                 cartItemRepository.delete(cartItem);
+                sseService.sendSse(SseTopicName.cart.name(), -1, List.of(userId));
                 log.info("Cart item deleted successfully");
                 item.setQuantity(item.getQuantity() + cartItemDTO.getQuantity());
             }
@@ -170,7 +172,7 @@ public class CartService {
     public Response<Void> deleteCartItem(UUID userId, List<UUID> cartItemIds) {
         cartItemRepository.deleteByCart_User_UserIdAndCartItemIdIn(userId, cartItemIds);
         log.info("Cart items deleted successfully");
-        sseService.sendSse("cart", -cartItemIds.size(), List.of(userId));
+        sseService.sendSse(SseTopicName.cart.name(), -cartItemIds.size(), List.of(userId));
         log.info("Send sse cart successfully");
         return new Response<>(
                 true,

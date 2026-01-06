@@ -1,10 +1,12 @@
 package com.example.hello.Feature.Contact;
 
+import com.example.hello.Middleware.Constant;
+import com.example.hello.Middleware.StringApplication;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class ContactDTO {
     UUID contactId;
     String contactName;
+    @Pattern(regexp = Constant.VALIDATION.PHONE, message = StringApplication.ERROR.PHONE)
     String phone;
     String address;
     Instant updatedAt;

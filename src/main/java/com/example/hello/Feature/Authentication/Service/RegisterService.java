@@ -6,6 +6,7 @@ import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Enum.RoleName;
 import com.example.hello.Feature.Authentication.DTO.DeviceResponse;
+import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Repository.DeviceRepository;
 import com.example.hello.Repository.RoleRepository;
 import com.example.hello.Repository.SessionRepository;
@@ -90,7 +91,8 @@ public class RegisterService {
 
         //Set role cho user nếu không tìm thấy role này thì đã exception
         Role role = roleRepository.findByRoleName(RoleName.USER.name()).orElseThrow(
-                ()-> new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR)
+                ()-> new EntityNotFoundException(StringApplication.FIELD.ROLE +
+                        StringApplication.FIELD.EXISTED)
         );
         log.info("Role set is USER");
         user.setRole(role);

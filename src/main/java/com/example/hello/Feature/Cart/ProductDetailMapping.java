@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Cart;
 
-import com.example.hello.Feature.Authentication.DataProjection.*;
+import com.example.hello.DataProjection.*;
 import com.example.hello.Feature.Cart.CartDTO.CartDTO;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
 import com.example.hello.Feature.ProductsManager.DTO.AttributeDTO;

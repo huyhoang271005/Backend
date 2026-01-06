@@ -4,9 +4,12 @@ import com.example.hello.Middleware.Constant;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Feature.Authentication.DTO.LoginRequest;
 import com.example.hello.Enum.Gender;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDate;
 
 
 @Getter
@@ -19,7 +22,9 @@ public class RegisterRequest extends LoginRequest {
     String username;
     @Pattern(regexp = Constant.VALIDATION.FULL_NAME, message = StringApplication.FIELD.FULL_NAME + StringApplication.FIELD.INVALID)
     String fullName;
-    @Pattern(regexp = Constant.VALIDATION.DATE, message = StringApplication.FIELD.DATE + StringApplication.FIELD.INVALID)
-    String birthday;
+    @NotNull
+    @Past(message = StringApplication.FIELD.DATE + StringApplication.FIELD.INVALID)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate birthday;
     Gender gender;
 }

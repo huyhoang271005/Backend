@@ -17,5 +17,5 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
                         where un.notification = n
                         )
             """)
-    void deleteNotifications();
+    void deleteNotificationsOrphan();
 }

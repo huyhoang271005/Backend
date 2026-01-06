@@ -48,8 +48,8 @@ public class EmailVerifyService {
             mailSender.send(mimeMessage);
             log.info("Sent email verification email to {}", to);
         } catch (Exception e) {
-            log.error("Sent email verification email to {}", to, e);
-            throw new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR);
+            log.error("Error when sent email verification email to {}", e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 

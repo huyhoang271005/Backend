@@ -1,7 +1,10 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
-import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
+import com.example.hello.DataProjection.AttributeValueByVariantId;
+import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.DataProjection.OrderItemInfo;
+import com.example.hello.DataProjection.VariantInfo;
+import com.example.hello.Entity.Product;
 import com.example.hello.Entity.Variant;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Enum.PaymentMethod;
@@ -16,12 +19,15 @@ import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Repository.*;
+import com.example.hello.SseEmitter.SseService;
+import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +50,51 @@ public class OrderService {
     CartItemRepository cartItemRepository;
     VariantValueRepository variantValueRepository;
     OrderMapper orderMapper;
+    SseService sseService;
+    ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
+    @Async
+    public void countTotalSalesByProductIds(List<UUID> variantIds) {
+        var productIds = productRepository.findByVariantIds(variantIds);
+        var products = productRepository.findAllById(productIds)
+                .stream()
+                .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+        var variants = variantRepository.findVariantInfoByProductIds(productIds)
+                .stream()
+                .collect(Collectors.groupingBy(VariantInfo::getProductId));
+        productIds.forEach(productId -> {
+           var sold = variants.get(productId)
+                   .stream()
+                   .mapToInt(VariantInfo::getSold)
+                   .sum();
+           products.get(productId).setTotalSales(sold);
+
+        });
+        productRepository.saveAll(products.values());
+        log.info("Updated total sales by product ids: {}", productIds);
+    }
+    @Async
+    public void updateProductWhenCancel(List<UUID> orderIds) {
+        var variantInfos = orderItemRepository.getOrderItemsVariant(orderIds);
+        var variantInfosGroup = variantInfos.stream()
+                .collect(Collectors
+                        .toMap(OrderItemInfo::getVariantId, Function.identity()));
+        var variantIds = variantInfos.stream()
+                .map(OrderItemInfo::getVariantId)
+                .distinct()
+                .toList();
+        var variants = variantRepository.findAllById(variantIds);
+        variants.forEach(variant -> {
+            variant.setSold(variant.getSold() -
+                    variantInfosGroup.get(variant.getVariantId()).getQuantity());
+            variant.setStock(variant.getStock() +
+                    variantInfosGroup.get(variant.getVariantId()).getQuantity());
+        });
+        variantRepository.saveAll(variants);
+        log.info("Updated variant when cancel successfully");
+        countTotalSalesByProductIds(variantIds);
+    }
     @Transactional
     public Response<Map<String, UUID>> addOrder(UUID userId, OrderDTO  orderDTO) {
         var user = userRepository.findById(userId).orElseThrow(
@@ -60,7 +110,7 @@ public class OrderService {
             throw new ConflictException(StringApplication.FIELD.REQUEST +
                     StringApplication.FIELD.INVALID);
         }
-        var variants = variantRepository.findByVariantIdIn(orderDTO.getOrderItemDTOList()
+        var variants = variantRepository.findAllById(orderDTO.getOrderItemDTOList()
                 .stream()
                 .map(OrderItemDTO::getVariantId)
                 .toList())
@@ -105,11 +155,20 @@ public class OrderService {
         var cartItemIds = new ArrayList<UUID>();
         orderDTO.getOrderItemDTOList().forEach(orderItemDTO -> {
             if(orderItemDTO.getVariantId() != null) {
-                cartItemIds.add(orderItemDTO.getVariantId());
+                cartItemIds.add(orderItemDTO.getCartItemId());
             }
         });
-        cartItemRepository.deleteByCartItemIdIn(cartItemIds);
-        log.info("Deleted cart items successfully");
+        if(!cartItemIds.isEmpty()) {
+            log.info("Cart item not null");
+            cartItemRepository.deleteByCartItemIdIn(cartItemIds);
+            log.info("Deleted cart items successfully");
+            sseService.sendSse(SseTopicName.cart.name(), - cartItemIds.size(), List.of(userId));
+            log.info("Cart sse sent successfully");
+        }
+        //Update totalSales
+        countTotalSalesByProductIds(orderDTO.getOrderItemDTOList().stream()
+                .map(OrderItemDTO::getVariantId)
+                .toList());
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -138,7 +197,7 @@ public class OrderService {
                     var orderItemDTO = orderMapper.toOrderItemDTO(orderInfo);
                     orderItemDTO.setAttributeValues(attributeValue.get(orderInfo.getVariantId())
                             .stream()
-                            .map(AttributeValueByVariantId::getAttributeName)
+                            .map(AttributeValueByVariantId::getAttributeValueName)
                             .toList());
                     return orderItemDTO;
                 })
@@ -211,19 +270,20 @@ public class OrderService {
             if(order.getOrderStatus() == OrderStatus.WAITING){
                 log.info("Order {} was set status cancelled", orderId);
                 order.setOrderStatus(OrderStatus.CANCELED);
+                updateProductWhenCancel(List.of(orderId));
             }
             else {
                 log.error("Order {} cant cancelled with status {}", orderId, order.getOrderStatus());
                 throw new ConflictException(StringApplication.FIELD.CANT_CANCEL);
             }
         }
-        else if(orderStatus == OrderStatus.SUCCESS) {
+        else if(orderStatus == OrderStatus.COMPLETED) {
             if(order.getOrderStatus() == OrderStatus.DELIVERED) {
-                log.info("Order {} was set status success", orderId);
-                order.setOrderStatus(OrderStatus.SUCCESS);
+                log.info("Order {} was set status {}", orderId, OrderStatus.COMPLETED);
+                order.setOrderStatus(OrderStatus.COMPLETED);
             }
             else {
-                log.error("Order {} cant success with status {}", orderId, order.getOrderStatus());
+                log.error("Order {} cant set with status {}", orderId, order.getOrderStatus());
                 throw new ConflictException(StringApplication.FIELD.REQUEST +
                         StringApplication.FIELD.INVALID);
             }

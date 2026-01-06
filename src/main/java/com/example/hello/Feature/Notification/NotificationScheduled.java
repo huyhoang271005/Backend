@@ -19,7 +19,7 @@ public class NotificationScheduled {
     @Scheduled(fixedRate = 60*60*1000)
     @Transactional
     public void deleteNotifications() {
-        notificationRepository.deleteNotifications();
+        notificationRepository.deleteNotificationsOrphan();
         log.info("Deleted orphan notifications scheduled successfully");
     }
 }

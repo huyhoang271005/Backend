@@ -1,6 +1,7 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
+import com.example.hello.DataProjection.GetOrderAndUserId;
+import com.example.hello.DataProjection.OrderInfo;
 import com.example.hello.Entity.Order;
 import com.example.hello.Entity.User;
 import com.example.hello.Enum.OrderStatus;
@@ -19,7 +20,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             select o as order, oi.price as price, oi.originalPrice as originalPrice,
                         oi.quantity as quantity, v.imageUrl as imageUrl, p.productName as productName,
-                        v.variantId as variantId, o.paymentAt as paymentAt, o.updatedAt as updatedAt
+                        v.variantId as variantId, o.paymentAt as paymentAt, o.updatedAt as updatedAt, 
+                        o.createdAt as createdAt
             from OrderItem oi
             join oi.order o
             join oi.variant v
@@ -74,7 +76,25 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             update Order o
             set o.orderStatus = :orderStatus, o.updatedAt = :now
-            where o.updatedAt <= :timeAgo and o.orderStatus = :currentOrderStatus
+            where (case
+                        when :isUpdatedAt = true then o.updatedAt
+                        else o.createdAt end) <= :timeAgo and o.orderStatus = :currentOrderStatus
             """)
-    void updateOrderStatus(OrderStatus orderStatus, Instant timeAgo, Instant now, OrderStatus currentOrderStatus);
+    void updateOrderStatus(Boolean isUpdatedAt, OrderStatus orderStatus, Instant timeAgo, Instant now, OrderStatus currentOrderStatus);
+
+    @Query("""
+            select o.orderId
+            from Order o
+            where (case
+                        when :isUpdatedAt = true then o.updatedAt
+                        else o.createdAt end) <= :timeAgo and o.orderStatus = :orderStatus
+            """)
+    List<UUID> findOrderIdsByTimeAgo(Boolean isUpdatedAt, Instant timeAgo, OrderStatus orderStatus);
+
+    @Query("""
+            select oi.order.user.userId as userId, oi.order as order
+            from OrderItem oi
+            where oi.orderItemId = :orderItemId
+            """)
+    Optional<GetOrderAndUserId> findOrderAndUserIdByOrderItemId(UUID orderItemId);
 }

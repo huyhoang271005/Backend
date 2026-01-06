@@ -35,7 +35,7 @@ public class ProductService {
     AddVariantService addVariantService;
     ProductMapper productMapper;
     VariantMapper variantMapper;
-    private final VariantRepository variantRepository;
+    VariantRepository variantRepository;
 
     private void checkProductDTO(ProductDTO productDTO, Map<String, MultipartFile> images) {
         productDTO.getVariants().forEach(variant -> {
@@ -111,15 +111,15 @@ public class ProductService {
                         StringApplication.FIELD.NOT_EXIST));
         log.info("Foud brand successfully");
         //upload product
-//        CloudinaryResponse imageProduct = cloudinaryService
-//                .uploadImage(images.get("productImage"), "product");
+        CloudinaryResponse imageProduct = cloudinaryService
+                .uploadImage(images.get("productImage"), "product");
         //Tạo và lưu sản phẩm
         Product product = new Product();
         productMapper.updateProduct(productDTO.getProductDetailDTO(), product);
         product.setCategory(category);
         product.setBrand(brand);
-//        product.setImageId(imageProduct.getPublicId());
-//        product.setImageUrl(imageProduct.getUrl());
+        product.setImageId(imageProduct.getPublicId());
+        product.setImageUrl(imageProduct.getUrl());
         productRepository.save(product);
         log.info("Product successfully added successfully");
 
@@ -141,7 +141,8 @@ public class ProductService {
         log.info("Foud product successfully");
         //Build product detail
         ProductDetailDTO productDetail = productMapper.toProductDTO(product);
-
+        productDetail.setCategoryId(product.getCategory().getCategoryId());
+        productDetail.setBrandId(product.getBrand().getBrandId());
         //Group AttributeValues by Attribute
         Map<Attribute, List<AttributeValue>> attributeMap = product.getAttributeValues()
                 .stream()
@@ -183,7 +184,7 @@ public class ProductService {
                     .build())
                     .toList();
             variantValuesDTO.addAll(variantValue);
-            log.info("Add variant values successfully");
+            log.info("Mapping variant values successfully");
         });
         //Build complete response
         ProductDTO response = ProductDTO.builder()
@@ -205,8 +206,9 @@ public class ProductService {
                         StringApplication.FIELD.NOT_EXIST));
         productMapper.updateProduct(productDetailDTO, product);
         if(image != null) {
-            if(product.getImageId() != null && !cloudinaryService.deleteImage(product.getImageId())) {
-                throw new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR);
+            if(product.getImageId() != null) {
+                log.info("Image product not null");
+                cloudinaryService.deleteImage(product.getImageId());
             }
             var imageCurrent = cloudinaryService.uploadImage(image, "product");
             product.setImageUrl(imageCurrent.getUrl());
@@ -220,8 +222,8 @@ public class ProductService {
         var product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException(
                 StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST
         ));
-        if(!cloudinaryService.deleteImage(product.getImageId())){
-            throw new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR);
+        if(product.getImageId() != null) {
+            cloudinaryService.deleteImage(product.getImageId());
         }
         product.getVariants().forEach(variant -> {
             if(variant.getImageId() != null) {
@@ -229,7 +231,7 @@ public class ProductService {
             }
         });
         variantRepository.deleteAll(product.getVariants());
-        log.info("Variant successfully deleted");
+        log.info("Variant in product {} successfully deleted", productId);
         productRepository.delete(product);
         log.info("Product successfully deleted");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
@@ -253,11 +255,12 @@ public class ProductService {
                         StringApplication.FIELD.NOT_EXIST));
         variantMapper.updateVariant(variantDTO, variant);
         if(image != null) {
-            if(variant.getImageId() != null && cloudinaryService.deleteImage(variant.getImageId())){
-                var imageCurrent = cloudinaryService.uploadImage(image, "variant");
-                variant.setImageUrl(imageCurrent.getUrl());
-                variant.setImageId(imageCurrent.getPublicId());
+            if(variant.getImageId() != null){
+                cloudinaryService.deleteImage(variant.getImageId());
             }
+            var imageCurrent = cloudinaryService.uploadImage(image, "variant");
+            variant.setImageUrl(imageCurrent.getUrl());
+            variant.setImageId(imageCurrent.getPublicId());
         }
         log.info("Variant successfully updated");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
@@ -271,11 +274,11 @@ public class ProductService {
         if(variant.getSold() > 0){
             throw new ConflictException(StringApplication.FIELD.CANT_REMOVE);
         }
-        if(!cloudinaryService.deleteImage(variant.getImageId())){
-            throw new RuntimeException(StringApplication.ERROR.INTERNAL_SERVER_ERROR);
+        if(variant.getImageId() != null) {
+            cloudinaryService.deleteImage(variant.getImageId());
         }
         variantRepository.delete(variant);
-        log.info("Variant successfully deleted");
+        log.info("Variant {} successfully deleted", variantId);
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);
     }
 }

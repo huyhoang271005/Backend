@@ -11,5 +11,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface VariantMapper {
     VariantDTO toVariantDTO(Variant variant);
     @Mapping(target = "variantId", ignore = true)
+    @Mapping(target = "sold", ignore = true)
     void updateVariant(VariantDTO variantDTO, @MappingTarget Variant variant);
 }

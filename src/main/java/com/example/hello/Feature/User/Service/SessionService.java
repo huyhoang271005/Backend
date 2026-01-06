@@ -103,6 +103,7 @@ public class SessionService {
             throw new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID);
         }
         sessionRepository.delete(session);
+        sessionCacheService.evictRevoked(sessionId);
         log.info("Delete session successfully");
         return new Response<>(
                 true,

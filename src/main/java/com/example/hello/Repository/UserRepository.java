@@ -1,8 +1,8 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.HomeInfo;
+import com.example.hello.DataProjection.HomeInfo;
 import com.example.hello.Entity.User;
-import com.example.hello.Feature.Authentication.DataProjection.UserInfo;
+import com.example.hello.DataProjection.UserInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

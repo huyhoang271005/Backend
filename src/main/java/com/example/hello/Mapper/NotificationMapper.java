@@ -1,6 +1,6 @@
 package com.example.hello.Mapper;
 
-import com.example.hello.Feature.Authentication.DataProjection.NotificationInfo;
+import com.example.hello.DataProjection.NotificationInfo;
 import com.example.hello.Entity.Notification;
 import com.example.hello.Feature.Notification.NotificationDTO;
 import org.mapstruct.Mapper;

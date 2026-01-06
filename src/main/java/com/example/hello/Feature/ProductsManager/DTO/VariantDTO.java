@@ -3,10 +3,13 @@ package com.example.hello.Feature.ProductsManager.DTO;
 
 import com.example.hello.Middleware.StringApplication;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -17,10 +20,14 @@ import lombok.experimental.FieldDefaults;
 public class VariantDTO {
     String variantId;
     String imageName;
-    @DecimalMin(value = "0.0", message = StringApplication.ERROR.MONEY)
-    Double originalPrice;
-    @DecimalMin(value = "0.0", message = StringApplication.ERROR.MONEY)
-    Double price;
+    @NotNull
+    @DecimalMin(value = "100", inclusive = false, message = StringApplication.ERROR.MONEY)
+    @Digits(integer = 18, fraction = 0, message = StringApplication.ERROR.MONEY)
+    BigDecimal originalPrice;
+    @NotNull
+    @DecimalMin(value = "100", inclusive = false, message = StringApplication.ERROR.MONEY)
+    @Digits(integer = 18, fraction = 0, message = StringApplication.ERROR.MONEY)
+    BigDecimal price;
     @NotNull
     @Min(value = 1, message = StringApplication.ERROR.NUMBER)
     Integer stock;

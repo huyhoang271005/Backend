@@ -1,7 +1,7 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
-import com.example.hello.Feature.Authentication.DataProjection.VariantValueInfo;
+import com.example.hello.DataProjection.AttributeValueByVariantId;
+import com.example.hello.DataProjection.VariantValueInfo;
 import com.example.hello.Entity.VariantValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,9 +20,11 @@ public interface VariantValueRepository extends JpaRepository<VariantValue, UUID
     List<VariantValueInfo> getVariantValueInfo(List<UUID> listProductId);
 
     @Query("""
-            select v.variantId as variantId, av.value as attributeName
+            select v.variantId as variantId, av.value as attributeValueName,
+                        a.attributeName as attributeName
             from VariantValue vv
             join vv.attributeValue av
+            join av.attribute a
             join vv.variant v
             where v.variantId in :listVariantId
             """)

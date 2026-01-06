@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OrderStatus {
+    CONFIRMED,
     WAITING,
     PAYING,
     PENDING,
-    CONFIRMED,
     CANCELED,
     DELIVERING,
     DELIVERED,
-    SUCCESS;
+    COMPLETED;
 
     @JsonCreator
     public static OrderStatus forValue(String value) {

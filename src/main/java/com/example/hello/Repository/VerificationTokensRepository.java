@@ -4,6 +4,7 @@ import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,5 +14,6 @@ public interface VerificationTokensRepository extends JpaRepository<Verification
     Optional<VerificationTokens> findByVerificationTokenId(UUID verificationTokenId);
     int countByVerificationTypeAndTypeId(VerificationTypes type, UUID typeId);
     List<VerificationTokens> findByVerificationTypeAndTypeIdOrderByCreatedAtDesc(VerificationTypes type, UUID typeId);
-    void deleteByUser_UserIdAndVerificationType(UUID userId, VerificationTypes type);
+    void deleteByUser_UserIdAndTypeId(UUID userId, UUID typeId);
+    void deleteByExpiredAtBefore(Instant now);
 }

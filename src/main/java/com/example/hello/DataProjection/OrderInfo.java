@@ -1,7 +1,6 @@
-package com.example.hello.Feature.Authentication.DataProjection;
+package com.example.hello.DataProjection;
 
 import com.example.hello.Entity.Order;
-import com.example.hello.Enum.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,4 +16,5 @@ public interface OrderInfo {
     Integer getQuantity();
     Instant getPaymentAt();
     Instant getUpdatedAt();
+    Instant getCreatedAt();
 }

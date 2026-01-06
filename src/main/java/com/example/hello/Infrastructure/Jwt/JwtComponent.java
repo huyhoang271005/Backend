@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtComponent {
@@ -71,22 +73,34 @@ public class JwtComponent {
     }
 
     public UUID getUserIdFromToken(String token) {
+        if(isTokenNull(token)) return null;
         Jwt jwt = this.jwtDecoder.decode(token);
         return UUID.fromString(jwt.getClaim(ParamName.USER_ID_JWT));
     }
 
     public TokenName getTokenNameFromToken(String token) {
+        if(isTokenNull(token)) return null;
         Jwt jwt = this.jwtDecoder.decode(token);
         return TokenName.valueOf(jwt.getClaim(ParamName.TOKEN_NAME_JWT));
     }
 
     public UUID getSessionIdFromToken(String token) {
+        if(isTokenNull(token)) return null;
         Jwt jwt = this.jwtDecoder.decode(token);
         return UUID.fromString(jwt.getClaim(ParamName.SESSION_ID_JWT));
     }
 
     public Instant getExpiredAfterFromToken(String token) {
+        if(isTokenNull(token)) return null;
         Jwt jwt = this.jwtDecoder.decode(token);
         return jwt.getExpiresAt();
+    }
+
+    private Boolean isTokenNull(String token) {
+        if(token == null) {
+            log.error("token is null");
+            return true;
+        }
+        return false;
     }
 }

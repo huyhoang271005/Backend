@@ -74,4 +74,7 @@ public class Product {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
     List<Variant> variants;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    List<Feedback> feedbacks;
 }

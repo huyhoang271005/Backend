@@ -1,6 +1,6 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.ProductAttributesInfo;
+import com.example.hello.DataProjection.ProductAttributesInfo;
 import com.example.hello.Entity.AttributeValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

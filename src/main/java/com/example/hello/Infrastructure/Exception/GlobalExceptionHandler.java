@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<List<ErrorResponse>>> handleException(Exception e) {
         log.error(e.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                new Response<>(false, StringApplication.ERROR.INTERNAL_SERVER_ERROR,
+                new Response<>(false, e.getMessage(),
                         List.of(new ErrorResponse(e.getMessage()))
                 ));
     }
@@ -139,7 +139,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<List<ErrorResponse>>> handleGeneric(Exception ex) {
         log.error(ex.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new Response<>(false, StringApplication.ERROR.INTERNAL_SERVER_ERROR,
+                .body(new Response<>(false, ex.getMessage(),
                         List.of(new ErrorResponse(ex.getMessage()))
                         ));
     }

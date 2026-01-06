@@ -2,7 +2,7 @@ package com.example.hello.Repository;
 
 import com.example.hello.Entity.Device;
 import com.example.hello.Entity.Session;
-import com.example.hello.Feature.Authentication.DataProjection.SessionInfo;
+import com.example.hello.DataProjection.SessionInfo;
 import com.example.hello.Entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,17 +30,14 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
        """)
     Page<SessionInfo> getSessions(UUID userId, Pageable pageable);
 
-    @Modifying
+
     @Query("""
-            update Session s
-            set s.revoked = true
-            where s = (
-                        select t.session
-                        from Token t
-                        where t.tokenValue = :tokenValue
-                        )
+            select s
+            from Token t
+            join t.session s
+            where t.tokenValue = :tokenValue
             """)
-    void revokeSessionExpired(String tokenValue);
+    Optional<Session> findSessionByTokenValue(String tokenValue);
 
     @Modifying
     @Query("""

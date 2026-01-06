@@ -7,6 +7,7 @@
           <option value="Device-type" />
           <option value="Device-name" />
           <option value="Device-id" />
+          <option value="refreshToken" />
         </set>
       </option>
     </inspection_tool>

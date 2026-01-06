@@ -1,8 +1,8 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.CartItemInfo;
-import com.example.hello.Feature.Authentication.DataProjection.VariantInfo;
-import com.example.hello.Feature.Authentication.DataProjection.ProductInfo;
+import com.example.hello.DataProjection.CartItemInfo;
+import com.example.hello.DataProjection.VariantInfo;
+import com.example.hello.DataProjection.ProductInfo;
 import com.example.hello.Entity.Cart;
 import com.example.hello.Entity.CartItem;
 import com.example.hello.Entity.Variant;

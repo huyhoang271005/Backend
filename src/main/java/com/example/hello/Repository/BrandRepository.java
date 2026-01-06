@@ -1,6 +1,6 @@
 package com.example.hello.Repository;
 
-import com.example.hello.Feature.Authentication.DataProjection.BrandInfo;
+import com.example.hello.DataProjection.BrandInfo;
 import com.example.hello.Entity.Brand;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -61,4 +61,7 @@ public class Order {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
     List<OrderItem> orderItems;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
+    List<Feedback> feedbacks;
 }

@@ -42,7 +42,7 @@ public class SseService {
 
         try {
             emitter.send(SseEmitter.event()
-                    .name("connected")
+                    .name(SseTopicName.connected.name())
                     .data("Sse connected"));
         }
         catch (IOException e) {

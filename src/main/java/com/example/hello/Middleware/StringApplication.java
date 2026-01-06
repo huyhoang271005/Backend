@@ -8,12 +8,12 @@ public class StringApplication {
         public static final String CHECK_EMAIL = "Vui lòng kiểm tra email của bạn";
     }
     public static class ERROR {
-        public static final String NUMBER = "Số lượng phải lớn hơn 0";
-        public static final String MONEY = "Giá tiền phải lớn hơn 0";
+        public static final String PHONE = "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0";
+        public static final String NUMBER = "Số lượng phải lớn hơn 0 và không âm";
+        public static final String MONEY = "Giá tiền phải lớn hơn 100";
         public static final String FORBIDDEN = "Không đủ quyền truy cập";
         public static final String NEW_DEVICE = "Phát hiện đăng nhập trên thiết bị mới";
         public static final String INPUT_INVALID = "Dữ liệu đầu vào không hợp lệ";
-        public static final String INTERNAL_SERVER_ERROR = "Lỗi máy chủ";
         public static final String PASSWORD_OR_EMAIL_INCORRECT = "Email hoặc mật khẩu không đúng";
         public static final String VERIFIED_EMAIL_MUST_EXIST = "Cần tồn tại ít nhất 1 email đã được xác thực";
         public static final String ACCOUNT_LOCKED = "Tài khoản đã bị khoá";

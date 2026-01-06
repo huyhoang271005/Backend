@@ -2,12 +2,13 @@ package com.example.hello.Feature.ProductsManager.DTO;
 
 import com.example.hello.Middleware.StringApplication;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -22,10 +23,14 @@ public class ProductDetailDTO {
     String productName;
     String description;
     String imageUrl;
-    @DecimalMin(value = "0.0", message = StringApplication.ERROR.MONEY)
-    Double originalPrice;
-    @DecimalMin(value = "0.0", message = StringApplication.ERROR.MONEY)
-    Double price;
+    @NotNull
+    @DecimalMin(value = "100", inclusive = false, message = StringApplication.ERROR.MONEY)
+    @Digits(integer = 18, fraction = 0, message = StringApplication.ERROR.MONEY)
+    BigDecimal originalPrice;
+    @NotNull
+    @DecimalMin(value = "100", inclusive = false, message = StringApplication.ERROR.MONEY)
+    @Digits(integer = 18, fraction = 0, message = StringApplication.ERROR.MONEY)
+    BigDecimal price;
     @NotNull
     UUID categoryId;
     @NotNull

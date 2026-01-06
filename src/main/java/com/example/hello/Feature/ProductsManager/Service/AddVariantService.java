@@ -12,9 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -107,15 +105,15 @@ public class AddVariantService {
             }
 
             // Upload image to Cloudinary
-//            CloudinaryResponse imageVariant = cloudinaryService
-//                    .uploadImage(imageFile, "variant");
-//            uploadedImageIds.add(imageVariant.getPublicId());
+            CloudinaryResponse imageVariant = cloudinaryService
+                    .uploadImage(imageFile, "variant");
+            uploadedImageIds.add(imageVariant.getPublicId());
 
             // Create Variant
             Variant variant = new Variant();
             variantMapper.updateVariant(variantDTO, variant);
-//            variant.setImageId(imageVariant.getPublicId());
-//            variant.setImageUrl(imageVariant.getUrl());
+            variant.setImageId(imageVariant.getPublicId());
+            variant.setImageUrl(imageVariant.getUrl());
             variant.setProduct(product);
             variant.setActive(true);
 

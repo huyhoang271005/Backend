@@ -1,6 +1,6 @@
 package com.example.hello.Mapper;
 
-import com.example.hello.Feature.Authentication.DataProjection.SessionInfo;
+import com.example.hello.DataProjection.SessionInfo;
 import com.example.hello.Entity.Session;
 import com.example.hello.Feature.User.DTO.SessionResponse;
 import com.example.hello.Feature.User.DTO.Address;

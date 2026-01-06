@@ -58,8 +58,11 @@ public class TokenService {
         } catch (Exception e){
             //Tìm session thông qua refreshToken
             log.info("Jwt can not use (expired)");
-            sessionRepository.revokeSessionExpired(refreshToken);
-            log.info("Revoked refreshToken");
+            sessionRepository.findSessionByTokenValue(refreshToken).ifPresent(session -> {
+                log.info("Revoked refreshToken");
+                session.setRevoked(true);
+                sessionCacheService.updateRevoked(session.getSessionId(), true);
+            });
             throw new UnauthorizedException(e.getMessage());
         }
         //Đã exception khi refreshToken không phải refresh refreshToken

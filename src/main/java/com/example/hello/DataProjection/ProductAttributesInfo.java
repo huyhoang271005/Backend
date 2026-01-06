@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Authentication.DataProjection;
+package com.example.hello.DataProjection;
 
 import java.util.UUID;
 

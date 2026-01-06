@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.Feature.Authentication.DataProjection.AttributeValueByVariantId;
-import com.example.hello.Feature.Authentication.DataProjection.OrderInfo;
+import com.example.hello.DataProjection.AttributeValueByVariantId;
+import com.example.hello.DataProjection.OrderInfo;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Order.DTO.OrderListAdminDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 public class OrderAdminService {
     OrderRepository orderRepository;
     VariantValueRepository variantValueRepository;
+    OrderService orderService;
     OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
@@ -56,7 +58,7 @@ public class OrderAdminService {
                                 var orderItemDTO = orderMapper.toOrderItemDTO(orderInfo);
                                 orderItemDTO.setAttributeValues(variantValues.get(orderInfo.getVariantId())
                                         .stream()
-                                        .map(AttributeValueByVariantId::getAttributeName)
+                                        .map(AttributeValueByVariantId::getAttributeValueName)
                                         .toList());
                                 return orderItemDTO;
                             })
@@ -99,6 +101,7 @@ public class OrderAdminService {
         else if(orderStatus == OrderStatus.CANCELED) {
             if(order.getOrderStatus() == OrderStatus.PENDING || order.getOrderStatus() == OrderStatus.DELIVERING) {
                 order.setOrderStatus(OrderStatus.CANCELED);
+                orderService.updateProductWhenCancel(List.of(orderId));
                 log.info("Order {} was canceled", orderId);
             }
         }

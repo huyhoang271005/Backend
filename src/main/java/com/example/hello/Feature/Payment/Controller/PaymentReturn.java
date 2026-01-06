@@ -21,9 +21,10 @@ public class PaymentReturn {
     VnPayService vnPayService;
     @GetMapping("vn-pay")
     public ResponseEntity<?> handleReturn(HttpServletRequest request) {
-        vnPayService.paymentReturn(request);
+        var payment = vnPayService.paymentReturn(request);
         return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, CorsConfig.BASE_URL + "/orders")
+                .header(HttpHeaders.LOCATION,
+                        CorsConfig.BASE_URL + "/payment?success=" + payment)
                 .build();
     }
 }

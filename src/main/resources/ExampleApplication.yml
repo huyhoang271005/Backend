@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver #your database name
+    url: #your database url
+    username: #your username
+    password: #your password
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:public.pem
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  mail:
+    host: #your host url email
+    port: 465
+    username: #your username email
+    password: #your password email
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            socketFactory:
+              port: 465
+              class: javax.net.ssl.SSLSocketFactory
+              fallback: false
+  jpa:
+    show-sql: false
+jwt:
+  expiration:
+    access-token-seconds: 300       #5 min
+    refresh-token-seconds: 604800   #7 day
+cloudinary:
+  cloud-name: #your cloud name in cloudinary
+  api-key: #your api key in cloudinary
+  api-secret: #your secret key in cloudinary
+vnpay:
+  tmnCode: #your tmn code in vnpay
+  hashSecret: #your secret in vnpay
+  payUrl: #your vn pay url
+  returnUrl: #your vn pay return
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  openapi:
+    servers:
+      - url: #your domain url
+        description: Production server
+server:
+  port: 8080

@@ -38,6 +38,9 @@ public class Feedback {
     @JoinColumn(name = "order_id")
     Order order;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "feedback", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "feedback", cascade = CascadeType.MERGE)
     List<FeedbackOrderItem> feedbackOrderItems;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "feedback", cascade = CascadeType.ALL)
+    List<FeedbackReply> feedbackReplies;
 }

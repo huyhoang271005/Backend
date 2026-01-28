@@ -15,4 +15,5 @@ public class HomeResponse {
     String roleName;
     Integer readNotifications;
     Integer cartsCount;
+    Integer readMessages;
 }

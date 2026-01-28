@@ -1,22 +1,22 @@
 package com.example.hello.Feature.Authentication.Service;
 
+import com.example.hello.Entity.UserRoomChat;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
 import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
-import com.example.hello.Repository.DeviceRepository;
-import com.example.hello.Repository.SessionRepository;
+import com.example.hello.Repository.*;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import com.example.hello.Feature.Authentication.DTO.LoginRequest;
 import com.example.hello.Feature.Authentication.DTO.LoginResponse;
-import com.example.hello.Repository.TokenRepository;
 import com.example.hello.Entity.Email;
 import com.example.hello.Entity.Token;
 import com.example.hello.Enum.TokenName;
 import com.example.hello.Entity.User;
+import com.example.hello.WebSocket.RoomChat.RoomChatName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -43,6 +43,8 @@ public class LoginService {
     SessionCacheService sessionCacheService;
     JwtComponent jwtComponent;
     JwtProperties jwtProperties;
+    UserRoomChatRepository userRoomChatRepository;
+    RoomChatRepository roomChatRepository;
 
     @Transactional
     public Response<LoginResponse> login(LoginRequest loginRequest, String oldRefreshToken,
@@ -126,6 +128,14 @@ public class LoginService {
             userToken.setTokenValue(refreshToken);
             tokenRepository.save(userToken);
             log.info("Created user refresh token");
+            var userRoomChat = userRoomChatRepository.existsByRoomChat_RoomNameAndUser(RoomChatName.GLOBAL.name(), user);
+            if(!userRoomChat){
+                roomChatRepository.findByRoomName(RoomChatName.GLOBAL.name())
+                        .ifPresent(roomChat -> userRoomChatRepository.save(UserRoomChat.builder()
+                                        .roomChat(roomChat)
+                                        .user(user)
+                                .build()));
+            }
             return new Response<>(
                     true,
                     StringApplication.SUCCESS.LOGIN_SUCCESS,

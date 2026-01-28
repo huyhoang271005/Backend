@@ -4,6 +4,7 @@ import com.example.hello.Feature.Authentication.Service.LoginService;
 import com.example.hello.Feature.Authentication.Service.RegisterService;
 import com.example.hello.Feature.Authentication.Service.TokenService;
 import com.example.hello.Feature.Authentication.Service.VerifyService;
+import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
 import com.example.hello.Feature.User.DTO.Address;
 import com.example.hello.Middleware.ParamName;
@@ -23,6 +24,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +37,7 @@ public class AuthController {
     LoginService loginService;
     VerifyService verifyService;
     JwtProperties jwtProperties;
+    private final JwtComponent jwtComponent;
 
     @PostMapping("refresh-token")
     ResponseEntity<?> refreshToken(
@@ -53,7 +56,8 @@ public class AuthController {
                     .httpOnly(true)
                     .path("/")
                     .sameSite("None")
-                    .maxAge(jwtProperties.getRefreshTokenSeconds())
+                    .maxAge(jwtComponent.getExpiredAfterFromToken(refreshToken).toEpochMilli() -
+                            Instant.now().toEpochMilli())
                     .build();
             responseRefresh.getData().setRefreshToken(null);
             return ResponseEntity.ok()

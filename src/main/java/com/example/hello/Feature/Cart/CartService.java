@@ -1,7 +1,6 @@
 package com.example.hello.Feature.Cart;
 
 import com.example.hello.Entity.Cart;
-import com.example.hello.Entity.CartItem;
 import com.example.hello.DataProjection.ProductInfo;
 import com.example.hello.Feature.Cart.CartDTO.CartDTO;
 import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
@@ -80,7 +79,7 @@ public class CartService {
                     cartItemCurrent.setVariant(variant);
                     cartItemCurrent.setCart(cart);
                     sseService.sendSse(SseTopicName.cart.name(), 1, List.of(userId));
-                    log.info("Send sse cart successfully");
+                    log.info("Send sse cart +1 successfully");
                     return cartItemCurrent;
                 });
         cartItem.setOldPrice(variant.getPrice());
@@ -153,13 +152,9 @@ public class CartService {
             log.info("Cart item set quantity successfully");
             log.info("Cart item updated successfully");
         }, ()->{
-            var cartItemCurrent = CartItem.builder()
-                    .quantity(cartItem.getQuantity())
-                    .oldPrice(cartItem.getOldPrice())
-                    .variant(variant)
-                    .cart(cart)
-                    .build();
-            cartItemRepository.save(cartItemCurrent);
+            cartItem.setQuantity(cartItemDTO.getQuantity());
+            cartItem.setVariant(variant);
+            cartItem.setOldPrice(variant.getPrice());
         });
         return new Response<>(
                 true,
@@ -173,7 +168,7 @@ public class CartService {
         cartItemRepository.deleteByCart_User_UserIdAndCartItemIdIn(userId, cartItemIds);
         log.info("Cart items deleted successfully");
         sseService.sendSse(SseTopicName.cart.name(), -cartItemIds.size(), List.of(userId));
-        log.info("Send sse cart successfully");
+        log.info("Send sse cart -1 successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

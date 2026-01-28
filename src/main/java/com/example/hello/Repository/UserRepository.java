@@ -23,11 +23,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
             select u.userId as userId, u.username as username,
                         p.fullName as fullName, p.imageUrl as imageUrl, p.createdAt as createdAt
-            from User u
+            from Email e
+            join e.user u
             join u.profile p
+            where e.email = :email or :email is null
             order by p.createdAt desc
            """)
-    Page<UserInfo> getListUser(Pageable pageable);
+    Page<UserInfo> getListUser(String email, Pageable pageable);
 
     List<User> findByRole_RoleId(UUID roleRoleId);
 

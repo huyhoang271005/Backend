@@ -162,7 +162,7 @@ public class OrderService {
             log.info("Cart item not null");
             cartItemRepository.deleteByCartItemIdIn(cartItemIds);
             log.info("Deleted cart items successfully");
-            sseService.sendSse(SseTopicName.cart.name(), - cartItemIds.size(), List.of(userId));
+            sseService.sendSse(SseTopicName.cart.name(), -cartItemIds.size(), List.of(userId));
             log.info("Cart sse sent successfully");
         }
         //Update totalSales

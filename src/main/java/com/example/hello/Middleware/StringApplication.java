@@ -8,6 +8,7 @@ public class StringApplication {
         public static final String CHECK_EMAIL = "Vui lòng kiểm tra email của bạn";
     }
     public static class ERROR {
+        public static final String FEEDBACK_REPLY = "Đánh giá đã được phản hồi";
         public static final String PHONE = "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0";
         public static final String NUMBER = "Số lượng phải lớn hơn 0 và không âm";
         public static final String MONEY = "Giá tiền phải lớn hơn 100";
@@ -26,6 +27,7 @@ public class StringApplication {
     }
 
     public static class FIELD {
+        public static final String FEEDBACK = "Đánh giá";
         public static final String CANT_CANCEL = "Không thể huỷ";
         public static final String ORDER = "Đơn hàng";
         public static final String CART = "Giỏ hàng";

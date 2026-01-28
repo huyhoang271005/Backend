@@ -19,6 +19,7 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
             from UserNotification un
             join un.notification n
             where un.user.userId = :userId
+            order by n.createdAt desc
             """)
     Page<NotificationInfo> getNotificationsByUserId(UUID userId, Pageable pageable);
 

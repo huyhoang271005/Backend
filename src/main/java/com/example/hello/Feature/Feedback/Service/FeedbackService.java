@@ -1,6 +1,7 @@
 package com.example.hello.Feature.Feedback.Service;
 
 import com.example.hello.DataProjection.AttributeValueByVariantId;
+import com.example.hello.DataProjection.FeedbackReplyInfo;
 import com.example.hello.DataProjection.OrderItemInfo;
 import com.example.hello.Entity.FeedbackOrderItem;
 import com.example.hello.Enum.OrderStatus;
@@ -11,6 +12,7 @@ import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.FeedbackMapper;
+import com.example.hello.Mapper.FeedbackReplyMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,7 +42,9 @@ public class FeedbackService {
     ProductRepository productRepository;
     FeedbackMapper feedbackMapper;
     FeedbackRepository feedbackRepository;
+    FeedbackReplyRepository feedbackReplyRepository;
     OrderRepository orderRepository;
+    FeedbackReplyMapper feedbackReplyMapper;
 
     @Transactional(readOnly = true)
     public Response<List<FeedbackCandidatesDTO>> getFeedbackCandidates(UUID orderId){
@@ -182,7 +187,17 @@ public class FeedbackService {
                 .stream()
                 .map(feedbackMapper::toFeedbackResponse)
                 .toList();
-        log.info("Mapping feedbacks successfully");
+        var feedbackReply = feedbackReplyRepository
+                .getFeedbackRepliesByFeedbackIds(feedbacks.stream()
+                        .map(FeedbackResponse::getFeedbackId)
+                        .toList())
+                .stream()
+                .collect(Collectors.toMap(FeedbackReplyInfo::getFeedbackId, Function.identity()));
+        log.info("Found feedback replies successfully");
+        feedbacks.forEach(feedbackResponse ->
+                feedbackResponse.setReply(feedbackReplyMapper
+                .toFeedbackReplyDTO(feedbackReply.get(feedbackResponse.getFeedbackId()))));
+        log.info("Mapping feedbacks and reply successfully");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

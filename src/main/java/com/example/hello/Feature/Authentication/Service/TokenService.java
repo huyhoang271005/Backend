@@ -42,10 +42,6 @@ public class TokenService {
 
     @Transactional
     public Response<LoginResponse> refreshToken(String refreshToken, String ip, Address address) {
-        //Đá exception khi refreshToken không được gửi
-        if(refreshToken == null) {
-            throw new UnauthorizedException(StringApplication.FIELD.TOKEN + StringApplication.FIELD.INVALID);
-        }
         UUID userId;
         UUID sessionId;
         TokenName tokenName;
@@ -57,7 +53,7 @@ public class TokenService {
             log.info("Jwt can use");
         } catch (Exception e){
             //Tìm session thông qua refreshToken
-            log.info("Jwt can not use (expired)");
+            log.error("Jwt can not use (expired)");
             sessionRepository.findSessionByTokenValue(refreshToken).ifPresent(session -> {
                 log.info("Revoked refreshToken");
                 session.setRevoked(true);
@@ -67,8 +63,8 @@ public class TokenService {
         }
         //Đã exception khi refreshToken không phải refresh refreshToken
         if(tokenName != TokenName.REFRESH_TOKEN){
-            log.info("Token name not refresh refreshToken");
-            throw new ConflictException(StringApplication.FIELD.REFRESH_TOKEN + StringApplication.FIELD.INVALID);
+            log.error("Token name not refresh refreshToken");
+            throw new UnprocessableEntityException(StringApplication.FIELD.REFRESH_TOKEN + StringApplication.FIELD.INVALID);
         }
         //Tìm session thông qua sessionId
         var session = sessionRepository.findById(sessionId).orElseThrow(
@@ -83,14 +79,14 @@ public class TokenService {
         User user = session.getUser();
         //Đối chiếu với userId trong refreshToken
         if(!user.getUserId().equals(userId)) {
-            log.info("User id different in db");
-            throw new UnprocessableEntityException(StringApplication.FIELD.USER + StringApplication.FIELD.INVALID);
+            log.error("User id different in db");
+            throw new ConflictException(StringApplication.FIELD.USER + StringApplication.FIELD.INVALID);
         }
         //Đối chiếu với refreshToken của session so với refreshToken user gửi lên
         Token userToken = tokenRepository.findBySessionAndTokenName(session, tokenName)
                 .orElseThrow(() -> new ConflictException(StringApplication.ERROR.USER_NOT_LOGIN));
         if(!userToken.getTokenValue().equals(refreshToken)) {
-            log.info("Token value different in db");
+            log.error("Token value different in db");
             throw new ConflictException(StringApplication.FIELD.TOKEN + StringApplication.FIELD.INVALID);
         }
         if(!session.getIpAddress().equals(ip)) {
@@ -103,11 +99,11 @@ public class TokenService {
         //Sinh access refreshToken và refresh refreshToken mới và trả về
         String newRefreshToken = jwtComponent.generateToken(userId, TokenName.REFRESH_TOKEN,
                 session.getSessionId(), jwtComponent.getExpiredAfterFromToken(refreshToken));
-        log.info("New refresh refreshToken generated");
+        log.info("New refresh token generated");
         userToken.setTokenValue(newRefreshToken);
         String newAccessToken = jwtComponent.generateToken(userId, TokenName.ACCESS_TOKEN,
                 session.getSessionId(), Instant.now().plusSeconds(jwtProperties.getAccessTokenSeconds()));
-        log.info("New access refreshToken generated");
+        log.info("New access token generated");
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

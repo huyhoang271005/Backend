@@ -21,7 +21,7 @@ public class FeedbackOrderItem {
     UUID feedbackOrderItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_item_id")
+    @JoinColumn(name = "order_item_id", unique = true)
     OrderItem orderItem;
 
     @ManyToOne(fetch = FetchType.LAZY)

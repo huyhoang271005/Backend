@@ -13,8 +13,10 @@ import com.example.hello.Enum.PermissionName;
 import com.example.hello.Infrastructure.Cache.RolePermissionCacheService;
 import com.example.hello.Enum.UserStatus;
 import com.example.hello.Repository.CartItemRepository;
+import com.example.hello.Repository.StatusRepository;
 import com.example.hello.Repository.UserNotificationRepository;
 import com.example.hello.Repository.UserRepository;
+import com.example.hello.WebSocket.Message.MessageStatus;
 import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +42,15 @@ public class UserService {
     UserStatusCacheService userStatusCacheService;
     RoleCache roleCache;
     EntityManager entityManager;
+    StatusRepository statusRepository;
 
 
     @Transactional(readOnly = true)
-    public Response<ListResponse<UserResponse>> getUsers(Pageable pageable) {
+    public Response<ListResponse<UserResponse>> getUsers(String email, Pageable pageable) {
         //Lấy danh sách user
         //Map danh sách user vào response
-        var listUser = userRepository.getListUser(pageable);
+        log.info("email is {} ", email);
+        var listUser = userRepository.getListUser(email, pageable);
         log.info("Users found successfully");
         Boolean hasMore = listUser.hasNext();
         var userResponse = listUser.getContent().stream()
@@ -161,6 +165,8 @@ public class UserService {
         log.info("Cart count successfully {}", homeResponse.getCartsCount());
         homeResponse.setReadNotifications(userNotificationRepository.countByUser_UserIdAndIsRead(userId, false));
         log.info("Notifications count successfully {}", homeResponse.getReadNotifications());
+        homeResponse.setReadMessages(statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SEND));
+        log.info("Messages count successfully {}", homeResponse.getReadMessages());
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

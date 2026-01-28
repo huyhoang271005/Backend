@@ -21,8 +21,8 @@ public class UserController {
 
 
     @GetMapping("users")
-    ResponseEntity<?> getUsers(Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsers(pageable));
+    ResponseEntity<?> getUsers(@RequestParam(required = false) String email, Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(email, pageable));
     }
 
     @GetMapping("users/{userId}")

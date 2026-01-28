@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Notification;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,7 +16,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationDTO {
     UUID userNotificationId;
+    @NotBlank
     String title;
+    @NotBlank
     String message;
     Boolean isRead;
     String linkUrl;

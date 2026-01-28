@@ -1,5 +1,6 @@
 package com.example.hello.Feature.RolePermission.Initializer;
 
+import com.example.hello.Entity.RoomChat;
 import com.example.hello.Enum.PermissionName;
 import com.example.hello.Enum.RoleName;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
@@ -7,9 +8,8 @@ import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Entity.Permission;
 import com.example.hello.Entity.RolePermission;
 import com.example.hello.Entity.Role;
-import com.example.hello.Repository.PermissionRepository;
-import com.example.hello.Repository.RolePermissionRepository;
-import com.example.hello.Repository.RoleRepository;
+import com.example.hello.Repository.*;
+import com.example.hello.WebSocket.RoomChat.RoomChatName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,7 +24,9 @@ import java.util.List;
 public class RolePermissionInitializer implements CommandLineRunner {
     PermissionRepository permissionRepository;
     RolePermissionRepository rolePermissionRepository;
-    private final RoleRepository roleRepository;
+    RoleRepository roleRepository;
+    RoomChatRepository roomChatRepository;
+
 
     @Override
     public void run(String... args) {
@@ -55,6 +57,12 @@ public class RolePermissionInitializer implements CommandLineRunner {
                             .role(adminRole)
                             .build()
             )));
+        }
+        var roomChat = roomChatRepository.existsByRoomName(RoomChatName.GLOBAL.name());
+        if(!roomChat){
+            roomChatRepository.save(RoomChat.builder()
+                    .roomName(RoomChatName.GLOBAL.name())
+                    .build());
         }
     }
 }

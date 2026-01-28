@@ -1,5 +1,6 @@
 package com.example.hello.Infrastructure.Jwt;
 
+import com.example.hello.Infrastructure.Exception.UnauthorizedException;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Enum.TokenName;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -73,34 +74,33 @@ public class JwtComponent {
     }
 
     public UUID getUserIdFromToken(String token) {
-        if(isTokenNull(token)) return null;
+        isTokenNull(token);
         Jwt jwt = this.jwtDecoder.decode(token);
         return UUID.fromString(jwt.getClaim(ParamName.USER_ID_JWT));
     }
 
     public TokenName getTokenNameFromToken(String token) {
-        if(isTokenNull(token)) return null;
+        isTokenNull(token);
         Jwt jwt = this.jwtDecoder.decode(token);
         return TokenName.valueOf(jwt.getClaim(ParamName.TOKEN_NAME_JWT));
     }
 
     public UUID getSessionIdFromToken(String token) {
-        if(isTokenNull(token)) return null;
+        isTokenNull(token);
         Jwt jwt = this.jwtDecoder.decode(token);
         return UUID.fromString(jwt.getClaim(ParamName.SESSION_ID_JWT));
     }
 
     public Instant getExpiredAfterFromToken(String token) {
-        if(isTokenNull(token)) return null;
+        isTokenNull(token);
         Jwt jwt = this.jwtDecoder.decode(token);
         return jwt.getExpiresAt();
     }
 
-    private Boolean isTokenNull(String token) {
+    private void isTokenNull(String token) {
         if(token == null) {
             log.error("token is null");
-            return true;
+            throw new UnauthorizedException("User not identified");
         }
-        return false;
     }
 }

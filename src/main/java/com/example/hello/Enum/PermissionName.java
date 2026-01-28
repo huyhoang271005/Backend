@@ -30,5 +30,7 @@ public enum PermissionName {
     UPDATE_VARIANT,
     DELETE_VARIANT,
     GET_ORDERS_ADMIN,
-    CONFIRM_ORDER
+    CONFIRM_ORDER,
+    REPLY_FEEDBACK,
+    ADD_ROOM_CHAT
 }

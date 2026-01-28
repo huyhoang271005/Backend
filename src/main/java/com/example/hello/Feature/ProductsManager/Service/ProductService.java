@@ -184,8 +184,8 @@ public class ProductService {
                     .build())
                     .toList();
             variantValuesDTO.addAll(variantValue);
-            log.info("Mapping variant values successfully");
         });
+        log.info("Mapping variant values successfully");
         //Build complete response
         ProductDTO response = ProductDTO.builder()
                 .productDetailDTO(productDetail)

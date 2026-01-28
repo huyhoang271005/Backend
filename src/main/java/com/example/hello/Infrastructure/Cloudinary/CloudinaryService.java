@@ -38,7 +38,7 @@ public class CloudinaryService {
             log.info("Image upload successfully");
             return new CloudinaryResponse((String) result.get("public_id"), (String) result.get("secure_url"));
         } catch (IOException e) {
-            log.error("Image upload failed");
+            log.error("Image {} upload failed", file.getOriginalFilename());
             throw new FileUploadIOException(StringApplication.ERROR.UPLOAD_IO_ERROR + e.getMessage());
         }
     }
@@ -53,7 +53,6 @@ public class CloudinaryService {
             }
         } catch (IOException e) {
             log.error("Image {} delete failure", publicId);
-            throw new FileUploadIOException(StringApplication.ERROR.DELETE_IO_ERROR);
         }
     }
 

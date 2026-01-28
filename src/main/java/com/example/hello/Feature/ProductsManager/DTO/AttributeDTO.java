@@ -14,8 +14,8 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AttributeDTO {
-    UUID attributeId;
     @NotNull
+    UUID attributeId;
     String attributeName;
     List<AttributeValueDTO> attributeValues;
 }

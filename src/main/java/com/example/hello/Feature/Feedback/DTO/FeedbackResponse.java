@@ -18,4 +18,5 @@ public class FeedbackResponse {
     Integer rating;
     String comment;
     Instant createdAt;
+    FeedbackReplyDTO reply;
 }

@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Contact;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,17 +24,20 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addContact(@AuthenticationPrincipal UUID userId, @RequestBody ContactDTO contactDTO) {
+    public ResponseEntity<?> addContact(@AuthenticationPrincipal UUID userId,
+                                        @Valid @RequestBody ContactDTO contactDTO) {
         return ResponseEntity.ok(contactService.addContact(userId, contactDTO));
     }
 
     @PutMapping
-    public ResponseEntity<?> updateContact(@AuthenticationPrincipal UUID userId, @RequestBody ContactDTO contactDTO) {
+    public ResponseEntity<?> updateContact(@AuthenticationPrincipal UUID userId,
+                                           @Valid @RequestBody ContactDTO contactDTO) {
         return ResponseEntity.ok(contactService.updateContact(userId, contactDTO));
     }
 
     @DeleteMapping("{contactId}")
-    public ResponseEntity<?> deleteContact(@AuthenticationPrincipal UUID userId, @PathVariable UUID contactId) {
+    public ResponseEntity<?> deleteContact(@AuthenticationPrincipal UUID userId,
+                                           @PathVariable UUID contactId) {
         return ResponseEntity.ok(contactService.deleteContact(userId, contactId));
     }
 }

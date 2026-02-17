@@ -3,7 +3,7 @@ package com.example.hello.Infrastructure.Security;
 import com.example.hello.Enum.BrowserName;
 import com.example.hello.Enum.DeviceName;
 import com.example.hello.Enum.DeviceType;
-import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.Middleware.ParamName;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -37,18 +38,27 @@ public class DeviceTypeFilter extends OncePerRequestFilter {
         request.setAttribute(ParamName.DEVICE_NAME_ATTRIBUTE, getDeviceName(request, deviceType));
         //Ip address
         request.setAttribute(ParamName.IP_ADDRESS_ATTRIBUTE, getIpAddress(request));
-
+        //Address
         request.setAttribute(ParamName.ADDRESS_ATTRIBUTE, getAddress(request));
+
         filterChain.doFilter(request, response);
     }
 
     private Address getAddress(HttpServletRequest request) {
         return Address.builder()
-                .city(request.getHeader("CF-IPCity"))
-                .country(request.getHeader("CF-IPCountry"))
-                .region(request.getHeader("CF-Region"))
-                .timezone(request.getHeader("CF-Timezone"))
+                .city(decodeCloudflareHeader(request.getHeader("CF-IPCity")))
+                .country(decodeCloudflareHeader(request.getHeader("CF-IPCountry")))
+                .region(decodeCloudflareHeader(request.getHeader("CF-Region")))
+                .timezone(decodeCloudflareHeader(request.getHeader("CF-Timezone")))
                 .build();
+    }
+
+    private String decodeCloudflareHeader(String value){
+        if(value==null){
+            return null;
+        }
+
+        return new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
     }
 
     private String getIpAddress(HttpServletRequest request) {

@@ -32,5 +32,7 @@ public enum PermissionName {
     GET_ORDERS_ADMIN,
     CONFIRM_ORDER,
     REPLY_FEEDBACK,
-    ADD_ROOM_CHAT
+    ADD_ROOM_CHAT,
+    GET_HEALTH,
+    CLEAR_CACHE
 }

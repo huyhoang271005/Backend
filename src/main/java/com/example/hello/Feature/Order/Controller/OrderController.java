@@ -2,7 +2,7 @@ package com.example.hello.Feature.Order.Controller;
 
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Feedback.Service.FeedbackService;
-import com.example.hello.Feature.Order.DTO.OrderDTO;
+import com.example.hello.Feature.Order.dto.OrderDTO;
 import com.example.hello.Feature.Order.Service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

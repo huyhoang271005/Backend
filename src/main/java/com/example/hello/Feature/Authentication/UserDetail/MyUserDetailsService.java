@@ -2,7 +2,7 @@ package com.example.hello.Feature.Authentication.UserDetail;
 
 import com.example.hello.Infrastructure.Cache.RolePermissionCacheService;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.EmailRepository;
+import com.example.hello.Feature.User.Repository.EmailRepository;
 import com.example.hello.Entity.Email;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

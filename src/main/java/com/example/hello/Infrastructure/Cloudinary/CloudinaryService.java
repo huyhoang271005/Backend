@@ -57,7 +57,7 @@ public class CloudinaryService {
     }
 
 
-    private boolean isImage(MultipartFile file) {
+    public boolean isImage(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }

@@ -1,6 +1,6 @@
 package com.example.hello.Infrastructure.Security;
 
-import com.example.hello.Infrastructure.Cache.RoleCache;
+import com.example.hello.Infrastructure.Cache.RoleCacheService;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
 import com.example.hello.Infrastructure.Cache.UserStatusCacheService;
 import com.example.hello.Infrastructure.Exception.ErrorResponse;
@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     JwtComponent jwtComponent;
     ObjectMapper objectMapper;
     RolePermissionCacheService rolePermissionCacheService;
-    RoleCache roleCache;
+    RoleCacheService roleCacheService;
     UserStatusCacheService userStatusCacheService;
     SessionCacheService sessionCacheService;
     @Override
@@ -100,7 +100,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
                 request.setAttribute(ParamName.SESSION_ID_ATTRIBUTE, sessionId);
                 // Lưu vào SecurityContext
-                var authorities = rolePermissionCacheService.getPermissionsCache(roleCache.getRoleCache(userId))
+                var authorities = rolePermissionCacheService.getPermissionsCache(roleCacheService.getRoleCache(userId))
                         .stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());

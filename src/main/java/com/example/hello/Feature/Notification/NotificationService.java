@@ -7,9 +7,9 @@ import com.example.hello.Mapper.NotificationMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.NotificationRepository;
-import com.example.hello.Repository.UserNotificationRepository;
-import com.example.hello.Repository.UserRepository;
+import com.example.hello.Feature.Notification.Repository.NotificationRepository;
+import com.example.hello.Feature.Notification.Repository.UserNotificationRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import com.example.hello.SseEmitter.SseService;
 import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
@@ -113,6 +113,16 @@ public class NotificationService {
     @Transactional
     public Response<Void> deleteNotification(UUID userId, List<UUID> userNotificationIds) {
         userNotificationRepository.deleteByUser_UserIdAndUserNotificationIdIn(userId, userNotificationIds);
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                null
+        );
+    }
+
+    @Transactional
+    public Response<Void> deleteAllNotification(UUID userId) {
+        userNotificationRepository.deleteByUser_UserId(userId);
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

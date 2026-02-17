@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Order.DTO;
+package com.example.hello.Feature.Order.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

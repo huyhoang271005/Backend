@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Notification;
 
-import com.example.hello.Repository.NotificationRepository;
+import com.example.hello.Feature.Notification.Repository.NotificationRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

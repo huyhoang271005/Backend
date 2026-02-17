@@ -1,4 +1,4 @@
-package com.example.hello.Feature.ProductsManager.DTO;
+package com.example.hello.Feature.ProductsManager.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

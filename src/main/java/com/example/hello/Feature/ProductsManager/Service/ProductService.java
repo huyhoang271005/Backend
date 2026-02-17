@@ -1,17 +1,23 @@
 package com.example.hello.Feature.ProductsManager.Service;
 
 import com.example.hello.Entity.*;
-import com.example.hello.Feature.ProductsManager.DTO.*;
+import com.example.hello.Feature.Order.Repository.OrderItemRepository;
+import com.example.hello.Feature.Order.Repository.OrderRepository;
+import com.example.hello.Feature.ProductsManager.dto.*;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
+import com.example.hello.Infrastructure.Exception.UnauthorizedException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.ProductMapper;
 import com.example.hello.Mapper.VariantMapper;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
+import com.example.hello.Feature.Category.CategoryRepository;
+import com.example.hello.Feature.Brand.BrandRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,12 +42,17 @@ public class ProductService {
     ProductMapper productMapper;
     VariantMapper variantMapper;
     VariantRepository variantRepository;
+    OrderItemRepository orderItemRepository;
 
     private void checkProductDTO(ProductDTO productDTO, Map<String, MultipartFile> images) {
         productDTO.getVariants().forEach(variant -> {
-            if(images.get(variant.getImageName()) == null) {
+            if(images.get(variant.getImageName()) == null ) {
                 log.error("Not found image name {}", variant.getImageName());
                 throw new UnprocessableEntityException("Variant " + variant.getImageName() +" not found");
+            }
+            if(cloudinaryService.isImage(images.get(variant.getImageName()))) {
+                log.error("File {} not is image", variant.getImageName());
+                throw new UnauthorizedException("File " + variant.getImageName() + " not is image");
             }
         });
         var attributeValueSize = productDTO.getAttributes().stream()
@@ -95,7 +106,7 @@ public class ProductService {
         }
     }
     @Transactional
-    public Response<Product> addProduct(ProductDTO productDTO, Map<String, MultipartFile> images) {
+    public Response<ProductDetailDTO> addProduct(ProductDTO productDTO, Map<String, MultipartFile> images) {
         checkProductDTO(productDTO, images);
         if(images.get("productImage") == null) {
             log.error("Not found product image");
@@ -127,7 +138,9 @@ public class ProductService {
         addVariantService.processAttributesAndVariants(product, productDTO, images);
         return new Response<>(true,
                 StringApplication.FIELD.SUCCESS,
-                null);
+                ProductDetailDTO.builder()
+                        .productId(product.getProductId())
+                        .build());
 
     }
 
@@ -225,12 +238,18 @@ public class ProductService {
         if(product.getImageId() != null) {
             cloudinaryService.deleteImage(product.getImageId());
         }
-        product.getVariants().forEach(variant -> {
+        var variants =  product.getVariants();
+        variants.forEach(variant -> {
             if(variant.getImageId() != null) {
                 cloudinaryService.deleteImage(variant.getImageId());
             }
         });
-        variantRepository.deleteAll(product.getVariants());
+        var orderItems = orderItemRepository.findByVariant_VariantIdIn(variants
+                .stream()
+                .map(Variant::getVariantId)
+                .toList());
+        orderItemRepository.deleteAll(orderItems);
+        variantRepository.deleteAll(variants);
         log.info("Variant in product {} successfully deleted", productId);
         productRepository.delete(product);
         log.info("Product successfully deleted");

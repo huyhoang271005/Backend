@@ -1,8 +1,8 @@
-package com.example.hello.Feature.User.DTO;
+package com.example.hello.Feature.User.dto;
 
 import com.example.hello.Middleware.Constant;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Feature.Authentication.DTO.LoginRequest;
+import com.example.hello.Feature.Authentication.dto.LoginRequest;
 import com.example.hello.Enum.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;

@@ -1,6 +1,6 @@
 package com.example.hello.Feature.User.Controller;
 
-import com.example.hello.Feature.User.DTO.ProfileRequest;
+import com.example.hello.Feature.User.dto.ProfileRequest;
 import com.example.hello.Feature.User.Service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

@@ -1,4 +1,4 @@
-package com.example.hello.Feature.RolePermission.DTO;
+package com.example.hello.Feature.RolePermission.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

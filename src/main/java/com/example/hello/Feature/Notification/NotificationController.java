@@ -49,4 +49,9 @@ public class NotificationController {
                                                  @RequestBody List<UUID> userNotificationIds) {
         return ResponseEntity.ok(notificationService.deleteNotification(userId, userNotificationIds));
     }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteAllNotifications(@AuthenticationPrincipal UUID  userId) {
+        return ResponseEntity.ok(notificationService.deleteAllNotification(userId));
+    }
 }

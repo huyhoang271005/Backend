@@ -1,8 +1,8 @@
 package com.example.hello.Mapper;
 
 import com.example.hello.Entity.Product;
-import com.example.hello.Feature.ProductDetail.DTO.ProductList;
-import com.example.hello.Feature.ProductsManager.DTO.ProductDetailDTO;
+import com.example.hello.Feature.ProductDetail.dto.ProductList;
+import com.example.hello.Feature.ProductsManager.dto.ProductDetailDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

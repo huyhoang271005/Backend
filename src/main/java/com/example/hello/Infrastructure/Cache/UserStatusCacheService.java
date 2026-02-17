@@ -4,10 +4,11 @@ import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Enum.UserStatus;
-import com.example.hello.Repository.UserRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +33,7 @@ public class UserStatusCacheService {
 
     @CachePut(cacheNames = ParamName.USER_STATUS_CACHE, key = "#userId")
     public UserStatus updateUserStatus(UUID userId, UserStatus userStatus) {
+        log.info("updateUserStatus userId={} userStatus={}", userId, userStatus);
         return userStatus;
     }
 }

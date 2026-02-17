@@ -3,24 +3,26 @@ package com.example.hello.Feature.Authentication.Service;
 import com.example.hello.Infrastructure.Email.EmailVerifyService;
 import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
-import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.Mapper.SessionMapper;
-import com.example.hello.Repository.VerificationTokensRepository;
+import com.example.hello.Feature.Authentication.Repository.VerificationTokensRepository;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Infrastructure.Security.CorsConfig;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Feature.Authentication.DTO.DeviceResponse;
-import com.example.hello.Feature.Authentication.DTO.EmailRequest;
-import com.example.hello.Feature.Authentication.DTO.PasswordRequest;
-import com.example.hello.Repository.DeviceRepository;
-import com.example.hello.Repository.EmailRepository;
-import com.example.hello.Repository.SessionRepository;
+import com.example.hello.Feature.Authentication.dto.DeviceResponse;
+import com.example.hello.Feature.Authentication.dto.EmailRequest;
+import com.example.hello.Feature.Authentication.dto.PasswordRequest;
+import com.example.hello.Feature.User.Repository.DeviceRepository;
+import com.example.hello.Feature.User.Repository.EmailRepository;
+import com.example.hello.Feature.User.Repository.SessionRepository;
 import com.example.hello.Entity.Device;
 import com.example.hello.Entity.Session;
 import com.example.hello.Enum.UserStatus;
+import com.example.hello.SseEmitter.SseService;
+import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +49,7 @@ public class VerifyService {
     DeviceRepository deviceRepository;
     SessionRepository sessionRepository;
     PasswordEncoder passwordEncoder;
+    SseService sseService;
     int timeExpired = 24;   // Hours
     private final SessionMapper sessionMapper;
 
@@ -160,7 +164,7 @@ public class VerifyService {
         log.info("Device verification email has been sent async");
         return new Response<>(true,
                 StringApplication.SUCCESS.CHECK_EMAIL,
-                new DeviceResponse(session.getDevice().getDeviceId()));
+                new DeviceResponse(session.getDevice().getDeviceId(), session.getSessionId()));
     }
 
     @Transactional
@@ -211,6 +215,7 @@ public class VerifyService {
             verificationTokensRepository.deleteByUser_UserIdAndTypeId(
                     tokenVerify.getUser().getUserId(), tokenVerify.getTypeId());
             log.info("Verification device deleted");
+            sseService.sendSse(SseTopicName.verified.name(), true, List.of(session.getSessionId()));
             return new Response<>(true, StringApplication.FIELD.VERIFIED_SUCCESS, null);
         }
         throw new UnprocessableEntityException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID);
@@ -219,7 +224,9 @@ public class VerifyService {
     @Transactional
     public Response<Void> sendVerifyChangePassword(EmailRequest emailRequest, Address address) {
         //Tìm email
-        var userEmail = emailRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EXIST));
+        var userEmail = emailRepository.findByEmail(emailRequest.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.EMAIL +
+                        StringApplication.FIELD.NOT_EXIST));
         //Kiểm tra email đã xác thực chưa
         if (!userEmail.getValidated()) {
             throw new ConflictException(StringApplication.FIELD.EMAIL + StringApplication.FIELD.UNVERIFIED);
@@ -252,7 +259,9 @@ public class VerifyService {
     @Transactional
     public Response<Void> changePassword(PasswordRequest passwordRequest, String token) {
         // Kiểm tra yêu cầu tồn tại không
-        var tokenVerify = verificationTokensRepository.findByVerificationTokenId(UUID.fromString(token)).orElseThrow(() -> new ConflictException(StringApplication.FIELD.REQUEST + StringApplication.FIELD.INVALID));
+        var tokenVerify = verificationTokensRepository.findByVerificationTokenId(UUID.fromString(token))
+                .orElseThrow(() -> new ConflictException(StringApplication.FIELD.REQUEST +
+                        StringApplication.FIELD.INVALID));
         //Kiểm tra thời gian hết hạn
         if (Instant.now().isAfter(tokenVerify.getExpiredAt())) {
             log.info("Token has expired");

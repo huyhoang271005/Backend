@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Cart;
 
-import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
+import com.example.hello.Feature.Cart.dto.CartItemDTO;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

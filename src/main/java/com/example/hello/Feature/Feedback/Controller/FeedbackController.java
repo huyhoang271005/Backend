@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Feedback.Controller;
 
-import com.example.hello.Feature.Feedback.DTO.FeedbackRequest;
+import com.example.hello.Feature.Feedback.dto.FeedbackRequest;
 import com.example.hello.Feature.Feedback.Service.FeedbackReplyService;
 import com.example.hello.Feature.Feedback.Service.FeedbackService;
 import jakarta.validation.Valid;

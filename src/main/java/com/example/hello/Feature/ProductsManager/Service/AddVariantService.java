@@ -1,17 +1,21 @@
 package com.example.hello.Feature.ProductsManager.Service;
 
 import com.example.hello.Entity.*;
-import com.example.hello.Feature.ProductsManager.DTO.*;
+import com.example.hello.Feature.ProductsManager.dto.*;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.VariantMapper;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.Attribute.AttributeValueRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
+import com.example.hello.Feature.Attribute.AttributeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -153,11 +157,15 @@ public class AddVariantService {
         log.info("Variant values successfully saved");
     }
 
-    private void cleanupUploadedImages(List<String> publicIds) {
+    @Async
+    public void cleanupUploadedImages(List<String> publicIds) {
         if (publicIds.isEmpty()) {
             return;
         }
-        publicIds.forEach(cloudinaryService::deleteImage);
+        publicIds.forEach(s -> {
+                log.info("Image {} deleted", s);
+                cloudinaryService.deleteImage(s);
+        });
         log.info("Image failure successfully cleaned");
     }
 }

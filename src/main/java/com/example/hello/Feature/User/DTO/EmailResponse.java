@@ -1,4 +1,4 @@
-package com.example.hello.Feature.User.DTO;
+package com.example.hello.Feature.User.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

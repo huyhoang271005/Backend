@@ -1,8 +1,8 @@
 package com.example.hello.Feature.ProductsManager.Controller;
 
-import com.example.hello.Feature.ProductsManager.DTO.ProductDTO;
-import com.example.hello.Feature.ProductsManager.DTO.ProductDetailDTO;
-import com.example.hello.Feature.ProductsManager.DTO.VariantDTO;
+import com.example.hello.Feature.ProductsManager.dto.ProductDTO;
+import com.example.hello.Feature.ProductsManager.dto.ProductDetailDTO;
+import com.example.hello.Feature.ProductsManager.dto.VariantDTO;
 import com.example.hello.Feature.ProductsManager.Service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

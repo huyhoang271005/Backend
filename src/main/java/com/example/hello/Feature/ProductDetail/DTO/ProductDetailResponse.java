@@ -1,8 +1,8 @@
-package com.example.hello.Feature.ProductDetail.DTO;
+package com.example.hello.Feature.ProductDetail.dto;
 
-import com.example.hello.Feature.Cart.CartDTO.ProductVariantsDTO;
-import com.example.hello.Feature.ProductsManager.DTO.AttributeDTO;
-import com.example.hello.Feature.ProductsManager.DTO.ProductDetailDTO;
+import com.example.hello.Feature.Cart.dto.ProductVariantsDTO;
+import com.example.hello.Feature.ProductsManager.dto.AttributeDTO;
+import com.example.hello.Feature.ProductsManager.dto.ProductDetailDTO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Authentication.DTO;
+package com.example.hello.Feature.Authentication.dto;
 
 import com.example.hello.Middleware.Constant;
 import com.example.hello.Middleware.StringApplication;

@@ -1,16 +1,17 @@
 package com.example.hello.Feature.Cart;
 
 import com.example.hello.Entity.Cart;
-import com.example.hello.DataProjection.ProductInfo;
-import com.example.hello.Feature.Cart.CartDTO.CartDTO;
-import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
+import com.example.hello.Feature.ProductsManager.dto.ProductInfo;
+import com.example.hello.Feature.Cart.dto.CartDTO;
+import com.example.hello.Feature.Cart.dto.CartItemDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.CartItemMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import com.example.hello.SseEmitter.SseService;
 import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;

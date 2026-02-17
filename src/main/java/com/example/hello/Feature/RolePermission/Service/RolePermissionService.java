@@ -1,6 +1,6 @@
 package com.example.hello.Feature.RolePermission.Service;
 
-import com.example.hello.Feature.RolePermission.DTO.*;
+import com.example.hello.Feature.RolePermission.dto.*;
 import com.example.hello.Infrastructure.Cache.RolePermissionCacheService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
@@ -11,9 +11,9 @@ import com.example.hello.Entity.RolePermission;
 import com.example.hello.Entity.Role;
 import com.example.hello.Enum.PermissionName;
 import com.example.hello.Enum.RoleName;
-import com.example.hello.Repository.PermissionRepository;
-import com.example.hello.Repository.RolePermissionRepository;
-import com.example.hello.Repository.RoleRepository;
+import com.example.hello.Feature.RolePermission.Repository.PermissionRepository;
+import com.example.hello.Feature.RolePermission.Repository.RolePermissionRepository;
+import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
 import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.hello.Feature.User.Controller;
 
-import com.example.hello.Feature.Authentication.DTO.EmailRequest;
+import com.example.hello.Feature.Authentication.dto.EmailRequest;
 import com.example.hello.Feature.User.Service.EmailService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

@@ -1,16 +1,16 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.DataProjection.AttributeValueByVariantId;
-import com.example.hello.DataProjection.OrderInfo;
-import com.example.hello.DataProjection.OrderItemInfo;
-import com.example.hello.DataProjection.VariantInfo;
+import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
+import com.example.hello.Feature.Order.dto.OrderInfo;
+import com.example.hello.Feature.Order.dto.OrderItemInfo;
+import com.example.hello.Feature.ProductsManager.dto.VariantInfo;
 import com.example.hello.Entity.Product;
 import com.example.hello.Entity.Variant;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Enum.PaymentMethod;
-import com.example.hello.Feature.Order.DTO.OrderDTO;
-import com.example.hello.Feature.Order.DTO.OrderItemDTO;
-import com.example.hello.Feature.Order.DTO.OrderListDTO;
+import com.example.hello.Feature.Order.dto.OrderDTO;
+import com.example.hello.Feature.Order.dto.OrderItemDTO;
+import com.example.hello.Feature.Order.dto.OrderListDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
@@ -18,7 +18,14 @@ import com.example.hello.Mapper.OrderMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.Order.Repository.OrderRepository;
+import com.example.hello.Feature.Contact.ContactRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
+import com.example.hello.Feature.Cart.CartItemRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
+import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
+import com.example.hello.Feature.Order.Repository.OrderItemRepository;
 import com.example.hello.SseEmitter.SseService;
 import com.example.hello.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
@@ -230,7 +237,7 @@ public class OrderService {
                     return OrderListDTO.builder()
                             .orderId(uuid)
                             .orderStatus(order.getFirst().getOrder().getOrderStatus())
-                            .updatedAt(order.getFirst().getUpdatedAt())
+                            .createdAt(order.getFirst().getCreatedAt())
                             .orderItemDTOList(order
                                     .stream()
                                     .map(orderInfo -> {

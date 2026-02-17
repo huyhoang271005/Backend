@@ -1,9 +1,9 @@
 package com.example.hello.Mapper;
 
-import com.example.hello.DataProjection.SessionInfo;
+import com.example.hello.Feature.User.dto.SessionInfo;
 import com.example.hello.Entity.Session;
-import com.example.hello.Feature.User.DTO.SessionResponse;
-import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Feature.User.dto.SessionResponse;
+import com.example.hello.Feature.User.dto.Address;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

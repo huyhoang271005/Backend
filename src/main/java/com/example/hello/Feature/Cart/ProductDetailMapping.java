@@ -1,12 +1,17 @@
 package com.example.hello.Feature.Cart;
 
-import com.example.hello.DataProjection.*;
-import com.example.hello.Feature.Cart.CartDTO.CartDTO;
-import com.example.hello.Feature.Cart.CartDTO.CartItemDTO;
-import com.example.hello.Feature.ProductsManager.DTO.AttributeDTO;
-import com.example.hello.Feature.ProductsManager.DTO.AttributeValueDTO;
+import com.example.hello.Feature.ProductsManager.dto.VariantValueInfo;
+import com.example.hello.Feature.ProductsManager.dto.ProductInfo;
+import com.example.hello.Feature.ProductsManager.dto.VariantInfo;
+import com.example.hello.Feature.Cart.dto.CartItemInfo;
+import com.example.hello.Feature.ProductsManager.dto.ProductAttributesInfo;
+import com.example.hello.Feature.Cart.dto.CartDTO;
+import com.example.hello.Feature.Cart.dto.CartItemDTO;
+import com.example.hello.Feature.ProductsManager.dto.AttributeDTO;
+import com.example.hello.Feature.ProductsManager.dto.AttributeValueDTO;
 import com.example.hello.Mapper.CartItemMapper;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
+import com.example.hello.Feature.Attribute.AttributeValueRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -59,6 +64,7 @@ public class ProductDetailMapping {
                             .collect(Collectors.groupingBy(VariantValueInfo::getVariantId));
                     var cartItems = productCartItem.get(productId);
                     return CartDTO.builder()
+                            .productId(productId)
                             .productName(products.get(productId).getFirst().getProductName())
                             .cartItemDTOList(cartItems.stream()
                                     .map(cartItemInfo -> CartItemDTO.builder()

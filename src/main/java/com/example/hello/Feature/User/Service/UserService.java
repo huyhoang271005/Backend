@@ -1,7 +1,7 @@
 package com.example.hello.Feature.User.Service;
 
-import com.example.hello.Feature.User.DTO.*;
-import com.example.hello.Infrastructure.Cache.RoleCache;
+import com.example.hello.Feature.User.dto.*;
+import com.example.hello.Infrastructure.Cache.RoleCacheService;
 import com.example.hello.Infrastructure.Cache.UserStatusCacheService;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.HomeMapper;
@@ -12,10 +12,10 @@ import com.example.hello.Entity.Role;
 import com.example.hello.Enum.PermissionName;
 import com.example.hello.Infrastructure.Cache.RolePermissionCacheService;
 import com.example.hello.Enum.UserStatus;
-import com.example.hello.Repository.CartItemRepository;
-import com.example.hello.Repository.StatusRepository;
-import com.example.hello.Repository.UserNotificationRepository;
-import com.example.hello.Repository.UserRepository;
+import com.example.hello.Feature.Cart.CartItemRepository;
+import com.example.hello.WebSocket.Message.StatusRepository;
+import com.example.hello.Feature.Notification.Repository.UserNotificationRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import com.example.hello.WebSocket.Message.MessageStatus;
 import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
@@ -40,7 +40,7 @@ public class UserService {
     HomeMapper homeMapper;
     RolePermissionCacheService rolePermissionCacheService;
     UserStatusCacheService userStatusCacheService;
-    RoleCache roleCache;
+    RoleCacheService roleCacheService;
     EntityManager entityManager;
     StatusRepository statusRepository;
 
@@ -147,7 +147,7 @@ public class UserService {
         log.info("User updated successfully");
         userStatusCacheService.updateUserStatus(user.getUserId(), extendUserRequest.getUserStatus());
         log.info("User status cache updated successfully");
-        roleCache.putRoleCache(user.getUserId(), userRole.getRoleId());
+        roleCacheService.putRoleCache(user.getUserId(), userRole.getRoleId());
         log.info("Role cache updated successfully");
         return new Response<>(
                 true,

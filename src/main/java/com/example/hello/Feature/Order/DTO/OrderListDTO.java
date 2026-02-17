@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Order.DTO;
+package com.example.hello.Feature.Order.dto;
 
 import com.example.hello.Enum.OrderStatus;
 import lombok.*;
@@ -17,6 +17,6 @@ import java.util.UUID;
 public class OrderListDTO {
     UUID orderId;
     OrderStatus orderStatus;
-    Instant updatedAt;
+    Instant createdAt;
     List<OrderItemDTO> orderItemDTOList;
 }

@@ -1,1 +1,3 @@
-com\example\hello\HelloApplicationTests.class
+com\example\hello\Feature\Authentication\Service\LoginServiceTest.class
+com\example\hello\Feature\Authentication\Service\RegisterServiceTest.class
+com\example\hello\Feature\Order\Service\OrderServiceTest.class

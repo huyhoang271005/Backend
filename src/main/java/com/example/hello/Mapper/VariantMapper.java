@@ -1,7 +1,7 @@
 package com.example.hello.Mapper;
 
 import com.example.hello.Entity.Variant;
-import com.example.hello.Feature.ProductsManager.DTO.VariantDTO;
+import com.example.hello.Feature.ProductsManager.dto.VariantDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

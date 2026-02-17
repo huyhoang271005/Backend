@@ -6,7 +6,7 @@ import com.example.hello.Feature.Notification.NotificationService;
 import com.example.hello.Feature.Order.Service.OrderService;
 import com.example.hello.Infrastructure.Security.CorsConfig;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.OrderRepository;
+import com.example.hello.Feature.Order.Repository.OrderRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

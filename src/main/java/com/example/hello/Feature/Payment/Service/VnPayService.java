@@ -5,9 +5,10 @@ import com.example.hello.Feature.Payment.Model.PaymentResponse;
 import com.example.hello.Feature.Payment.Model.VnPayProperties;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
+import com.example.hello.Infrastructure.Security.AppProperties;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.OrderRepository;
+import com.example.hello.Feature.Order.Repository.OrderRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.*;
 public class VnPayService {
     VnPayProperties vnPayProperties;
     OrderRepository orderRepository;
+    AppProperties appProperties;
 
     @Transactional
     public Response<PaymentResponse> createPaymentUrl(UUID userId, UUID orderId, String ip){
@@ -66,7 +68,7 @@ public class VnPayService {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId); // Theo mẫu: "Thanh toan don hang:" + vnp_TxnRef
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", vnPayProperties.getReturnUrl());
+        vnp_Params.put("vnp_ReturnUrl", appProperties.getBackendUrl() + vnPayProperties.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", ip);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));

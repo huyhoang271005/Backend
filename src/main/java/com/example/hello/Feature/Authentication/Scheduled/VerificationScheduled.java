@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Authentication.Scheduled;
 
-import com.example.hello.Repository.VerificationTokensRepository;
+import com.example.hello.Feature.Authentication.Repository.VerificationTokensRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

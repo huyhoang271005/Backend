@@ -1,4 +1,4 @@
-package com.example.hello.Feature.Authentication.DTO;
+package com.example.hello.Feature.Authentication.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,4 +12,5 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeviceResponse {
     UUID deviceId;
+    UUID sessionId;
 }

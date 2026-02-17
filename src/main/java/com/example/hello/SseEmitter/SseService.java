@@ -1,6 +1,5 @@
 package com.example.hello.SseEmitter;
 
-import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +17,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SseService {
-    JwtComponent jwtComponent;
     Map<UUID, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     private void removeEmitter(UUID userId, SseEmitter emitter) {
@@ -33,12 +31,11 @@ public class SseService {
         log.info("remove emitter {} for user {}", emitter, userId);
     }
 
-    public SseEmitter createSseEmitter(String refreshToken) {
-        UUID userId = jwtComponent.getUserIdFromToken(refreshToken);
+    public SseEmitter createSseEmitter(UUID key) {
         SseEmitter emitter = new SseEmitter(60L * 60 * 1000);
-        emitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
-        emitters.get(userId).add(emitter);
-        log.info("Emitter {} has been created:  {}", userId, emitter);
+        emitters.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
+        emitters.get(key).add(emitter);
+        log.info("Emitter {} has been created:  {}", key, emitter);
 
         try {
             emitter.send(SseEmitter.event()
@@ -48,26 +45,27 @@ public class SseService {
         catch (IOException e) {
             log.error("sse connect failed", e);
         }
-        emitter.onCompletion(() -> removeEmitter(userId, emitter));
-        emitter.onTimeout(() -> removeEmitter(userId, emitter));
-        emitter.onError((e) -> removeEmitter(userId, emitter));
+        emitter.onCompletion(() -> removeEmitter(key, emitter));
+        emitter.onTimeout(() -> removeEmitter(key, emitter));
+        emitter.onError((e) -> removeEmitter(key, emitter));
 
         return emitter;
     }
 
-    public <T> void sendSse(String topicName, T data, List<UUID> userIds) {
-        userIds.forEach(userId -> {
-            if(emitters.get(userId) != null){
-                emitters.get(userId).forEach(emitter -> {
+
+    public <T> void sendSse(String topicName, T data, List<UUID> keys) {
+        keys.forEach(key -> {
+            if(emitters.get(key) != null){
+                emitters.get(key).forEach(emitter -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .id(UUID.randomUUID().toString())
                                 .name(topicName)
                                 .data(data));
-                        log.info("Emitter {} has been sent:  {} width body {}", emitter, userId, data);
+                        log.info("Emitter {} has been sent:  {} width body {}", emitter, key, data);
                     }
                     catch (IOException e) {
-                        removeEmitter(userId, emitter);
+                        removeEmitter(key, emitter);
                     }
                 });
             }

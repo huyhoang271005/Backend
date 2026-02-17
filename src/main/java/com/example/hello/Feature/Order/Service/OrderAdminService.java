@@ -1,9 +1,9 @@
 package com.example.hello.Feature.Order.Service;
 
-import com.example.hello.DataProjection.AttributeValueByVariantId;
-import com.example.hello.DataProjection.OrderInfo;
+import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
+import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Enum.OrderStatus;
-import com.example.hello.Feature.Order.DTO.OrderListAdminDTO;
+import com.example.hello.Feature.Order.dto.OrderListAdminDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
@@ -11,7 +11,8 @@ import com.example.hello.Mapper.OrderMapper;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.Order.Repository.OrderRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -1,6 +1,6 @@
 package com.example.hello.Feature.User.Controller;
 
-import com.example.hello.Feature.User.DTO.ExtendUserRequest;
+import com.example.hello.Feature.User.dto.ExtendUserRequest;
 import com.example.hello.Feature.User.Service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

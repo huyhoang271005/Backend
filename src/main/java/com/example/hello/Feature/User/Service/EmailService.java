@@ -1,14 +1,14 @@
 package com.example.hello.Feature.User.Service;
 
-import com.example.hello.Feature.User.DTO.EmailResponse;
+import com.example.hello.Feature.User.dto.EmailResponse;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Feature.Authentication.DTO.EmailRequest;
+import com.example.hello.Feature.Authentication.dto.EmailRequest;
 import com.example.hello.Entity.Email;
-import com.example.hello.Repository.EmailRepository;
-import com.example.hello.Repository.UserRepository;
+import com.example.hello.Feature.User.Repository.EmailRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

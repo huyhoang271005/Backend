@@ -1,4 +1,4 @@
-package com.example.hello.Feature.ProductDetail.DTO;
+package com.example.hello.Feature.ProductDetail.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -6,7 +6,7 @@ import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.BrandRepository;
+import com.example.hello.Feature.Brand.BrandRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

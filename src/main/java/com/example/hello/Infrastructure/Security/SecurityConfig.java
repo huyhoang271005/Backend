@@ -4,6 +4,7 @@ import com.example.hello.Feature.Authentication.UserDetail.MyUserDetailsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,11 +12,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
+
 
 @Configuration
 @EnableWebSecurity
@@ -34,11 +39,14 @@ public class SecurityConfig {
                 .cors(cors ->{})
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests ->
-                        requests.requestMatchers("/auth/**", "/ws/**",
-                                        "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**")
-                                .permitAll()
-                                .anyRequest().authenticated())
+                .authorizeHttpRequests(requests -> {
+                    requests.requestMatchers("/auth/**", "/ws/**",
+                                    "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**")
+                            .permitAll();
+                    requests.requestMatchers(EndpointRequest.to("health"))
+                            .hasAnyAuthority("GET_HEALTH")
+                            .anyRequest().authenticated();
+                })
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(customAuthenticationEntryPoint)
                                 .accessDeniedHandler(customAccessDeniedHandler))
@@ -58,5 +66,15 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public HttpFirewall httpFirewall() {
+        return new DefaultHttpFirewall();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.httpFirewall(httpFirewall());
     }
 }

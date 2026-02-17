@@ -1,13 +1,15 @@
 package com.example.hello.WebSocket.RoomChat;
 
-import com.example.hello.DataProjection.MessageListInfo;
-import com.example.hello.DataProjection.UserRomChatInfo;
+import com.example.hello.WebSocket.Message.dto.MessageListInfo;
+import com.example.hello.WebSocket.RoomChat.dto.UserRomChatInfo;
 import com.example.hello.Entity.RoomChat;
 import com.example.hello.Entity.UserRoomChat;
 import com.example.hello.Middleware.ListResponse;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Repository.*;
+import com.example.hello.Feature.User.Repository.UserRepository;
+import com.example.hello.WebSocket.Message.MessageRepository;
+import com.example.hello.WebSocket.Message.StatusRepository;
 import com.example.hello.WebSocket.Message.MessageDTO;
 import com.example.hello.WebSocket.Message.MessageStatus;
 import lombok.AccessLevel;

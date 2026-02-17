@@ -1,6 +1,6 @@
 package com.example.hello.Infrastructure.Email;
 
-import com.example.hello.Feature.User.DTO.Address;
+import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.Middleware.StringApplication;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;

@@ -1,7 +1,7 @@
 package com.example.hello.Feature.RolePermission.Controller;
 
-import com.example.hello.Feature.RolePermission.DTO.RolePermissionRequest;
-import com.example.hello.Feature.RolePermission.DTO.RoleRequest;
+import com.example.hello.Feature.RolePermission.dto.RolePermissionRequest;
+import com.example.hello.Feature.RolePermission.dto.RoleRequest;
 import com.example.hello.Feature.RolePermission.Service.RolePermissionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

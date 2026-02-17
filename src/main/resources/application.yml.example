@@ -1,0 +1,73 @@
+spring:
+  datasource:
+    driver-class-name: #your database name driver (example sql server com.microsoft.sqlserver.jdbc.SQLServerDriver)
+    url: #your database url
+    username: #your username
+    password: #your password
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:public.pem
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  mail:
+    host: #your host url email
+    port: 465
+    username: #your username email
+    password: #your password email
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+  jpa:
+    show-sql: false
+    open-in-view: false
+jwt:
+  expiration:
+    access-token-seconds: 300       #5 min (time access token expired)
+    refresh-token-seconds: 604800   #7 day (time refresh token expired)
+cloudinary:
+  cloud-name: #your cloud name in cloudinary
+  api-key: #your api key in cloudinary
+  api-secret: #your secret key in cloudinary
+vnpay:
+  tmnCode: #your tmn code in vnpay
+  hashSecret: #your secret in vnpay
+  payUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  returnUrl: /payment-return/vn-pay
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    servlet:
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+    forward-headers-strategy: framework
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
+  endpoints:
+    web:
+      exposure:
+        include: health
+  logging:
+    level:
+      org.springframework.security: DEBUG
+  app:
+    backend-url: #Your backend url
+    frontend-url: #Your frontend url

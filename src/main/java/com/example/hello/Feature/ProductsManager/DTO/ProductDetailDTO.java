@@ -1,4 +1,4 @@
-package com.example.hello.Feature.ProductsManager.DTO;
+package com.example.hello.Feature.ProductsManager.dto;
 
 import com.example.hello.Middleware.StringApplication;
 import jakarta.validation.constraints.DecimalMin;

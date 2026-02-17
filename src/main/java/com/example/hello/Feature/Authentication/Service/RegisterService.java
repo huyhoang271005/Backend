@@ -5,11 +5,11 @@ import com.example.hello.Feature.Notification.NotificationService;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Enum.RoleName;
-import com.example.hello.Feature.Authentication.DTO.DeviceResponse;
+import com.example.hello.Feature.Authentication.dto.DeviceResponse;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Repository.DeviceRepository;
-import com.example.hello.Repository.RoleRepository;
-import com.example.hello.Repository.SessionRepository;
+import com.example.hello.Feature.User.Repository.DeviceRepository;
+import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
+import com.example.hello.Feature.User.Repository.SessionRepository;
 import com.example.hello.Entity.Device;
 import com.example.hello.Entity.Email;
 import com.example.hello.Entity.Role;
@@ -18,9 +18,9 @@ import com.example.hello.Enum.UserStatus;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Middleware.Response;
-import com.example.hello.Feature.User.DTO.RegisterRequest;
+import com.example.hello.Feature.User.dto.RegisterRequest;
 import com.example.hello.Mapper.UserMapper;
-import com.example.hello.Repository.UserRepository;
+import com.example.hello.Feature.User.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -127,7 +127,7 @@ public class RegisterService {
         return new Response<>(
                 true,
                 StringApplication.SUCCESS.REGISTER_SUCCESS,
-                new DeviceResponse(device.getDeviceId())
+                new DeviceResponse(device.getDeviceId(), session.getSessionId())
         );
     }
 }

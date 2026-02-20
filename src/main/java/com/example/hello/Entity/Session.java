@@ -29,7 +29,6 @@ public class Session {
     Boolean revoked;
 
     @Column(name = "last_login")
-    @UpdateTimestamp
     Instant lastLogin;
 
     @Column(name = "created_at")

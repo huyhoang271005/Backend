@@ -13,12 +13,19 @@ import java.util.UUID;
 
 public interface RoomChatRepository extends JpaRepository<RoomChat, UUID> {
     @Query("""
-            select urc.roomChat
-            from UserRoomChat urc
-            join urc.user u
-            where u.userId in :userIds
-            group by urc.roomChat
-            having count (distinct u.userId) = :size
+            select rc
+            from RoomChat rc
+            where (
+                select count(urc)
+                from UserRoomChat urc
+                where urc.roomChat = rc
+            ) = :size
+            and (
+                select count(distinct urc.user.userId)
+                from UserRoomChat urc
+                where urc.roomChat = rc
+                and urc.user.userId in :userIds
+            ) = :size
             """)
     Optional<RoomChat> findRoomChatByUserIdInAndSize(List<UUID> userIds, Integer size);
 

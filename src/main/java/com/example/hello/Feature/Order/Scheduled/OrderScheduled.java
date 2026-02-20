@@ -4,6 +4,7 @@ import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Notification.NotificationDTO;
 import com.example.hello.Feature.Notification.NotificationService;
 import com.example.hello.Feature.Order.Service.OrderService;
+import com.example.hello.Infrastructure.Security.AppProperties;
 import com.example.hello.Infrastructure.Security.CorsConfig;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Feature.Order.Repository.OrderRepository;
@@ -26,6 +27,7 @@ public class OrderScheduled {
     OrderRepository orderRepository;
     NotificationService notificationService;
     OrderService orderService;
+    AppProperties appProperties;
 
     @Scheduled(fixedRate = 5*60*1000)
     @Transactional
@@ -45,7 +47,7 @@ public class OrderScheduled {
                                 .title(StringApplication.FIELD.ORDER)
                                 .message(StringApplication.FIELD.ORDER +
                                         StringApplication.NOTIFICATION.CANCELED_BY_SYSTEM)
-                                .linkUrl(CorsConfig.BASE_URL + "/orders")
+                                .linkUrl(appProperties.getFrontendUrl() + "/orders")
                                 .build());
             }
         }

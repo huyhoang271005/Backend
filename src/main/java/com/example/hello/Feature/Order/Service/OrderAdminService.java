@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -91,6 +92,7 @@ public class OrderAdminService {
             }
             else if(order.getOrderStatus() == OrderStatus.DELIVERING){
                 order.setOrderStatus(OrderStatus.DELIVERED);
+                order.setPaymentAt(Instant.now());
                 log.info("Order {} was set status is delivered", orderId);
             }
             else {
@@ -100,10 +102,15 @@ public class OrderAdminService {
             }
         }
         else if(orderStatus == OrderStatus.CANCELED) {
-            if(order.getOrderStatus() == OrderStatus.PENDING || order.getOrderStatus() == OrderStatus.DELIVERING) {
+            if(order.getOrderStatus() == OrderStatus.PENDING) {
                 order.setOrderStatus(OrderStatus.CANCELED);
                 orderService.updateProductWhenCancel(List.of(orderId));
                 log.info("Order {} was canceled", orderId);
+            }
+            else {
+                log.error("Order cant cancel on {}", order.getOrderStatus());
+                throw new ConflictException(StringApplication.FIELD.ORDER +
+                        StringApplication.FIELD.CANT_CANCEL);
             }
         }
         else {

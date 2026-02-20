@@ -15,6 +15,7 @@ import com.example.hello.WebSocket.Message.MessageStatus;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -37,6 +39,7 @@ public class RoomChatService {
     public Response<RoomChatDTO> addRoomChat(UUID userCreatedId, RoomChatDTO roomChatDTO) {
         var userIds = roomChatDTO.getUserIds();
         userIds.add(userCreatedId);
+        log.info("Room chat has size {}", roomChatDTO.getUserIds().size());
         var roomChat = roomChatRepository.findRoomChatByUserIdInAndSize(userIds, userIds.size())
                 .orElseGet(() -> {
                     var users = userRepository.findAllById(userIds);

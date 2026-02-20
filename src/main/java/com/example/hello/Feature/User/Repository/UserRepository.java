@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -19,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Boolean existsByEmails_Email(String email);
     Boolean existsByUsername(String username);
     Boolean existsByUsernameAndUserIdNot(String username, UUID id);
+    Optional<User> findByEmails_Email(String email);
 
     @Query("""
             select u.userId as userId, u.username as username,

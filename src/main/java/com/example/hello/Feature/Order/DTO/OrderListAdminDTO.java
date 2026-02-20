@@ -1,6 +1,7 @@
 package com.example.hello.Feature.Order.dto;
 
 import com.example.hello.Enum.OrderStatus;
+import com.example.hello.Enum.PaymentMethod;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,6 +21,7 @@ public class OrderListAdminDTO {
     String contactName;
     String phone;
     String address;
+    PaymentMethod paymentMethod;
     Instant createdAt;
     Instant paymentAt;
     List<OrderItemDTO> orderItemDTOList;

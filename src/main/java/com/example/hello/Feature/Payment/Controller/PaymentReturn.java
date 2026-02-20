@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Payment.Controller;
 
 import com.example.hello.Feature.Payment.Service.VnPayService;
-import com.example.hello.Infrastructure.Security.CorsConfig;
+import com.example.hello.Infrastructure.Security.AppProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("payment-return")
 public class PaymentReturn {
     VnPayService vnPayService;
+    AppProperties appProperties;
     @GetMapping("vn-pay")
     public ResponseEntity<?> handleReturn(HttpServletRequest request) {
         var payment = vnPayService.paymentReturn(request);
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION,
-                        CorsConfig.BASE_URL + "/payment?success=" + payment)
+                        appProperties.getFrontendUrl() + "/payment?success=" + payment)
                 .build();
     }
 }

@@ -140,6 +140,7 @@ public class LoginService {
                                         .user(user)
                                 .build()));
             }
+            session.setLastLogin(Instant.now());
             return new Response<>(
                     true,
                     StringApplication.SUCCESS.LOGIN_SUCCESS,

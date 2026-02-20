@@ -16,15 +16,13 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class CorsConfig {
     AppProperties appProperties;
-    public static String BASE_URL;
     @Bean
     public CorsFilter corsFilter() {
-        BASE_URL = appProperties.getFrontendUrl();
 
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(List.of(
-                BASE_URL, appProperties.getBackendUrl(),
+                appProperties.getFrontendUrl(), appProperties.getBackendUrl(),
                 "https://willa-unstaid-ardis.ngrok-free.dev",
                 "https://nonnocturnal-unflappably-khalilah.ngrok-free.dev",
                 "https://uncoagulative-tyrannisingly-eddie.ngrok-free.dev",

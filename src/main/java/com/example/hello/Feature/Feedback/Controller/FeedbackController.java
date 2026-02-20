@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Feedback.Controller;
 
+import com.example.hello.Feature.Feedback.dto.FeedbackReplyDTO;
 import com.example.hello.Feature.Feedback.dto.FeedbackRequest;
 import com.example.hello.Feature.Feedback.Service.FeedbackReplyService;
 import com.example.hello.Feature.Feedback.Service.FeedbackService;
@@ -43,7 +44,7 @@ public class FeedbackController {
     @PostMapping("reply/{feedbackId}")
     public ResponseEntity<?> addReply(@AuthenticationPrincipal UUID userId,
                                       @PathVariable UUID feedbackId,
-                                      @RequestBody String reply) {
-        return ResponseEntity.ok(feedbackReplyService.addFeedbackReply(userId, feedbackId, reply));
+                                      @RequestBody FeedbackReplyDTO reply) {
+        return ResponseEntity.ok(feedbackReplyService.addFeedbackReply(userId, feedbackId, reply.getMessage()));
     }
 }

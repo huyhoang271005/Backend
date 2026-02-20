@@ -24,7 +24,9 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @RestController
@@ -155,7 +157,7 @@ public class AuthController {
                     .secure(true)
                     .path("/")
                     .sameSite("None")
-                    .maxAge(60*60*24*365*10)
+                    .maxAge(Duration.ofDays(3650)) // 10 year
                     .build();
             response.getData().setDeviceId(null);
             return ResponseEntity.ok()

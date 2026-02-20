@@ -6,6 +6,13 @@ spring:
     password: #your password
   security:
     oauth2:
+      registration:
+        google:
+          client-id: #your client-id
+          client-secret: #your client-secret
+          scope:
+            - email
+            - profile
       resourceserver:
         jwt:
           public-key-location: classpath:public.pem

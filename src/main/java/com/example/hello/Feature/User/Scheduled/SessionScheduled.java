@@ -42,7 +42,7 @@ public class SessionScheduled {
     @Scheduled(fixedRate = 10*60*1000)
     public void deleteSessionsRevoked(){
         sessionRepository.deleteByRevokedAndLastLoginBefore(true, Instant.now()
-                .minus(jwtProperties.getRefreshTokenSeconds(), ChronoUnit.SECONDS));
+                .minus(jwtProperties.getRefreshTokenSeconds() * 2, ChronoUnit.SECONDS));
         log.info("Deleted sessions revoked scheduled successfully");
 
     }

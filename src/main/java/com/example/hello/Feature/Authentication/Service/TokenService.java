@@ -87,6 +87,8 @@ public class TokenService {
                 .orElseThrow(() -> new ConflictException(StringApplication.ERROR.USER_NOT_LOGIN));
         if(!userToken.getTokenValue().equals(refreshToken)) {
             log.error("Token value different in db");
+            log.info("Token client is {}", refreshToken);
+            log.info("Token in db is {}", userToken.getTokenValue());
             throw new ConflictException(StringApplication.FIELD.TOKEN + StringApplication.FIELD.INVALID);
         }
         if(!session.getIpAddress().equals(ip)) {

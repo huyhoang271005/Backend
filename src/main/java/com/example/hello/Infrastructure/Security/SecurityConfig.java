@@ -1,5 +1,6 @@
 package com.example.hello.Infrastructure.Security;
 
+import com.example.hello.Feature.Authentication.Service.Oauth2LoginSuccessHandle;
 import com.example.hello.Feature.Authentication.UserDetail.MyUserDetailsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.header.HeaderWriterFilter;
 
 
 @Configuration
@@ -34,14 +36,15 @@ public class SecurityConfig {
     CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     MyUserDetailsService  myUserDetailsService;
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, Oauth2LoginSuccessHandle oauth2LoginSuccessHandle) throws Exception {
         http
                 .cors(cors ->{})
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers("/auth/**", "/ws/**",
-                                    "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**")
+                                    "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**",
+                                    "/login/oauth2/**")
                             .permitAll();
                     requests.requestMatchers(EndpointRequest.to("health"))
                             .hasAnyAuthority("GET_HEALTH")
@@ -51,9 +54,11 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(customAuthenticationEntryPoint)
                                 .accessDeniedHandler(customAccessDeniedHandler))
                 .userDetailsService(myUserDetailsService)
-                .addFilterBefore(deviceTypeFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(deviceTypeFilter, HeaderWriterFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2Login ->
+                        oauth2Login.successHandler(oauth2LoginSuccessHandle))
                 .oauth2ResourceServer(AbstractHttpConfigurer::disable);
         return http.build();
     }

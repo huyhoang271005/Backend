@@ -1,6 +1,5 @@
 package com.example.hello.Feature.Order.Repository;
 
-import com.example.hello.Entity.OrderItem;
 import com.example.hello.Feature.Order.dto.GetOrderAndUserId;
 import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Entity.Order;
@@ -21,7 +20,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             select o as order, oi.price as price, oi.originalPrice as originalPrice,
                         oi.quantity as quantity, v.imageUrl as imageUrl, p.productName as productName,
-                        v.variantId as variantId, o.paymentAt as paymentAt, o.updatedAt as updatedAt, 
+                        v.variantId as variantId, o.paymentAt as paymentAt, o.updatedAt as updatedAt,
                         o.createdAt as createdAt
             from OrderItem oi
             join oi.order o

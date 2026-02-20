@@ -14,7 +14,6 @@ public interface OrderInfo {
     BigDecimal getOriginalPrice();
     BigDecimal getPrice();
     Integer getQuantity();
-    Instant getPaymentAt();
     Instant getUpdatedAt();
     Instant getCreatedAt();
 }

@@ -19,16 +19,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SseService {
     Map<UUID, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    private void removeEmitter(UUID userId, SseEmitter emitter) {
-        List<SseEmitter> list = emitters.get(userId);
+    private void removeEmitter(UUID key, SseEmitter emitter) {
+        List<SseEmitter> list = emitters.get(key);
         if (list == null) return;
 
         list.remove(emitter);
         if (list.isEmpty()) {
-            log.info("Removed emitter user {}", userId);
-            emitters.remove(userId);
+            log.info("Removed emitter user {}", key);
+            emitters.remove(key);
         }
-        log.info("remove emitter {} for user {}", emitter, userId);
+        log.info("remove emitter {} for user {}", emitter, key);
     }
 
     public SseEmitter createSseEmitter(UUID key) {
@@ -44,6 +44,7 @@ public class SseService {
         }
         catch (IOException e) {
             log.error("sse connect failed", e);
+            removeEmitter(key, emitter);
         }
         emitter.onCompletion(() -> removeEmitter(key, emitter));
         emitter.onTimeout(() -> removeEmitter(key, emitter));

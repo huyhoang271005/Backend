@@ -4,12 +4,12 @@ import com.example.hello.Infrastructure.Email.EmailVerifyService;
 import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
 import com.example.hello.Feature.User.dto.Address;
+import com.example.hello.Infrastructure.Security.AppProperties;
 import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Feature.Authentication.Repository.VerificationTokensRepository;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
-import com.example.hello.Infrastructure.Security.CorsConfig;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Feature.Authentication.dto.DeviceResponse;
@@ -50,6 +50,7 @@ public class VerifyService {
     SessionRepository sessionRepository;
     PasswordEncoder passwordEncoder;
     SseService sseService;
+    AppProperties appProperties;
     int timeExpired = 24;   // Hours
     private final SessionMapper sessionMapper;
 
@@ -101,7 +102,7 @@ public class VerifyService {
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL,
                 userEmail.getUser().getProfile().getFullName(),
                 StringApplication.FIELD.ADD_NEW_EMAIL, address,
-                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                appProperties.getFrontendUrl() + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
                 timeExpired + StringApplication.FIELD.HOURS);
         log.info("Email verification email has been sent async");
         return new Response<>(true, StringApplication.SUCCESS.CHECK_EMAIL, null);
@@ -159,7 +160,7 @@ public class VerifyService {
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE,
                 userEmail.getUser().getProfile().getFullName(),
                 StringApplication.FIELD.LOGIN_NEW_DEVICE, address,
-                CorsConfig.BASE_URL + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
+                appProperties.getFrontendUrl() + "/auth/verified?verificationId=" + verificationToken.getVerificationTokenId(),
                 timeExpired + StringApplication.FIELD.HOURS);
         log.info("Device verification email has been sent async");
         return new Response<>(true,
@@ -250,7 +251,7 @@ public class VerifyService {
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD,
                 user.getProfile().getFullName(),
                 StringApplication.FIELD.CHANGE_PASSWORD, address,
-                CorsConfig.BASE_URL + "/auth/change-password?token=" + verifyToken.getVerificationTokenId(),
+                appProperties.getFrontendUrl() + "/auth/change-password?token=" + verifyToken.getVerificationTokenId(),
                 minExpired + StringApplication.FIELD.MINUTES);
         log.info("Verification change password has been sent async");
         return new Response<>(true, StringApplication.FIELD.SUCCESS, null);

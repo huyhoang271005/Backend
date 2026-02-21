@@ -24,7 +24,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(@NonNull Message<?> message,
                               @NonNull MessageChannel channel) {
-        StompHeaderAccessor accessor = null;
+        StompHeaderAccessor accessor;
         accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         // Kiểm tra nếu là frame CONNECT (lúc bắt đầu kết nối)

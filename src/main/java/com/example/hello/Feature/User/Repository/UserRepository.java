@@ -1,5 +1,6 @@
 package com.example.hello.Feature.User.Repository;
 
+import com.example.hello.Enum.UserStatus;
 import com.example.hello.Feature.User.dto.HomeInfo;
 import com.example.hello.Entity.User;
 import com.example.hello.Feature.User.dto.UserInfo;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,5 +45,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             """)
     HomeInfo getHomeInfo(UUID userId);
 
+    void deleteByUserStatusAndProfile_CreatedAtBefore(UserStatus userStatus, Instant timeAgo);
 
 }

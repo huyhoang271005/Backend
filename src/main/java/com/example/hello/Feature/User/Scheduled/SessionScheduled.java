@@ -21,7 +21,7 @@ public class SessionScheduled {
     SessionRepository sessionRepository;
     JwtProperties jwtProperties;
 
-    @Scheduled(fixedRate = 60*60*1000)
+    @Scheduled(fixedRate = 60*60*1000)  //1h
     @Transactional
     public void deleteSessionsAndDevice() {
         sessionRepository.deleteSessionExpired(Instant.now().minus(1, ChronoUnit.DAYS));
@@ -31,7 +31,7 @@ public class SessionScheduled {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 10*60*1000)
+    @Scheduled(fixedRate = 10*60*1000) // 10 min
     public void revokeExpiredSessions(){
         var timeAgo = Instant.now().minus(jwtProperties.getRefreshTokenSeconds(), ChronoUnit.SECONDS);
         sessionRepository.revokeExpiredSessions(timeAgo);
@@ -39,7 +39,7 @@ public class SessionScheduled {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 10*60*1000)
+    @Scheduled(fixedRate = 10*60*1000) //10 min
     public void deleteSessionsRevoked(){
         sessionRepository.deleteByRevokedAndLastLoginBefore(true, Instant.now()
                 .minus(jwtProperties.getRefreshTokenSeconds() * 2, ChronoUnit.SECONDS));

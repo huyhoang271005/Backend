@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Huy271005"
+    ports:
+      - "1434:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+#  app:
+#    build: .
+#    container_name: spring-app
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - sqlserver
+
+volumes:
+  sql_data:

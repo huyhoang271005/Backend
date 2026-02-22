@@ -22,7 +22,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,7 +105,11 @@ public class ProductDetailService {
                 .and(ProductSpecification.likeName(productName))
                 .and(ProductSpecification.hasBrand(brandId))
                 .and(ProductSpecification.betweenPrice(minPrice, maxPrice));
-        var productPage = productRepository.findAll(specification, pageable);
+        var productPage = productRepository.findAll(specification,
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by(Sort.Direction.DESC, "createdAt")));
         log.info("Found product list successfully");
         return new Response<>(
                 true,

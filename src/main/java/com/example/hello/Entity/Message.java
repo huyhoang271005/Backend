@@ -12,7 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "message", indexes = {
         @Index(name = "idx_message_sender_id", columnList = "sender_id"),
-        @Index(name = "idx_message_room_id", columnList = "room_id")
+        @Index(name = "idx_message_room_id", columnList = "room_id"),
+        @Index(name = "idx_message_created_at", columnList = "created_at")
 })
 @Getter
 @Setter

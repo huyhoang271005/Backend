@@ -13,7 +13,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "session", indexes = {
         @Index(name = "idx_session_device_id", columnList = "device_id"),
-        @Index(name = "idx_session_user_id", columnList = "user_id")
+        @Index(name = "idx_session_user_id", columnList = "user_id"),
+        @Index(name = "idx_session_created_at", columnList = "created_at")
 })
 @Getter
 @Setter

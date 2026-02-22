@@ -14,7 +14,9 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "profile")
+@Table(name = "profile", indexes = {
+        @Index(name = "idx_profile_created_at", columnList = "created_at")
+})
 @Getter
 @Setter
 @AllArgsConstructor

@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "room_chat")
+@Table(name = "room_chat",  indexes = {
+        @Index(name = "idx_room_chat_updated_at", columnList = "updated_at")
+})
 @Getter
 @Setter
 @NoArgsConstructor

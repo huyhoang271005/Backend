@@ -55,7 +55,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             join v.product p
             where (:orderStatus IS NULL OR o.orderStatus = :orderStatus)
             AND (:orderId IS NULL OR o.orderId = :orderId)
-            order by o.createdAt desc
+            order by o.updatedAt desc
             """)
     Page<OrderInfo> getOrdersAdminInfo(Pageable pageable, OrderStatus orderStatus, UUID orderId);
 

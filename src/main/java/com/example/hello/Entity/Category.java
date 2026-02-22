@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "category")
+@Table(name = "category", indexes = {
+        @Index(name = "idx_category_udpated_at", columnList = "updated_at")
+})
 @Getter
 @Setter
 @NoArgsConstructor

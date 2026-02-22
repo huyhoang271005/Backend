@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "notification", indexes = {
+        @Index(name = "idx_notification_created_at", columnList = "created_at")
+})
 @Getter
 @Setter
 @NoArgsConstructor

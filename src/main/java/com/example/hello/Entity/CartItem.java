@@ -12,7 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "cart_item", indexes = {
         @Index(name = "idx_cart_item_cart_id", columnList = "cart_id"),
-        @Index(name = "idx_cart_item_variant_id", columnList = "variant_id")
+        @Index(name = "idx_cart_item_variant_id", columnList = "variant_id"),
+        @Index(name = "idx_cart_item_udpated_at", columnList = "updated_at")
 })
 @Getter
 @Setter

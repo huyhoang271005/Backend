@@ -12,7 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "feedback", indexes = {
         @Index(name = "idx_feedback_product_id", columnList = "product_id"),
-        @Index(name = "idx_feedback_order_id", columnList = "order_id")
+        @Index(name = "idx_feedback_order_id", columnList = "order_id"),
+        @Index(name = "idx_feedback_created_at", columnList = "created_at")
 })
 @Getter
 @Setter

@@ -13,13 +13,40 @@ services:
     volumes:
       - sql_data:/var/opt/mssql
 
-#  app:
-#    build: .
-#    container_name: spring-app
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - sqlserver
+  app:
+    build: .
+    container_name: spring-app
+    environment:
+      # --- DATABASE ---
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # --- MAIL ---
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      # --- GOOGLE OAUTH2 ---
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+      # --- CLOUDINARY ---
+      CLOUD_NAME: ${CLOUD_NAME}
+      CLOUD_API_KEY: ${CLOUD_API_KEY}
+      CLOUD_API_SECRET: ${CLOUD_API_SECRET}
+
+      # --- VNPAY ---
+      VN_PAY_TMN_CODE: ${VN_PAY_TMN_CODE}
+      VN_PAY_HASH_SECRET: ${VN_PAY_HASH_SECRET}
+
+      # --- APP URLS ---
+      BACKEND_URL: ${BACKEND_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
 
 volumes:
   sql_data:

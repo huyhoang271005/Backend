@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "message")
+@Table(name = "message", indexes = {
+        @Index(name = "idx_message_sender_id", columnList = "sender_id"),
+        @Index(name = "idx_message_room_id", columnList = "room_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +29,7 @@ public class Message {
     @Column(name = "sender_id")
     UUID senderId;
 
-    @Column(name = "[content]")
+    @Column(name = "[content]", columnDefinition = "NVARCHAR(MAX)")
     String content;
 
     @Column(name = "created_at")

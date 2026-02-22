@@ -31,13 +31,13 @@ public class Profile {
     @Id
     UUID userId;
 
-    @Column(name = "full_name")
+    @Column(name = "full_name", columnDefinition = "NVARCHAR(255)")
     String fullName;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "VARCHAR(255)")
     String imageUrl;
 
-    @Column(name = "image_id")
+    @Column(name = "image_id", columnDefinition = "VARCHAR(255)")
     String imageId;
 
     LocalDate birthday;

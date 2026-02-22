@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "[order]")
+@Table(name = "[order]", indexes = {
+        @Index(name = "idx_order_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,11 +28,13 @@ public class Order {
     @Column(name = "order_id")
     UUID orderId;
 
-    @Column(name = "contact_name")
+    @Column(name = "contact_name", columnDefinition = "NVARCHAR(255)")
     String contactName;
 
+    @Column(columnDefinition = "VARCHAR(20)")
     String phone;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String address;
 
     @Enumerated(EnumType.STRING)
@@ -48,7 +52,7 @@ public class Order {
     @Column(name = "payment_at")
     Instant paymentAt;
 
-    @Column(name = "payment_id")
+    @Column(name = "payment_id", columnDefinition = "VARCHAR(255)")
     String paymentId;
 
     @Column(name = "updated_at")

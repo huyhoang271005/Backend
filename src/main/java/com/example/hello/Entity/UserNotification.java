@@ -7,7 +7,10 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_notification")
+@Table(name = "user_notification", indexes = {
+        @Index(name = "idx_user_notification_user_id", columnList = "user_id"),
+        @Index(name = "idx_user_notification_notification_id", columnList = "notification_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

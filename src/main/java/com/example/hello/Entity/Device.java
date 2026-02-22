@@ -21,13 +21,13 @@ public class Device {
     @Column(name = "device_id")
     UUID deviceId;
 
-    @Column(name = "user_agent")
+    @Column(name = "user_agent", columnDefinition = "VARCHAR(255)")
     String userAgent;
 
-    @Column(name = "device_name")
+    @Column(name = "device_name", columnDefinition = "NVARCHAR(255)")
     String deviceName;
 
-    @Column(name = "device_type")
+    @Column(name = "device_type", columnDefinition = "VARCHAR(255)")
     String deviceType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "device", cascade = CascadeType.MERGE)

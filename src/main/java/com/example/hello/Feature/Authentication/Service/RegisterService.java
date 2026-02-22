@@ -6,6 +6,7 @@ import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Enum.RoleName;
 import com.example.hello.Feature.Authentication.dto.DeviceResponse;
+import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
@@ -70,7 +71,7 @@ public class RegisterService {
         var userProfile = userMapper.toProfile(registerRequest);
         //Nếu user gửi ảnh lên thì xử lý ảnh
         if(avatar != null) {
-            CloudinaryResponse result = cloudinaryService.uploadImage(avatar, "user1");
+            CloudinaryResponse result = cloudinaryService.uploadImage(avatar, FolderCloudinary.user.name());
             userProfile.setImageUrl(result.getUrl());
             userProfile.setImageId(result.getPublicId());
             log.info("Image uploaded successfully");

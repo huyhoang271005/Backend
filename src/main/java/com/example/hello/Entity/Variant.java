@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "variant")
+@Table(name = "variant", indexes = {
+        @Index(name = "idx_variant_product_id", columnList = "product_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,10 +35,10 @@ public class Variant {
     @Builder.Default
     Integer sold = 0;
 
-    @Column(name = "image_id")
+    @Column(name = "image_id", columnDefinition = "VARCHAR(255)")
     String imageId;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "VARCHAR(255)")
     String imageUrl;
 
     @Column(name = "is_active")

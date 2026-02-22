@@ -7,7 +7,10 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Entity
-@Table(name = "role_permission")
+@Table(name = "role_permission", indexes = {
+        @Index(name = "idx_role_permission_role_id", columnList = "role_id"),
+        @Index(name = "idx_role_permission_permission_id", columnList = "permission_id")
+})
 @Getter
 @Setter
 @AllArgsConstructor

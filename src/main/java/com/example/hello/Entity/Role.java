@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "role")
+@Table(name = "role", indexes = {
+        @Index(name = "idx_role_role_name", columnList = "role_name")
+})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class Role {
     @Column(name = "role_id")
     UUID roleId;
 
-    @Column(name = "role_name", unique = true)
+    @Column(name = "role_name", unique = true, columnDefinition = "NVARCHAR(255)")
     String roleName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role", cascade = CascadeType.MERGE)

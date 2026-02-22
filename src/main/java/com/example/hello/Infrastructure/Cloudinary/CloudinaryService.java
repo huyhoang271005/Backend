@@ -30,7 +30,7 @@ public class CloudinaryService {
         }
         try {
             Map<?,?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "folder", folder,
+                    "folder", "Ecommerce/" + folder,
                     "quality", "auto",
                     "fetch_format", "auto",
                     "width", 800,

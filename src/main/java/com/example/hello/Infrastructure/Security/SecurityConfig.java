@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers("/auth/**", "/ws/**",
                                     "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**",
-                                    "/login/oauth2/**")
+                                    "/login/oauth2/**", "/favicon.ico")
                             .permitAll();
                     requests.requestMatchers(EndpointRequest.to("health"))
                             .hasAnyAuthority("GET_HEALTH")

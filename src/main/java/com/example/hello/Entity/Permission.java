@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "permission")
+@Table(name = "permission", indexes = {
+        @Index(name = "idx_permission_permission_name", columnList = "permission_name")
+})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class Permission {
     @Column(name = "permission_id")
     UUID permissionId;
 
-    @Column(name = "permission_name", unique = true)
+    @Column(name = "permission_name", unique = true, columnDefinition = "NVARCHAR(255)")
     String permissionName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "permission", cascade = CascadeType.ALL)

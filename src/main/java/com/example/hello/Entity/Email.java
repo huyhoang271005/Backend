@@ -9,7 +9,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "email")
+@Table(name = "email", indexes = {
+        @Index(name = "idx_email_user_id", columnList = "user_id"),
+        @Index(name = "idx_email_email", columnList = "email")
+})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,7 +25,7 @@ public class Email {
     @Column(name = "email_id")
     UUID emailId;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = "VARCHAR(255)")
     String email;
 
     Boolean validated;

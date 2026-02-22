@@ -23,9 +23,10 @@ public class Brand {
     @Column(name = "brand_id")
     UUID brandId;
 
-    @Column(name = "brand_name", unique = true)
+    @Column(name = "brand_name", unique = true, columnDefinition = "NVARCHAR(255)")
     String brandName;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     String description;
 
     @Column(name = "updated_at")

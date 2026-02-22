@@ -23,7 +23,7 @@ public class Attribute {
     @Column(name = "attribute_id")
     UUID attributeId;
 
-    @Column(name = "attribute_name")
+    @Column(name = "attribute_name", columnDefinition = "NVARCHAR(255)")
     String attributeName;
 
     @Column(name = "updated_at")

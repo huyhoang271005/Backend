@@ -11,7 +11,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "session")
+@Table(name = "session", indexes = {
+        @Index(name = "idx_session_device_id", columnList = "device_id"),
+        @Index(name = "idx_session_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,15 +42,19 @@ public class Session {
     @JoinColumn(name = "device_id")
     Device device;
 
-    @Column(name = "ip_address")
+    @Column(name = "ip_address", columnDefinition = "VARCHAR(50)")
     String ipAddress;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String city;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String country;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String region;
 
+    @Column(columnDefinition = "VARCHAR(100)")
     String timezone;
 
     @ManyToOne(fetch = FetchType.LAZY)

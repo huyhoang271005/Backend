@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_item", indexes = {
+        @Index(name = "idx_order_item_order_id", columnList = "order_id"),
+        @Index(name = "idx_order_item_variant_id", columnList = "variant_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

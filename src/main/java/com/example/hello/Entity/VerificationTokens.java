@@ -10,7 +10,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "verification_token")
+@Table(name = "verification_token", indexes = {
+        @Index(name = "idx_verification_token_user_id", columnList = "user_id"),
+        @Index(name = "idx_verification_type_id", columnList = "type_id")
+})
 @Getter
 @Setter
 @AllArgsConstructor

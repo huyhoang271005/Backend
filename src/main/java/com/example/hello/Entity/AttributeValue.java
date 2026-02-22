@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "attribute_value")
+@Table(name = "attribute_value", indexes = {
+        @Index(name = "idx_attribute_value_attribute_id", columnList = "attribute_id"),
+        @Index(name = "idx_attribute_value_product_id", columnList = "product_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,6 +24,7 @@ public class AttributeValue {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID attributeValueId;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String value;
 
     @ManyToOne(fetch = FetchType.LAZY)

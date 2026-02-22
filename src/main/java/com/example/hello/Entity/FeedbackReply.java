@@ -9,7 +9,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "feedback_reply")
+@Table(name = "feedback_reply", indexes = {
+        @Index(name = "idx_feedback_reply_user_id", columnList = "user_id"),
+        @Index(name = "idx_feedback_reply_feedback_id", columnList = "feedback_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +25,7 @@ public class FeedbackReply {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID feedbackReplyId;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     String message;
 
     @Column(name = "created_at")

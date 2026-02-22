@@ -9,7 +9,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "contact")
+@Table(name = "contact", indexes = {
+        @Index(name = "idx_contact_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,11 +24,13 @@ public class Contact {
     @Column(name = "contact_id")
     UUID contactId;
 
-    @Column(name = "contact_name")
+    @Column(name = "contact_name", columnDefinition = "NVARCHAR(255)")
     String contactName;
 
+    @Column(columnDefinition = "VARCHAR(20)")
     String phone;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String address;
 
     @Column(name = "updated_at")

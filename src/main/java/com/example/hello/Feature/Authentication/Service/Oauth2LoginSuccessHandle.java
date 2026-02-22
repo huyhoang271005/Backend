@@ -1,10 +1,7 @@
 package com.example.hello.Feature.Authentication.Service;
 
 import com.example.hello.Entity.*;
-import com.example.hello.Enum.DeviceType;
-import com.example.hello.Enum.Gender;
-import com.example.hello.Enum.RoleName;
-import com.example.hello.Enum.TokenName;
+import com.example.hello.Enum.*;
 import com.example.hello.Feature.Authentication.Repository.TokenRepository;
 import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
@@ -42,8 +39,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -92,11 +87,6 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
 
             var user = userRepository.findByEmails_Email(email).orElseGet(
                     () -> {
-                        var userEmail = Email.builder()
-                                .email(email)
-                                .validated(true)
-                                .build();
-                        emailRepository.save(userEmail);
                         var profile = Profile.builder()
                                 .birthday(LocalDate.now())
                                 .fullName(name)
@@ -107,16 +97,24 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
                                 new EntityNotFoundException(StringApplication.FIELD.ROLE
                                         + StringApplication.FIELD.NOT_EXIST));
                         log.info("Oauth2 created new user");
-                        return User.builder()
+                        var currentUser = User.builder()
                                 .username(UUID.randomUUID().toString())
                                 .password(UUID.randomUUID().toString())
                                 .role(role)
+                                .userStatus(UserStatus.ACTIVE)
                                 .profile(profile)
-                                .emails(List.of(userEmail))
                                 .build();
+                        profile.setUser(currentUser);
+                        userRepository.save(currentUser);
+                        var userEmail = Email.builder()
+                                .email(email)
+                                .validated(true)
+                                .user(currentUser)
+                                .build();
+                        emailRepository.save(userEmail);
+                        return currentUser;
                     }
             );
-            userRepository.save(user);
             var deviceName = (String) request.getAttribute(ParamName.DEVICE_NAME_ATTRIBUTE);
             var deviceType = (DeviceType) request.getAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE);
             var userAgent = request.getHeader(HttpHeaders.USER_AGENT);

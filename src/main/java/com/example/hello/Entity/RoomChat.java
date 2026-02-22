@@ -24,7 +24,7 @@ public class RoomChat {
     @Column(name = "room_id")
     UUID roomChatId;
 
-    @Column(name = "room_name")
+    @Column(name = "room_name", columnDefinition = "NVARCHAR(255)")
     String roomName;
 
     @Column(name = "created_by")

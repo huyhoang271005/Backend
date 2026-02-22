@@ -10,7 +10,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "status")
+@Table(name = "status", indexes = {
+        @Index(name = "idx_status_message_id", columnList = "message_id"),
+        @Index(name = "idx_status_user_id", columnList = "user_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

@@ -23,11 +23,13 @@ public class Notification {
     @Column(name = "notification_id")
     UUID notificationId;
 
+    @Column(columnDefinition = "NVARCHAR(255)")
     String title;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     String message;
 
-    @Column(name = "link_url")
+    @Column(name = "link_url", columnDefinition = "VARCHAR(255)")
     String linkUrl;
 
     @Column(name = "created_at")

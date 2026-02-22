@@ -7,7 +7,10 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Entity
-@Table(name = "variant_value")
+@Table(name = "variant_value", indexes = {
+        @Index(name = "idx_variant_value_attribute_value_id", columnList = "attribute_value_id"),
+        @Index(name = "idx_variant_value_variant_id", columnList = "variant_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

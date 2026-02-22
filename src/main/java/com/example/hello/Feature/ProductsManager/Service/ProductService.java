@@ -6,6 +6,7 @@ import com.example.hello.Feature.Order.Repository.OrderRepository;
 import com.example.hello.Feature.ProductsManager.dto.*;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
+import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnauthorizedException;
@@ -123,7 +124,7 @@ public class ProductService {
         log.info("Foud brand successfully");
         //upload product
         CloudinaryResponse imageProduct = cloudinaryService
-                .uploadImage(images.get("productImage"), "product");
+                .uploadImage(images.get("productImage"), FolderCloudinary.product.name());
         //Tạo và lưu sản phẩm
         Product product = new Product();
         productMapper.updateProduct(productDTO.getProductDetailDTO(), product);
@@ -223,7 +224,7 @@ public class ProductService {
                 log.info("Image product not null");
                 cloudinaryService.deleteImage(product.getImageId());
             }
-            var imageCurrent = cloudinaryService.uploadImage(image, "product");
+            var imageCurrent = cloudinaryService.uploadImage(image, FolderCloudinary.product.name());
             product.setImageUrl(imageCurrent.getUrl());
             product.setImageId(imageCurrent.getPublicId());
         }
@@ -277,7 +278,7 @@ public class ProductService {
             if(variant.getImageId() != null){
                 cloudinaryService.deleteImage(variant.getImageId());
             }
-            var imageCurrent = cloudinaryService.uploadImage(image, "variant");
+            var imageCurrent = cloudinaryService.uploadImage(image, FolderCloudinary.variant.name());
             variant.setImageUrl(imageCurrent.getUrl());
             variant.setImageId(imageCurrent.getPublicId());
         }

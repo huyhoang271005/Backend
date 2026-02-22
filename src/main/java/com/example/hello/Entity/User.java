@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="[user]")
+@Table(name="[user]", indexes = {
+        @Index(name = "idx_user_role_id", columnList = "role_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,9 +25,10 @@ public class User {
     @Column(name="user_id")
     UUID userId;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = "VARCHAR(255)")
     String username;
 
+    @Column(columnDefinition = "VARCHAR(255)")
     String password;
 
     @Enumerated(EnumType.STRING)

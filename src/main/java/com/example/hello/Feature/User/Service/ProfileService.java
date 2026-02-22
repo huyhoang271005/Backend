@@ -2,6 +2,7 @@ package com.example.hello.Feature.User.Service;
 
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
+import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.UserMapper;
@@ -76,7 +77,7 @@ public class ProfileService {
             if(profile.getImageId() != null){
                 cloudinaryService.deleteImage(profile.getImageId());
             }
-            CloudinaryResponse uploadImage = cloudinaryService.uploadImage(avatar, "user1");
+            CloudinaryResponse uploadImage = cloudinaryService.uploadImage(avatar, FolderCloudinary.user.name());
             profile.setImageUrl(uploadImage.getUrl());
             profile.setImageId(uploadImage.getPublicId());
         }

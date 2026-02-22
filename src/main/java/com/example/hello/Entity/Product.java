@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product", indexes = {
+        @Index(name = "idx_product_brand_id", columnList = "brand_id"),
+        @Index(name = "idx_product_category_id", columnList = "category_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,15 +28,16 @@ public class Product {
     @Column(name = "product_id")
     UUID productId;
 
-    @Column(name = "product_name")
+    @Column(name = "product_name", columnDefinition = "NVARCHAR(255)")
     String productName;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     String description;
 
-    @Column(name = "image_id")
+    @Column(name = "image_id", columnDefinition = "VARCHAR(255)")
     String imageId;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "VARCHAR(255)")
     String imageUrl;
 
     @Column(name = "original_price")

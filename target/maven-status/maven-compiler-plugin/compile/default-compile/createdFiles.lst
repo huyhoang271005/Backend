@@ -123,6 +123,7 @@ com\example\hello\Feature\Payment\Service\VnPayService.class
 com\example\hello\Entity\Profile$ProfileBuilder.class
 com\example\hello\Feature\Feedback\Service\FeedbackReplyService.class
 com\example\hello\Feature\ProductsManager\Controller\ProductController.class
+com\example\hello\Infrastructure\Cloudinary\FolderCloudinary.class
 com\example\hello\Feature\Feedback\dto\FeedbackInfo.class
 com\example\hello\Feature\Order\dto\OrderListDTO.class
 com\example\hello\WebSocket\RoomChat\RoomChatService.class

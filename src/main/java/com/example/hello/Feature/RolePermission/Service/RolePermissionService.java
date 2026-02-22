@@ -98,7 +98,7 @@ public class RolePermissionService {
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.ADD_ROLE_PERMISSION.name()))
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.GET_ROLE_PERMISSION.name())
                 || rolePermission.getPermission().getPermissionName().equals(PermissionName.GET_PERMISSION.name())) {
-            log.error("Cant delete role permission {}", rolePermission.getPermission().getPermissionName());
+            log.error("Cant delete permission {}", rolePermission.getPermission().getPermissionName());
             throw new ConflictException(StringApplication.FIELD.CANT_REMOVE);
         }
         //Xoá quyền của chức vụ này

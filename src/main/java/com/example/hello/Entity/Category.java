@@ -23,9 +23,10 @@ public class Category {
     @Column(name = "category_id")
     UUID categoryId;
 
-    @Column(name = "category_name", unique = true)
+    @Column(name = "category_name", unique = true, columnDefinition = "NVARCHAR(255)")
     String categoryName;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     String description;
 
     @Column(name = "updated_at")

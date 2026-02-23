@@ -20,7 +20,7 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
         select s.sessionId as sessionId, s.revoked as revoked,
                 s.validated as validated, s.lastLogin as lastLogin,
                 s.createdAt createdAt, d.deviceName as deviceName, d.userAgent as userAgent,
-                d.deviceType as deviceType, s.ipAddress as ipAddress, s.city as city,
+                d.deviceType as deviceType, s.city as city,
                 s.country as country, s.region as region, s.timezone as timezone
         from Session s join
             s.device d

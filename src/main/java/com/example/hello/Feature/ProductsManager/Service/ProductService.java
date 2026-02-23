@@ -51,10 +51,6 @@ public class ProductService {
                 log.error("Not found image name {}", variant.getImageName());
                 throw new UnprocessableEntityException("Variant " + variant.getImageName() +" not found");
             }
-            if(cloudinaryService.isImage(images.get(variant.getImageName()))) {
-                log.error("File {} not is image", variant.getImageName());
-                throw new UnauthorizedException("File " + variant.getImageName() + " not is image");
-            }
         });
         var attributeValueSize = productDTO.getAttributes().stream()
                 .map(attributeDTO -> attributeDTO.getAttributeValues().size())

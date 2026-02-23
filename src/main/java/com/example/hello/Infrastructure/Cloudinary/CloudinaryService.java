@@ -24,8 +24,8 @@ public class CloudinaryService {
 
 
     public CloudinaryResponse uploadImage(MultipartFile file, String folder) {
-        if(!isImage(file) && file.isEmpty()) {
-            log.error("Image file is empty or file not image");
+        if(!isImage(file) || file.isEmpty()) {
+            log.error("Image {} is empty or file not image", file.getOriginalFilename());
             throw new FileUploadException(StringApplication.ERROR.UPLOAD_ERROR);
         }
         try {
@@ -59,6 +59,7 @@ public class CloudinaryService {
 
     public boolean isImage(MultipartFile file) {
         String contentType = file.getContentType();
+        log.info("Content type is {}", contentType);
         return contentType != null && contentType.startsWith("image/");
     }
 

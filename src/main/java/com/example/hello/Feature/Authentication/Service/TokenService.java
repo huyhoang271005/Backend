@@ -63,7 +63,7 @@ public class TokenService {
         }
         //Đã exception khi refreshToken không phải refresh refreshToken
         if(tokenName != TokenName.REFRESH_TOKEN){
-            log.error("Token name not refresh refreshToken");
+            log.error("Token name not refresh token");
             throw new UnprocessableEntityException(StringApplication.FIELD.REFRESH_TOKEN + StringApplication.FIELD.INVALID);
         }
         //Tìm session thông qua sessionId
@@ -89,7 +89,7 @@ public class TokenService {
             log.error("Token value different in db");
             log.info("Token client is {}", refreshToken);
             log.info("Token in db is {}", userToken.getTokenValue());
-            throw new ConflictException(StringApplication.FIELD.TOKEN + StringApplication.FIELD.INVALID);
+            throw new UnauthorizedException(StringApplication.FIELD.TOKEN + StringApplication.FIELD.INVALID);
         }
         if(!session.getIpAddress().equals(ip)) {
             log.info("Set new ip successfully");

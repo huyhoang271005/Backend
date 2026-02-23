@@ -12,6 +12,12 @@ services:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
 
   app:
     build: .
@@ -45,8 +51,27 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - sqlserver
+    restart: unless-stopped
+
+  tunnel:
+    container_name: cloudflare-tunnel
+    image: cloudflare/cloudflared:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    restart: always
 
 volumes:
   sql_data:

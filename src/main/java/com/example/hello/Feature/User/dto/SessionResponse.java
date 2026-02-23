@@ -3,7 +3,7 @@ package com.example.hello.Feature.User.dto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -21,6 +21,6 @@ public class SessionResponse {
     String deviceType;
     String userAgent;
     Address address;
-    LocalDateTime lastLogin;
-    LocalDateTime createdAt;
+    Instant lastLogin;
+    Instant createdAt;
 }

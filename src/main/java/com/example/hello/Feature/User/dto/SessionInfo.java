@@ -2,7 +2,7 @@ package com.example.hello.Feature.User.dto;
 
 import com.example.hello.Entity.Session;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -15,9 +15,9 @@ public interface SessionInfo {
 
     Boolean getRevoked();
 
-    LocalDateTime getLastLogin();
+    Instant getLastLogin();
 
-    LocalDateTime getCreatedAt();
+    Instant getCreatedAt();
 
     String getUserAgent();
 
@@ -29,5 +29,4 @@ public interface SessionInfo {
     String getRegion();
     String getCountry();
     String getTimezone();
-    String getIpAddress();
 }

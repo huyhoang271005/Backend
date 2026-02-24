@@ -88,4 +88,14 @@ public class ProfileService {
                 null
         );
     }
+
+    @Transactional
+    public Response<Void> deleteProfile(UUID userId) {
+        userRepository.deleteById(userId);
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                null
+        );
+    }
 }

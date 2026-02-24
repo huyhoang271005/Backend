@@ -106,11 +106,13 @@ public class AuthController {
                             HttpServletRequest request) {
         Response<LoginResponse> loginResponse;
         DeviceType deviceType = (DeviceType) request.getAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE);
+        Address address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
+        String deviceName = (String) request.getAttribute(ParamName.DEVICE_NAME_ATTRIBUTE);
         if(deviceType == DeviceType.WEB){
-            loginResponse = loginService.login(loginRequest, oldRefreshToken, deviceId);
+            loginResponse = loginService.login(loginRequest, oldRefreshToken, deviceId, address, deviceName);
         }
         else {
-            loginResponse = loginService.login(loginRequest, loginRequest.getRefreshToken(), deviceIdHeader);
+            loginResponse = loginService.login(loginRequest, loginRequest.getRefreshToken(), deviceIdHeader, address, deviceName);
         }
         if(loginResponse.getSuccess()){
             if(deviceType ==  DeviceType.WEB){

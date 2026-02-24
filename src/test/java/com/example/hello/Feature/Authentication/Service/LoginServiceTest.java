@@ -9,6 +9,7 @@ import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
 import com.example.hello.Feature.Authentication.Repository.TokenRepository;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.User.Repository.SessionRepository;
+import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.WebSocket.RoomChat.UserRoomChatRepository;
 import com.example.hello.WebSocket.RoomChat.RoomChatRepository;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
@@ -67,6 +68,8 @@ class LoginServiceTest {
     private Device device;
     private UUID deviceId;
     private UUID sessionId;
+    private Address address;
+    private String deviceName;
 
     @BeforeEach
     void setUp() {
@@ -76,6 +79,15 @@ class LoginServiceTest {
 
         deviceId = UUID.randomUUID();
         sessionId = UUID.randomUUID();
+
+        deviceName = "Chrome Android";
+
+        address = Address.builder()
+                .region("Hanoi")
+                .city("Hanoi")
+                .country("VN")
+                .timezone("Asia/Bangkok")
+                .build();
 
         user = User.builder()
                 .userId(UUID.randomUUID())
@@ -118,7 +130,7 @@ class LoginServiceTest {
         // Mock RoomChat
         when(userRoomChatRepository.existsByRoomChat_RoomNameAndUser(anyString(), any())).thenReturn(true);
 
-        Response<LoginResponse> response = loginService.login(loginRequest, null, deviceId);
+        Response<LoginResponse> response = loginService.login(loginRequest, null, deviceId, address, deviceName);
 
         assertTrue(response.getSuccess());
         assertEquals(StringApplication.SUCCESS.LOGIN_SUCCESS, response.getMessage());
@@ -132,7 +144,7 @@ class LoginServiceTest {
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
         assertThrows(ConflictException.class, () -> 
-            loginService.login(loginRequest, null, deviceId)
+            loginService.login(loginRequest, null, deviceId, address, deviceName)
         );
     }
 
@@ -149,7 +161,7 @@ class LoginServiceTest {
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
         when(sessionRepository.findByUserAndDevice(user, device)).thenReturn(Optional.empty());
 
-        Response<LoginResponse> response = loginService.login(loginRequest, null, deviceId);
+        Response<LoginResponse> response = loginService.login(loginRequest, null, deviceId, address, deviceName);
 
         assertTrue(response.getSuccess());
         assertEquals(StringApplication.ERROR.NEW_DEVICE, response.getMessage());

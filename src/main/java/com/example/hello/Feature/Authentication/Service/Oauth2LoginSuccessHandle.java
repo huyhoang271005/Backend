@@ -3,6 +3,8 @@ package com.example.hello.Feature.Authentication.Service;
 import com.example.hello.Entity.*;
 import com.example.hello.Enum.*;
 import com.example.hello.Feature.Authentication.Repository.TokenRepository;
+import com.example.hello.Feature.Notification.NotificationDTO;
+import com.example.hello.Feature.Notification.NotificationService;
 import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.User.Repository.EmailRepository;
@@ -10,6 +12,7 @@ import com.example.hello.Feature.User.Repository.SessionRepository;
 import com.example.hello.Feature.User.Repository.UserRepository;
 import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
+import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
@@ -39,6 +42,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +65,8 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
     UserRoomChatRepository userRoomChatRepository;
     RoomChatRepository roomChatRepository;
     SessionMapper sessionMapper;
+    EmailSenderService emailSenderService;
+    NotificationService notificationService;
 
     @Transactional
     @Override
@@ -85,36 +91,49 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
                 log.warn("Device id cookie is null");
             }
 
-            var user = userRepository.findByEmails_Email(email).orElseGet(
-                    () -> {
-                        var profile = Profile.builder()
-                                .birthday(LocalDate.now())
-                                .fullName(name)
-                                .gender(Gender.FEMALE)
-                                .imageUrl(picture)
-                                .build();
-                        var role = roleRepository.findByRoleName(RoleName.USER.name()).orElseThrow(() ->
-                                new EntityNotFoundException(StringApplication.FIELD.ROLE
-                                        + StringApplication.FIELD.NOT_EXIST));
-                        log.info("Oauth2 created new user");
-                        var currentUser = User.builder()
-                                .username(UUID.randomUUID().toString())
-                                .password(UUID.randomUUID().toString())
-                                .role(role)
-                                .userStatus(UserStatus.ACTIVE)
-                                .profile(profile)
-                                .build();
-                        profile.setUser(currentUser);
-                        userRepository.save(currentUser);
-                        var userEmail = Email.builder()
-                                .email(email)
-                                .validated(true)
-                                .user(currentUser)
-                                .build();
-                        emailRepository.save(userEmail);
-                        return currentUser;
-                    }
-            );
+            boolean newUser = false;
+            var userOptional = userRepository.findByEmails_Email(email);
+            User user;
+            if(userOptional.isEmpty()) {
+                newUser = true;
+                var profile = Profile.builder()
+                        .birthday(LocalDate.now())
+                        .fullName(name)
+                        .gender(Gender.FEMALE)
+                        .imageUrl(picture)
+                        .build();
+                var role = roleRepository.findByRoleName(RoleName.USER.name()).orElseThrow(() ->
+                        new EntityNotFoundException(StringApplication.FIELD.ROLE
+                                + StringApplication.FIELD.NOT_EXIST));
+                log.info("Oauth2 created new user");
+                var currentUser = User.builder()
+                        .username(UUID.randomUUID().toString())
+                        .password(UUID.randomUUID().toString())
+                        .role(role)
+                        .userStatus(UserStatus.ACTIVE)
+                        .profile(profile)
+                        .build();
+                profile.setUser(currentUser);
+                userRepository.save(currentUser);
+                var userEmail = Email.builder()
+                        .email(email)
+                        .validated(true)
+                        .user(currentUser)
+                        .build();
+                emailRepository.save(userEmail);
+                user = currentUser;
+                emailSenderService.sendEmailWelcome(email, name);
+                notificationService.sendNotification(List.of(user),
+                        NotificationDTO.builder()
+                                .title(StringApplication.NOTIFICATION.WELCOME_TITLE)
+                                .message(StringApplication.NOTIFICATION.WELCOME_MESSAGE0 +
+                                        user.getProfile().getFullName() +
+                                        StringApplication.NOTIFICATION.WELCOME_MESSAGE1)
+                                .build());
+            }
+            else {
+                user = userOptional.get();
+            }
             var deviceName = (String) request.getAttribute(ParamName.DEVICE_NAME_ATTRIBUTE);
             var deviceType = (DeviceType) request.getAttribute(ParamName.DEVICE_TYPE_ATTRIBUTE);
             var userAgent = request.getHeader(HttpHeaders.USER_AGENT);
@@ -132,13 +151,32 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
             deviceRepository.save(device);
             var ipAddress = (String) request.getAttribute(ParamName.IP_ADDRESS_ATTRIBUTE);
             var address = (Address) request.getAttribute(ParamName.ADDRESS_ATTRIBUTE);
-            var session = sessionRepository.findByUserAndDevice(user, device)
-                    .orElseGet(() -> Session.builder()
-                            .user(user)
-                            .device(device)
-                            .ipAddress(ipAddress)
-                            .validated(true)
-                            .build());
+            var sessionOptional = sessionRepository.findByUserAndDevice(user, device);
+            Session session;
+            if(sessionOptional.isEmpty()){
+                session = Session.builder()
+                        .user(user)
+                        .device(device)
+                        .ipAddress(ipAddress)
+                        .validated(true)
+                        .build();
+                if(!newUser){
+                    user.getEmails().stream()
+                            .map(Email::getEmail)
+                            .forEach(s -> emailSenderService.sendEmailWarningDevice(s,
+                                    user.getProfile().getFullName(),
+                                    address, deviceName));
+                    notificationService.sendNotification(List.of(user),
+                            NotificationDTO.builder()
+                                    .title(StringApplication.NOTIFICATION.WARNING_TITLE)
+                                    .message(StringApplication.NOTIFICATION.WARNING_DEVICE_MESSAGE)
+                                    .linkUrl(appProperties.getFrontendUrl() + "/session")
+                                    .build());
+                }
+            }
+            else {
+                session = sessionOptional.get();
+            }
             session.setRevoked(false);
             session.setLastLogin(Instant.now());
             sessionMapper.updateSession(address, session);

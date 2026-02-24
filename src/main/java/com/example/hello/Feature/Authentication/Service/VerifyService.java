@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Authentication.Service;
 
-import com.example.hello.Infrastructure.Email.EmailVerifyService;
+import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
 import com.example.hello.Feature.User.dto.Address;
@@ -43,7 +43,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VerifyService {
-    EmailVerifyService emailVerifyService;
+    EmailSenderService emailSenderService;
     EmailRepository emailRepository;
     VerificationTokensRepository verificationTokensRepository;
     DeviceRepository deviceRepository;
@@ -98,7 +98,7 @@ public class VerifyService {
         verificationTokensRepository.save(verificationToken);
         log.info("Verification email generated");
         //Gửi email xác thực tới user dẫn tới trang xác thực
-        emailVerifyService.sendEmail(emailRequest.getEmail(),
+        emailSenderService.sendEmailVerify(emailRequest.getEmail(),
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.EMAIL,
                 userEmail.getUser().getProfile().getFullName(),
                 StringApplication.FIELD.ADD_NEW_EMAIL, address,
@@ -156,7 +156,7 @@ public class VerifyService {
         log.info("Verification device generated");
         verificationTokensRepository.save(verificationToken);
         //Gửi email xác thực tới user
-        emailVerifyService.sendEmail(emailRequest.getEmail(),
+        emailSenderService.sendEmailVerify(emailRequest.getEmail(),
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.DEVICE,
                 userEmail.getUser().getProfile().getFullName(),
                 StringApplication.FIELD.LOGIN_NEW_DEVICE, address,
@@ -247,7 +247,7 @@ public class VerifyService {
         verificationTokensRepository.save(verifyToken);
         log.info("Verification change password generated");
         //Gửi email dẫn tới trang thay đổi mật khẩu
-        emailVerifyService.sendEmail(userEmail.getEmail(),
+        emailSenderService.sendEmailVerify(userEmail.getEmail(),
                 StringApplication.FIELD.VERIFY + StringApplication.FIELD.CHANGE_PASSWORD,
                 user.getProfile().getFullName(),
                 StringApplication.FIELD.CHANGE_PASSWORD, address,

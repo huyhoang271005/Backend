@@ -7,6 +7,7 @@ import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Enum.RoleName;
 import com.example.hello.Feature.Authentication.dto.DeviceResponse;
 import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
+import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.RolePermission.Repository.RoleRepository;
@@ -48,6 +49,7 @@ public class RegisterService {
     SessionRepository sessionRepository;
     CloudinaryService  cloudinaryService;
     NotificationService notificationService;
+    EmailSenderService emailSenderService;
 
     @Transactional
     public Response<DeviceResponse> register(RegisterRequest registerRequest,
@@ -98,7 +100,8 @@ public class RegisterService {
         log.info("Role set is USER");
         user.setRole(role);
         userRepository.save(user);
-        //Tìm device nếu không tồn tại tạo device mới và lưu
+        //Gửi email chào mừng
+        emailSenderService.sendEmailWelcome(email.getEmail(), userProfile.getFullName());
         notificationService.sendNotification(List.of(user),
                 NotificationDTO.builder()
                         .title(StringApplication.NOTIFICATION.WELCOME_TITLE)
@@ -106,6 +109,7 @@ public class RegisterService {
                                 userProfile.getFullName() +
                                 StringApplication.NOTIFICATION.WELCOME_MESSAGE1)
                         .build());
+        //Tìm device nếu không tồn tại tạo device mới và lưu
         var device = Optional.ofNullable(deviceId)
                         .flatMap(deviceRepository::findById)
                                 .orElseGet(()->Device.builder()

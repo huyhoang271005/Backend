@@ -1,7 +1,11 @@
 package com.example.hello.Feature.Authentication.Service;
 
 import com.example.hello.Entity.UserRoomChat;
+import com.example.hello.Feature.Notification.NotificationDTO;
+import com.example.hello.Feature.Notification.NotificationService;
+import com.example.hello.Feature.User.dto.Address;
 import com.example.hello.Infrastructure.Cache.SessionCacheService;
+import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
@@ -9,6 +13,7 @@ import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
 import com.example.hello.Feature.Authentication.Repository.TokenRepository;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.User.Repository.SessionRepository;
+import com.example.hello.Infrastructure.Security.AppProperties;
 import com.example.hello.WebSocket.RoomChat.UserRoomChatRepository;
 import com.example.hello.WebSocket.RoomChat.RoomChatRepository;
 import com.example.hello.Middleware.StringApplication;
@@ -32,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,10 +55,13 @@ public class LoginService {
     JwtProperties jwtProperties;
     UserRoomChatRepository userRoomChatRepository;
     RoomChatRepository roomChatRepository;
+    NotificationService notificationService;
+    EmailSenderService emailSenderService;
+    AppProperties appProperties;
 
     @Transactional
     public Response<LoginResponse> login(LoginRequest loginRequest, String oldRefreshToken,
-                                         UUID deviceId) {
+                                         UUID deviceId, Address address, String deviceName) {
         try {
             UUID idDevice;
             UUID sessionId;
@@ -103,6 +112,19 @@ public class LoginService {
                                 .verifiedDevice(false)
                                 .build()
                 );
+            }
+            if(session.getLastLogin() == null){
+                user.getEmails().stream()
+                        .map(Email::getEmail)
+                        .forEach(s -> emailSenderService.sendEmailWarningDevice(s,
+                                user.getProfile().getFullName(),
+                                address, deviceName));
+                notificationService.sendNotification(List.of(user),
+                        NotificationDTO.builder()
+                                .title(StringApplication.NOTIFICATION.WARNING_TITLE)
+                                .message(StringApplication.NOTIFICATION.WARNING_DEVICE_MESSAGE)
+                                .linkUrl(appProperties.getFrontendUrl() + "/session")
+                                .build());
             }
             //Tạo refresh token và access token
             String refreshToken = jwtComponent.generateToken(user.getUserId(), TokenName.REFRESH_TOKEN,

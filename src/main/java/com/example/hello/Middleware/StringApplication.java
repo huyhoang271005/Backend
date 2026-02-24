@@ -77,6 +77,8 @@ public class StringApplication {
     public static class NOTIFICATION{
         public static final String CANCELED_BY_SYSTEM = " đã bị huỷ bởi hệ thống";
         public static final String WELCOME_TITLE = "Chào mừng";
+        public static final String WARNING_TITLE = "Cảnh báo";
+        public static final String WARNING_DEVICE_MESSAGE = "Phát hiện phiên đăng nhập mới, nhấn vào đây để kiếm tra các phiên đăng nhập!";
         public static final String WELCOME_MESSAGE0 = "Chào mừng người dùng ";
         public static final String WELCOME_MESSAGE1 = " đến với bách hoá xanh, hãy trải nghiệm và cho chúng tôi những đánh giá tích cực :D";
     }

@@ -32,4 +32,9 @@ public class ProfileController {
                                     @AuthenticationPrincipal UUID userId) {
         return ResponseEntity.ok(profileService.updateProfile(userId, profile, avatar));
     }
+
+    @DeleteMapping
+    ResponseEntity<?> deleteProfile(@AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(profileService.deleteProfile(userId));
+    }
 }

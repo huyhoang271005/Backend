@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="center" style="padding: 20px 0;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="500"
+                   style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;">
+
+                <tr>
+                    <td align="center" style="background-color: #4CAF50; padding: 30px 20px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1067/1067562.png" width="70" alt="Security Icon"
+                             style="display: block; filter: brightness(0) invert(1);" />
+                        <h2 style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 15px 0 0 0; text-transform: uppercase;">
+                            Phát hiện đăng nhập mới
+                        </h2>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="color: #333; font-size: 16px; line-height: 1.6; padding: 30px 40px;">
+                        <p style="margin-top: 0;">Xin chào, <span th:text="${fullName}" style="font-weight:bold;">Nguyễn Văn A</span>,</p>
+
+                        <p>Hệ thống nhận thấy tài khoản của bạn vừa được truy cập từ một <b>thiết bị mới</b>:</p>
+
+                        <div style="background-color: #f1f8f1; border-left: 4px solid #4CAF50; padding: 15px; margin: 20px 0;">
+                            <p style="margin: 5px 0;"><b>📍 Vị trí:</b> <span th:text="${address}">Hà Nội, Việt Nam</span></p>
+                            <p style="margin: 5px 0;"><b>💻 Thiết thiết bị:</b> <span th:text="${deviceName}">Chrome trên Windows</span></p>
+                            <p style="margin: 5px 0;"><b>⏰ Thời gian:</b> <span th:text="${timeLogin}">25/02/2026 12:45</span></p>
+                        </div>
+
+                        <p style="color: #555; font-size: 15px;">Để bảo vệ tài khoản, vui lòng kiểm tra xem đây có phải là bạn không. Nếu đúng là bạn, bạn có thể bỏ qua email này.</p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding: 0 40px 40px 40px;">
+                        <a th:href="|${frontendUrl}/session|"
+                           style="display: inline-block; background-color: #4CAF50; color: #ffffff; text-decoration: none;
+                                  font-size: 16px; padding: 14px 30px; border-radius: 6px; font-weight: bold;">
+                            🔍 Kiểm tra các phiên đăng nhập
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding: 20px; border-top: 1px solid #eeeeee; background-color: #fafafa;">
+                        <p style="font-size: 12px; color: #999; margin: 0;">
+                            Đây là email tự động nhằm đảm bảo an toàn cho tài khoản của bạn tại <b>Tên Website</b>.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

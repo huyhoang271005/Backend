@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body style="margin: 0; padding: 0; background-color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif;">
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td align="center" style="padding: 40px 0;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="500" style="max-width: 100%;">
+
+                <tr>
+                    <td align="left" style="padding-bottom: 30px; border-bottom: 2px solid #f1f1f1;">
+                        <img th:src="|${frontendUrl}/android-chrome-512x512.png|" width="50" alt="Logo" style="display: inline-block; vertical-align: middle;" />
+                        <span style="font-size: 20px; font-weight: bold; color: #4CAF50; margin-left: 10px; vertical-align: middle;">Bách hoá xanh</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding: 40px 0; color: #333; font-size: 16px; line-height: 1.6;">
+                        <h2 style="color: #333; margin-top: 0;">Chào mừng bạn, <span th:text="${fullName}">Nguyễn Văn A</span>!</h2>
+
+                        <p>Cảm ơn bạn đã tin tưởng và đăng ký tham gia cùng cộng đồng <b>Bách hoá xanh</b>.</p>
+
+                        <p>Tài khoản của bạn hiện đã được thiết lập thành công. Chúng tôi hy vọng ứng dụng sẽ mang lại cho bạn những trải nghiệm tuyệt vời và giá trị thiết thực nhất.</p>
+
+                        <p style="margin-bottom: 0;">Chúc bạn có những giây phút khám phá thú vị!</p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding-top: 20px; border-top: 1px solid #f1f1f1; color: #888; font-size: 14px;">
+                        Thân mến,<br>
+                        <strong style="color: #4CAF50;">Đội ngũ Bách hoá xanh</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="left" style="padding-top: 40px;">
+                        <p style="font-size: 12px; color: #bbb; margin: 0;">
+                            © 2026 Bách hoá xanh. Đây là email xác nhận tự động.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

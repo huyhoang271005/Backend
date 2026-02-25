@@ -167,6 +167,7 @@ public class UserService {
         log.info("Notifications count successfully {}", homeResponse.getReadNotifications());
         homeResponse.setReadMessages(statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SEND));
         log.info("Messages count successfully {}", homeResponse.getReadMessages());
+        homeResponse.setAppName(StringApplication.FIELD.APP_NAME);
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,

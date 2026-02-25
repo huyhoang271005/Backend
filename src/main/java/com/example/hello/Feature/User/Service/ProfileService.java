@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -75,7 +76,7 @@ public class ProfileService {
         profile.setFullName(profileRequest.getFullName());
         if(avatar != null) {
             if(profile.getImageId() != null){
-                cloudinaryService.deleteImage(profile.getImageId());
+                cloudinaryService.deleteImages(List.of(profile.getImageId()));
             }
             CloudinaryResponse uploadImage = cloudinaryService.uploadImage(avatar, FolderCloudinary.user.name());
             profile.setImageUrl(uploadImage.getUrl());
@@ -91,6 +92,10 @@ public class ProfileService {
 
     @Transactional
     public Response<Void> deleteProfile(UUID userId) {
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException(StringApplication.FIELD.USER + StringApplication.FIELD.NOT_EXIST)
+        );
+        cloudinaryService.deleteImages(List.of(user.getProfile().getImageId()));
         userRepository.deleteById(userId);
         return new Response<>(
                 true,

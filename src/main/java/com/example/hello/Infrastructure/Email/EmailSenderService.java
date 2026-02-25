@@ -97,7 +97,8 @@ public class EmailSenderService {
     public void sendEmailWelcome(String toEmail, String fullName){
         sendEmail(toEmail, StringApplication.NOTIFICATION.WELCOME_TITLE, "welcomeEmail", Map.of(
                 "fullName", fullName,
-                "frontendUrl", appProperties.getFrontendUrl()
+                "frontendUrl", appProperties.getFrontendUrl(),
+                "appName", StringApplication.FIELD.APP_NAME
         ));
     }
 }

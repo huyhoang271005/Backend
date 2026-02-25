@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -43,16 +46,26 @@ public class CloudinaryService {
         }
     }
 
-    public void deleteImage(String publicId) {
+    public void deleteImages(List<String> publicIds) {
+        if(publicIds == null || publicIds.isEmpty()) {
+            log.info("Image list is empty");
+            return;
+        }
         try {
-            Map<?,?> result = cloudinary.uploader()
-                    .destroy(publicId, ObjectUtils.emptyMap());
-
-            if(result.get("result").equals("oke")){
-                log.info("Image {} delete successfully", publicId);
-            }
-        } catch (IOException e) {
-            log.error("Image {} delete failure", publicId);
+            Map<?,?> result = cloudinary.api().deleteResources(publicIds
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .toList(),
+                    ObjectUtils.emptyMap());
+            log.info("Result delete with cloudinary is {}", result);
+            Map<?, ?> deletedObject = (Map<?, ?>) result.get("deleted");
+            deletedObject.forEach((k,v)->{
+                if(k instanceof String key && v instanceof String value) {
+                    log.info("Image {} {}", key, value);
+                }
+            });
+        } catch (Exception e) {
+            log.error("Error when delete images", e);
         }
     }
 

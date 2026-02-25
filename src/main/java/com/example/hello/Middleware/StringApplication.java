@@ -27,6 +27,7 @@ public class StringApplication {
     }
 
     public static class FIELD {
+        public static final String APP_NAME = "Bách hoá xanh";
         public static final String FEEDBACK = "Đánh giá";
         public static final String CANT_CANCEL = "Không thể huỷ";
         public static final String ORDER = "Đơn hàng";

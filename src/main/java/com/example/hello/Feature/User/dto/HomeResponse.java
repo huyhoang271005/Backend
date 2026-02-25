@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HomeResponse {
+    String appName;
     String imageUrl;
     String username;
     String roleName;

@@ -16,12 +16,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,29 +36,22 @@ public class AddVariantService {
     AttributeRepository attributeRepository;
     CloudinaryService cloudinaryService;
     VariantMapper variantMapper;
+    Executor virtualThreadExecutor;
 
     @Transactional
     public void processAttributesAndVariants(Product product,
                                              ProductDTO productDTO,
                                              Map<String, MultipartFile> images) {
-        List<String> uploadedImageIds = new ArrayList<>();
-        try {
-            // STEP 1: Create and save AttributeValues
-            Map<String, AttributeValue> attributeValueMap = createAndSaveAttributeValues(
-                    product, productDTO);
+        // STEP 1: Create and save AttributeValues
+        Map<String, AttributeValue> attributeValueMap = createAndSaveAttributeValues(
+                product, productDTO);
 
-            // STEP 2: Create and save Variants
-            Map<String, Variant> variantMap = createAndSaveVariants(
-                    product, productDTO, images, uploadedImageIds);
+        // STEP 2: Create and save Variants
+        Map<String, Variant> variantMap = createAndSaveVariants(
+                product, productDTO, images);
 
-            // STEP 3: Create and save VariantValues (junction table)
-            createAndSaveVariantValues(productDTO, attributeValueMap, variantMap);
-
-        } catch (Exception e) {
-            cleanupUploadedImages(uploadedImageIds);
-            log.error(String.valueOf(e));
-            throw new RuntimeException(e.getMessage());
-        }
+        // STEP 3: Create and save VariantValues (junction table)
+        createAndSaveVariantValues(productDTO, attributeValueMap, variantMap);
     }
 
     private Map<String, AttributeValue> createAndSaveAttributeValues(
@@ -95,40 +90,54 @@ public class AddVariantService {
     private Map<String, Variant> createAndSaveVariants(
             Product product,
             ProductDTO productDTO,
-            Map<String, MultipartFile> images,
-            List<String> uploadedImageIds) {
+            Map<String, MultipartFile> images) {
 
-        List<Variant> variants = new ArrayList<>();
-        Map<String, Variant> variantMap = new HashMap<>();
+        List<CompletableFuture<Map.Entry<String, Variant>>> futures = productDTO.getVariants()
+                .stream()
+                .map(variantDTO -> CompletableFuture.supplyAsync(() -> {
+                    CloudinaryResponse cloudinaryResponse = cloudinaryService
+                            .uploadImage(images.get(variantDTO.getImageName()),
+                            FolderCloudinary.variant.name());
+                    Variant variant = new Variant();
+                    variantMapper.updateVariant(variantDTO, variant);
+                    variant.setImageId(cloudinaryResponse.getPublicId());
+                    variant.setImageUrl(cloudinaryResponse.getUrl());
+                    variant.setProduct(product);
+                    variant.setActive(true);
 
-        for (VariantDTO variantDTO : productDTO.getVariants()) {
-            MultipartFile imageFile = images.get(variantDTO.getImageName());
+                    return Map.entry(variantDTO.getVariantId(), variant);
+                }, virtualThreadExecutor))
+                .toList();
+        try {
+            List<Map.Entry<String, Variant>> result = futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .toList();
 
-            if (imageFile == null) {
-                log.error("{} image not found", variantDTO.getImageName());
-                continue;
-            }
 
-            // Upload image to Cloudinary
-            CloudinaryResponse imageVariant = cloudinaryService
-                    .uploadImage(imageFile, FolderCloudinary.variant.name());
-            uploadedImageIds.add(imageVariant.getPublicId());
+            variantRepository.saveAll(result.stream()
+                    .map(Map.Entry::getValue)
+                    .toList());
 
-            // Create Variant
-            Variant variant = new Variant();
-            variantMapper.updateVariant(variantDTO, variant);
-            variant.setImageId(imageVariant.getPublicId());
-            variant.setImageUrl(imageVariant.getUrl());
-            variant.setProduct(product);
-            variant.setActive(true);
+            log.info("Variant successfully saved");
 
-            variants.add(variant);
-            variantMap.put(variantDTO.getVariantId(), variant);
+            return result.stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (variant, variant2) -> variant));
+        } catch (Exception e) {
+            log.error("Error while saving variants", e);
+            var imageIds = futures.stream()
+                    .filter(variantCompletableFuture ->
+                            variantCompletableFuture.isDone() && !variantCompletableFuture.isCompletedExceptionally())
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .map(stringVariantEntry -> stringVariantEntry.getValue().getImageId())
+                    .toList();
+
+            log.info("Clean image {} uploaded", imageIds);
+            CompletableFuture.runAsync(() -> cloudinaryService.deleteImages(imageIds));
+            throw new RuntimeException(e.getMessage());
         }
-
-        variantRepository.saveAll(variants);
-        log.info("Variant successfully saved");
-        return variantMap;
     }
 
     private void createAndSaveVariantValues(
@@ -156,17 +165,5 @@ public class AddVariantService {
         }
         variantValueRepository.saveAll(variantValues);
         log.info("Variant values successfully saved");
-    }
-
-    @Async
-    public void cleanupUploadedImages(List<String> publicIds) {
-        if (publicIds.isEmpty()) {
-            return;
-        }
-        publicIds.forEach(s -> {
-                log.info("Image {} deleted", s);
-                cloudinaryService.deleteImage(s);
-        });
-        log.info("Image failure successfully cleaned");
     }
 }

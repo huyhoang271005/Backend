@@ -10,7 +10,7 @@
                 <tr>
                     <td align="left" style="padding-bottom: 30px; border-bottom: 2px solid #f1f1f1;">
                         <img th:src="|${frontendUrl}/android-chrome-512x512.png|" width="50" alt="Logo" style="display: inline-block; vertical-align: middle;" />
-                        <span style="font-size: 20px; font-weight: bold; color: #4CAF50; margin-left: 10px; vertical-align: middle;">Bách hoá xanh</span>
+                        <span style="font-size: 20px; font-weight: bold; color: #4CAF50; margin-left: 10px; vertical-align: middle;" th:text="${appName}">App Name</span>
                     </td>
                 </tr>
 
@@ -18,7 +18,7 @@
                     <td style="padding: 40px 0; color: #333; font-size: 16px; line-height: 1.6;">
                         <h2 style="color: #333; margin-top: 0;">Chào mừng bạn, <span th:text="${fullName}">Nguyễn Văn A</span>!</h2>
 
-                        <p>Cảm ơn bạn đã tin tưởng và đăng ký tham gia cùng cộng đồng <b>Bách hoá xanh</b>.</p>
+                        <p>Cảm ơn bạn đã tin tưởng và đăng ký tham gia cùng cộng đồng <b th:text="${appName}">App Name</b>.</p>
 
                         <p>Tài khoản của bạn hiện đã được thiết lập thành công. Chúng tôi hy vọng ứng dụng sẽ mang lại cho bạn những trải nghiệm tuyệt vời và giá trị thiết thực nhất.</p>
 
@@ -29,14 +29,14 @@
                 <tr>
                     <td style="padding-top: 20px; border-top: 1px solid #f1f1f1; color: #888; font-size: 14px;">
                         Thân mến,<br>
-                        <strong style="color: #4CAF50;">Đội ngũ Bách hoá xanh</strong>
+                        <strong style="color: #4CAF50;" th:text="|Đội ngũ ${appName}|"></strong>
                     </td>
                 </tr>
 
                 <tr>
                     <td align="left" style="padding-top: 40px;">
-                        <p style="font-size: 12px; color: #bbb; margin: 0;">
-                            © 2026 Bách hoá xanh. Đây là email xác nhận tự động.
+                        <p style="font-size: 12px; color: #bbb; margin: 0;"
+                           th:text="|&copy; 2026 ${appName}. Đây là email xác nhận tự động.|">
                         </p>
                     </td>
                 </tr>

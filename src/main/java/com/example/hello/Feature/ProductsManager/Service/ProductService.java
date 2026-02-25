@@ -2,14 +2,12 @@ package com.example.hello.Feature.ProductsManager.Service;
 
 import com.example.hello.Entity.*;
 import com.example.hello.Feature.Order.Repository.OrderItemRepository;
-import com.example.hello.Feature.Order.Repository.OrderRepository;
 import com.example.hello.Feature.ProductsManager.dto.*;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
 import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
 import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Infrastructure.Exception.UnauthorizedException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.ProductMapper;
 import com.example.hello.Mapper.VariantMapper;
@@ -132,7 +130,15 @@ public class ProductService {
         log.info("Product successfully added successfully");
 
         //Tạo và lưu các biến thể
-        addVariantService.processAttributesAndVariants(product, productDTO, images);
+        try {
+            addVariantService.processAttributesAndVariants(product, productDTO, images);
+        }
+        catch (Exception e) {
+            cloudinaryService.deleteImages(List.of(product.getImageId()));
+            log.info("Delete product successfully");
+            productRepository.delete(product);
+            throw new RuntimeException(e.getMessage());
+        }
         return new Response<>(true,
                 StringApplication.FIELD.SUCCESS,
                 ProductDetailDTO.builder()
@@ -218,7 +224,7 @@ public class ProductService {
         if(image != null) {
             if(product.getImageId() != null) {
                 log.info("Image product not null");
-                cloudinaryService.deleteImage(product.getImageId());
+                cloudinaryService.deleteImages(List.of(product.getImageId()));
             }
             var imageCurrent = cloudinaryService.uploadImage(image, FolderCloudinary.product.name());
             product.setImageUrl(imageCurrent.getUrl());
@@ -232,15 +238,14 @@ public class ProductService {
         var product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException(
                 StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST
         ));
-        if(product.getImageId() != null) {
-            cloudinaryService.deleteImage(product.getImageId());
-        }
         var variants =  product.getVariants();
-        variants.forEach(variant -> {
-            if(variant.getImageId() != null) {
-                cloudinaryService.deleteImage(variant.getImageId());
-            }
-        });
+        List<String> imageDelete = variants.stream()
+                .map(Variant::getImageId)
+                .collect(Collectors.toList());
+        if(product.getImageId() != null) {
+            imageDelete.add(product.getImageId());
+        }
+        cloudinaryService.deleteImages(imageDelete);
         var orderItems = orderItemRepository.findByVariant_VariantIdIn(variants
                 .stream()
                 .map(Variant::getVariantId)
@@ -272,7 +277,7 @@ public class ProductService {
         variantMapper.updateVariant(variantDTO, variant);
         if(image != null) {
             if(variant.getImageId() != null){
-                cloudinaryService.deleteImage(variant.getImageId());
+                cloudinaryService.deleteImages(List.of(variant.getImageId()));
             }
             var imageCurrent = cloudinaryService.uploadImage(image, FolderCloudinary.variant.name());
             variant.setImageUrl(imageCurrent.getUrl());
@@ -291,7 +296,7 @@ public class ProductService {
             throw new ConflictException(StringApplication.FIELD.CANT_REMOVE);
         }
         if(variant.getImageId() != null) {
-            cloudinaryService.deleteImage(variant.getImageId());
+            cloudinaryService.deleteImages(List.of(variant.getImageId()));
         }
         variantRepository.delete(variant);
         log.info("Variant {} successfully deleted", variantId);

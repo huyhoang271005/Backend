@@ -4,7 +4,7 @@ import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Entity.VerificationTokens;
 import com.example.hello.Enum.VerificationTypes;
 import com.example.hello.Feature.User.dto.Address;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Feature.Authentication.Repository.VerificationTokensRepository;
 import com.example.hello.Infrastructure.Exception.ConflictException;

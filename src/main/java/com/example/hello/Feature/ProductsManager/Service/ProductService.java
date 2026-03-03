@@ -21,11 +21,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,6 +45,8 @@ public class ProductService {
     VariantMapper variantMapper;
     VariantRepository variantRepository;
     OrderItemRepository orderItemRepository;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
 
     private void checkProductDTO(ProductDTO productDTO, Map<String, MultipartFile> images) {
         productDTO.getVariants().forEach(variant -> {
@@ -107,14 +112,19 @@ public class ProductService {
             log.error("Not found product image");
             throw new UnprocessableEntityException("Product Image not found");
         }
-        //Lấy dữ liệu category và brand
-        Category category = categoryRepository.findById(productDTO.getProductDetailDTO().getCategoryId())
+        var categoryCompletable = CompletableFuture.supplyAsync(() -> categoryRepository
+                .findById(productDTO.getProductDetailDTO().getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.CATEGORY +
-                        StringApplication.FIELD.NOT_EXIST));
-        log.info("Foud category successfully");
-        Brand brand = brandRepository.findById(productDTO.getProductDetailDTO().getBrandId())
+                        StringApplication.FIELD.NOT_EXIST)), applicationTaskExecutor);
+        var brandCompletable = CompletableFuture.supplyAsync(() -> brandRepository
+                .findById(productDTO.getProductDetailDTO().getBrandId())
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.BRAND +
-                        StringApplication.FIELD.NOT_EXIST));
+                        StringApplication.FIELD.NOT_EXIST)), applicationTaskExecutor);
+        CompletableFuture.allOf(categoryCompletable,brandCompletable).join();
+        //Lấy dữ liệu category và brand
+        Category category = categoryCompletable.join();
+        log.info("Foud category successfully");
+        Brand brand = brandCompletable.join();
         log.info("Foud brand successfully");
         //upload product
         CloudinaryResponse imageProduct = cloudinaryService
@@ -153,16 +163,23 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST));
-
         log.info("Foud product successfully");
+        var categoryCompletable = CompletableFuture.supplyAsync(product::getCategory, applicationTaskExecutor);
+        var brandCompletable = CompletableFuture.supplyAsync(product::getBrand, applicationTaskExecutor);
+        var attributeMapCompletable = CompletableFuture.supplyAsync(() -> product.getAttributeValues()
+                        .stream()
+                        .collect(Collectors.groupingBy(AttributeValue::getAttribute)),
+                                applicationTaskExecutor
+                );
+        var variantsCompletable = CompletableFuture.supplyAsync(product::getVariants, applicationTaskExecutor);
+        CompletableFuture.allOf(categoryCompletable,brandCompletable,attributeMapCompletable, variantsCompletable)
+                .join();
         //Build product detail
         ProductDetailDTO productDetail = productMapper.toProductDTO(product);
-        productDetail.setCategoryId(product.getCategory().getCategoryId());
-        productDetail.setBrandId(product.getBrand().getBrandId());
+        productDetail.setCategoryId(categoryCompletable.join().getCategoryId());
+        productDetail.setBrandId(brandCompletable.join().getBrandId());
         //Group AttributeValues by Attribute
-        Map<Attribute, List<AttributeValue>> attributeMap = product.getAttributeValues()
-                .stream()
-                .collect(Collectors.groupingBy(AttributeValue::getAttribute));
+        Map<Attribute, List<AttributeValue>> attributeMap = attributeMapCompletable.join();
 
         //Build attributes list
         List<AttributeDTO> attributes = attributeMap.entrySet().stream()
@@ -184,7 +201,7 @@ public class ProductService {
                 .toList();
 
         // Build variants list
-        var variantCurrent = product.getVariants();
+        var variantCurrent = variantsCompletable.join();
         log.info("Foud variant successfully");
         List<VariantDTO> variants = variantCurrent.stream()
                 .map(variantMapper::toVariantDTO)

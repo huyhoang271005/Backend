@@ -13,7 +13,7 @@ import com.example.hello.Feature.Authentication.UserDetail.MyUserDetails;
 import com.example.hello.Feature.Authentication.Repository.TokenRepository;
 import com.example.hello.Feature.User.Repository.DeviceRepository;
 import com.example.hello.Feature.User.Repository.SessionRepository;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import com.example.hello.WebSocket.RoomChat.UserRoomChatRepository;
 import com.example.hello.WebSocket.RoomChat.RoomChatRepository;
 import com.example.hello.Middleware.StringApplication;

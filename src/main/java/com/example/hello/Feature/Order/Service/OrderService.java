@@ -59,7 +59,7 @@ public class OrderService {
     OrderMapper orderMapper;
     SseService sseService;
     ProductRepository productRepository;
-    private final OrderItemRepository orderItemRepository;
+    OrderItemRepository orderItemRepository;
 
     @Async
     public void countTotalSalesByProductIds(List<UUID> variantIds) {

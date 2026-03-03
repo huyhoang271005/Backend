@@ -5,7 +5,7 @@ import com.example.hello.Feature.Payment.Model.PaymentResponse;
 import com.example.hello.Feature.Payment.Model.VnPayProperties;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import com.example.hello.Middleware.Response;
 import com.example.hello.Middleware.StringApplication;
 import com.example.hello.Feature.Order.Repository.OrderRepository;

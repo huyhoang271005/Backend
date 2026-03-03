@@ -16,7 +16,7 @@ import com.example.hello.Infrastructure.Email.EmailSenderService;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Jwt.JwtComponent;
 import com.example.hello.Infrastructure.Jwt.JwtProperties;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Middleware.ParamName;
 import com.example.hello.Middleware.StringApplication;

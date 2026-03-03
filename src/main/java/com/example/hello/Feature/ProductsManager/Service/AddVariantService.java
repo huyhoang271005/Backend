@@ -16,13 +16,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,7 +37,8 @@ public class AddVariantService {
     AttributeRepository attributeRepository;
     CloudinaryService cloudinaryService;
     VariantMapper variantMapper;
-    Executor virtualThreadExecutor;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
 
     @Transactional
     public void processAttributesAndVariants(Product product,
@@ -106,7 +108,7 @@ public class AddVariantService {
                     variant.setActive(true);
 
                     return Map.entry(variantDTO.getVariantId(), variant);
-                }, virtualThreadExecutor))
+                }, applicationTaskExecutor))
                 .toList();
         try {
             List<Map.Entry<String, Variant>> result = futures.stream()

@@ -1,4 +1,4 @@
-package com.example.hello.Infrastructure.Security;
+package com.example.hello.Middleware;
 
 import lombok.AccessLevel;
 import lombok.Getter;

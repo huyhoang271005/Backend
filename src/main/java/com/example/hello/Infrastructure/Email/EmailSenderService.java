@@ -1,13 +1,14 @@
 package com.example.hello.Infrastructure.Email;
 
 import com.example.hello.Feature.User.dto.Address;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import com.example.hello.Middleware.StringApplication;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -28,11 +29,12 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @EnableAsync
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailSenderService {
-    final JavaMailSender mailSender;
-    final TemplateEngine templateEngine;
-    final AppProperties appProperties;
+    JavaMailSender mailSender;
+    TemplateEngine templateEngine;
+    AppProperties appProperties;
+    @NonFinal
     @Value("${spring.mail.username}")
     String mailUsername;
 
@@ -90,7 +92,8 @@ public class EmailSenderService {
                 "address", addressSent,
                 "deviceName", deviceName,
                 "timeLogin", formattedNow,
-                "frontendUrl", appProperties.getFrontendUrl()
+                "frontendUrl", appProperties.getFrontendUrl(),
+                "appName", StringApplication.FIELD.APP_NAME
         ));
     }
 

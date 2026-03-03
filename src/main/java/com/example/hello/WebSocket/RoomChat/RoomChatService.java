@@ -16,12 +16,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,8 @@ public class RoomChatService {
     UserRoomChatRepository userRoomChatRepository;
     MessageRepository messageRepository;
     StatusRepository statusRepository;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
     @Transactional
     public Response<RoomChatDTO> addRoomChat(UUID userCreatedId, RoomChatDTO roomChatDTO) {
         var userIds = roomChatDTO.getUserIds();
@@ -71,22 +76,32 @@ public class RoomChatService {
     @Transactional(readOnly = true)
     public Response<ListResponse<RoomChatDTO>> getRoomChats(UUID userId, Pageable pageable) {
         var roomChat = roomChatRepository.findRoomChatByUserId(userId, pageable);
-        var messages = messageRepository.findByRoomChatIds(roomChat.getContent()
-                .stream()
-                .map(RoomChat::getRoomChatId)
-                .toList())
-                .stream()
-                .collect(Collectors.toMap(MessageListInfo::getRoomChatId, Function.identity()));
         var roomIds = roomChat
                 .stream()
                 .map(RoomChat::getRoomChatId)
                 .toList();
-        var countMessage = statusRepository.getCountByRoomChatIds(roomIds, MessageStatus.SEND, userId)
-                .stream()
-                .collect(Collectors.toMap(CountMessageInfo::getRoomChatId, Function.identity()));
-        var users = userRoomChatRepository.getUsersRoomChat(roomIds)
-                .stream()
-                .collect(Collectors.groupingBy(UserRomChatInfo::getRoomChatId));
+        var messagesCompletable = CompletableFuture.supplyAsync(() ->
+                messageRepository.findByRoomChatIds(roomChat.getContent()
+                                .stream()
+                                .map(RoomChat::getRoomChatId)
+                                .toList())
+                        .stream()
+                        .collect(Collectors.toMap(MessageListInfo::getRoomChatId, Function.identity())),
+                applicationTaskExecutor);
+        var countMessageCompletable = CompletableFuture.supplyAsync(() ->
+                statusRepository.getCountByRoomChatIds(roomIds, MessageStatus.SEND, userId)
+                        .stream()
+                        .collect(Collectors.toMap(CountMessageInfo::getRoomChatId, Function.identity())),
+                applicationTaskExecutor);
+        var userCompletable = CompletableFuture.supplyAsync(() ->
+                userRoomChatRepository.getUsersRoomChat(roomIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(UserRomChatInfo::getRoomChatId)),
+                applicationTaskExecutor);
+        CompletableFuture.allOf(messagesCompletable, countMessageCompletable, userCompletable).join();
+        var messages = messagesCompletable.join();
+        var countMessage = countMessageCompletable.join();
+        var users = userCompletable.join();
         var roomChatDTO = roomChat.getContent()
                 .stream()
                 .map(roomChat1 ->  {

@@ -1,5 +1,6 @@
 package com.example.hello.Infrastructure.Security;
 
+import com.example.hello.Middleware.AppProperties;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

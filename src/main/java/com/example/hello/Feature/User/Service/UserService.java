@@ -22,11 +22,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 
 @Slf4j
@@ -43,6 +46,8 @@ public class UserService {
     RoleCacheService roleCacheService;
     EntityManager entityManager;
     StatusRepository statusRepository;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
 
 
     @Transactional(readOnly = true)
@@ -158,14 +163,24 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Response<HomeResponse> getHome(UUID userId){
-        var homeInfo = userRepository.getHomeInfo(userId);
+        var homeInfoCompletable = CompletableFuture.supplyAsync(() ->
+                userRepository.getHomeInfo(userId), applicationTaskExecutor);
+        var cartItemCountCompletable = CompletableFuture.supplyAsync(() ->
+                cartItemRepository.countByCart_User_UserId(userId), applicationTaskExecutor);
+        var userNotificationCountCompletable = CompletableFuture.supplyAsync(() ->
+                userNotificationRepository.countByUser_UserIdAndIsRead(userId, false),  applicationTaskExecutor);
+        var messageCountCompletable = CompletableFuture.supplyAsync(() ->
+                statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SEND), applicationTaskExecutor);
+        CompletableFuture.allOf(homeInfoCompletable, cartItemCountCompletable, userNotificationCountCompletable, messageCountCompletable)
+                .join();
+        var homeInfo = homeInfoCompletable.join();
         log.info("User home found successfully");
         var homeResponse = homeMapper.toHomeResponse(homeInfo);
-        homeResponse.setCartsCount(cartItemRepository.countByCart_User_UserId(userId));
+        homeResponse.setCartsCount(cartItemCountCompletable.join());
         log.info("Cart count successfully {}", homeResponse.getCartsCount());
-        homeResponse.setReadNotifications(userNotificationRepository.countByUser_UserIdAndIsRead(userId, false));
+        homeResponse.setReadNotifications(userNotificationCountCompletable.join());
         log.info("Notifications count successfully {}", homeResponse.getReadNotifications());
-        homeResponse.setReadMessages(statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SEND));
+        homeResponse.setReadMessages(messageCountCompletable.join());
         log.info("Messages count successfully {}", homeResponse.getReadMessages());
         homeResponse.setAppName(StringApplication.FIELD.APP_NAME);
         return new Response<>(

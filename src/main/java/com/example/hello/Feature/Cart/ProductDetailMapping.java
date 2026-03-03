@@ -16,11 +16,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,26 +36,43 @@ public class ProductDetailMapping {
     VariantValueRepository variantValueRepository;
     CartItemMapper cartItemMapper;
     AttributeValueRepository attributeValueRepository;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
+
+    @Transactional(readOnly = true)
     public List<CartDTO> mappingProductsDetail(Map<UUID,List<ProductInfo>> products, UUID userId) {
         var productIds = products.keySet()
                 .stream()
                 .toList();
+        var attributeValuesCompletable = CompletableFuture.supplyAsync(() ->
+                attributeValueRepository.getProductAttributes(productIds), applicationTaskExecutor);
+        var productVariantsCompletable = CompletableFuture.supplyAsync(() ->
+                cartItemRepository.getProductVariants(productIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(VariantInfo::getProductId)),
+                applicationTaskExecutor);
+        var productVariantValuesCompletable = CompletableFuture.supplyAsync(() ->
+                        variantValueRepository.getVariantValueInfo(productIds)
+                                .stream()
+                                .collect(Collectors.groupingBy(VariantValueInfo::getProductId)),
+                applicationTaskExecutor);
+        var productCartItemsCompletable = CompletableFuture.supplyAsync(() ->
+                cartItemRepository.getCartItemByProductId(productIds, userId).stream()
+                        .collect(Collectors.groupingBy(CartItemInfo::getProductId)),
+                applicationTaskExecutor);
+        CompletableFuture.allOf(attributeValuesCompletable, productVariantsCompletable,
+                productVariantValuesCompletable, productCartItemsCompletable).join();
         log.info("Get product id successfully");
-        var attributeValuesCurrent = attributeValueRepository.getProductAttributes(productIds);
+        var attributeValuesCurrent = attributeValuesCompletable.join();
         log.info("Found attribute values successfully");
         var productAttributeValues = attributeValuesCurrent.stream()
                 .collect(Collectors.groupingBy(ProductAttributesInfo::getProductId));
         log.info("Group by attribute values successfully");
-        var productVariants = cartItemRepository.getProductVariants(productIds)
-                .stream()
-                .collect(Collectors.groupingBy(VariantInfo::getProductId));
+        var productVariants = productVariantsCompletable.join();
         log.info("Found and group by variant successfully");
-        var productVariantValues = variantValueRepository.getVariantValueInfo(productIds)
-                .stream()
-                .collect(Collectors.groupingBy(VariantValueInfo::getProductId));
+        var productVariantValues = productVariantValuesCompletable.join();
         log.info("Found and group by variant values successfully");
-        var productCartItem = cartItemRepository.getCartItemByProductId(productIds, userId).stream()
-                .collect(Collectors.groupingBy(CartItemInfo::getProductId));
+        var productCartItem = productCartItemsCompletable.join();
         log.info("Found and group by cart item successfully");
         return productIds.stream()
                 .map(productId -> {

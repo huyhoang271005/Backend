@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Payment.Controller;
 
 import com.example.hello.Feature.Payment.Service.VnPayService;
-import com.example.hello.Infrastructure.Security.AppProperties;
+import com.example.hello.Middleware.AppProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

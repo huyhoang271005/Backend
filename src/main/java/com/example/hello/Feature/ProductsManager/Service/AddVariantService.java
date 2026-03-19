@@ -2,12 +2,12 @@ package com.example.hello.Feature.ProductsManager.Service;
 
 import com.example.hello.Entity.*;
 import com.example.hello.Feature.ProductsManager.dto.*;
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
-import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryResponse;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryService;
+import com.example.hello.Infrastructure.External.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.VariantMapper;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.Attribute.AttributeValueRepository;
 import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
 import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;

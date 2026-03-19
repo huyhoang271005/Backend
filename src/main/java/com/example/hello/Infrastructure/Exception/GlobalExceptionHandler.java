@@ -1,7 +1,7 @@
 package com.example.hello.Infrastructure.Exception;
 
-import com.example.hello.Middleware.StringApplication;
-import com.example.hello.Middleware.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.Response;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

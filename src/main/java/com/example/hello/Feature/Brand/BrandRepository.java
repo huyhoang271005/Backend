@@ -17,4 +17,12 @@ public interface BrandRepository extends JpaRepository<Brand, UUID> {
             order by b.updatedAt desc
             """)
     Page<BrandInfo> findAllByPageable(Pageable pageable);
+
+    @Query("""
+            select b
+            from Product p
+            join p.brand b
+            where p.productId = :productId
+            """)
+    Brand findByProduct_ProductId(UUID productId);
 }

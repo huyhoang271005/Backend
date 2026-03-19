@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Cart.dto;
 
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

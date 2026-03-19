@@ -4,11 +4,11 @@ import com.example.hello.Feature.Authentication.Service.LoginService;
 import com.example.hello.Feature.Authentication.Service.RegisterService;
 import com.example.hello.Feature.Authentication.Service.TokenService;
 import com.example.hello.Feature.Authentication.Service.VerifyService;
-import com.example.hello.Infrastructure.Jwt.JwtComponent;
-import com.example.hello.Infrastructure.Jwt.JwtProperties;
+import com.example.hello.Infrastructure.Security.Jwt.JwtComponent;
+import com.example.hello.Infrastructure.Security.Jwt.JwtProperties;
 import com.example.hello.Feature.User.dto.Address;
-import com.example.hello.Middleware.ParamName;
-import com.example.hello.Middleware.Response;
+import com.example.hello.Infrastructure.Common.Constant.ParamName;
+import com.example.hello.Infrastructure.Common.dto.Response;
 import com.example.hello.Feature.Authentication.dto.EmailRequest;
 import com.example.hello.Feature.Authentication.dto.LoginRequest;
 import com.example.hello.Feature.Authentication.dto.LoginResponse;
@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @RestController

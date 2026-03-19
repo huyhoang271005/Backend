@@ -1,7 +1,7 @@
 package com.example.hello.Infrastructure.Cache;
 
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

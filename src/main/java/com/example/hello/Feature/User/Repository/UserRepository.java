@@ -23,6 +23,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Boolean existsByUsername(String username);
     Boolean existsByUsernameAndUserIdNot(String username, UUID id);
     Optional<User> findByEmails_Email(String email);
+    @Query("""
+            select u
+            from Session s
+            join s.user u
+            where s.sessionId = :sessionId
+            """)
+    Optional<User> findBySession_SessionId(UUID sessionId);
 
     @Query("""
             select u.userId as userId, u.username as username,

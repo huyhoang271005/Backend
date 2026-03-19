@@ -1,6 +1,6 @@
 package com.example.hello.Infrastructure.Cache;
 
-import com.example.hello.Middleware.ParamName;
+import com.example.hello.Infrastructure.Common.Constant.ParamName;
 import com.example.hello.Feature.RolePermission.Repository.RolePermissionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

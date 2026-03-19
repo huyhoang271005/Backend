@@ -10,4 +10,6 @@ import java.util.UUID;
 
 public interface TokenRepository extends JpaRepository<Token, UUID> {
     Optional<Token> findBySessionAndTokenName(Session session, TokenName tokenName);
+
+    Optional<Token> findBySession_SessionIdAndTokenName(UUID sessionSessionId, TokenName tokenName);
 }

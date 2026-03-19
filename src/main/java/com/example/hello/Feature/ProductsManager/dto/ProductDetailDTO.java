@@ -1,6 +1,6 @@
 package com.example.hello.Feature.ProductsManager.dto;
 
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;

@@ -1,5 +1,6 @@
 package com.example.hello.Feature.ProductsManager.Repository;
 
+import com.example.hello.Feature.ProductsManager.dto.VariantValueByProductId;
 import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
 import com.example.hello.Feature.ProductsManager.dto.VariantValueInfo;
 import com.example.hello.Entity.VariantValue;
@@ -29,4 +30,13 @@ public interface VariantValueRepository extends JpaRepository<VariantValue, UUID
             where v.variantId in :listVariantId
             """)
     List<AttributeValueByVariantId> getAttributeValuesVariantIdIn(List<UUID> listVariantId);
+
+    @Query("""
+            select v.variantId as variantId, vv as variantValue
+            from VariantValue vv
+            join vv.variant v
+            join v.product p
+            where p.productId = :productId
+            """)
+    List<VariantValueByProductId> getAttributeValueByProductId(UUID productId);
 }

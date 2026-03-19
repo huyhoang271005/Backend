@@ -1,6 +1,6 @@
 package com.example.hello.Feature.Authentication.dto;
 
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

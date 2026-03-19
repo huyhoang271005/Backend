@@ -38,6 +38,9 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+  threads:
+    virtual:
+      enabled: true
 jwt:
   expiration:
     access-token-seconds: 300       #5 min

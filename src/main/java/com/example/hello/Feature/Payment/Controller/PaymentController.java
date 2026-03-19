@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Payment.Controller;
 
 import com.example.hello.Feature.Payment.Service.VnPayService;
-import com.example.hello.Middleware.ParamName;
+import com.example.hello.Infrastructure.Common.Constant.ParamName;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

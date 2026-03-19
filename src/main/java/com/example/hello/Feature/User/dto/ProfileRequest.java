@@ -1,7 +1,7 @@
 package com.example.hello.Feature.User.dto;
 
-import com.example.hello.Middleware.Constant;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Validation.RegexValidation;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Enum.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
@@ -19,9 +19,9 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileRequest {
-    @Pattern(regexp = Constant.VALIDATION.USERNAME, message = StringApplication.FIELD.USERNAME + StringApplication.FIELD.INVALID)
+    @Pattern(regexp = RegexValidation.VALIDATION.USERNAME, message = StringApplication.FIELD.USERNAME + StringApplication.FIELD.INVALID)
     String username;
-    @Pattern(regexp = Constant.VALIDATION.FULL_NAME, message = StringApplication.FIELD.FULL_NAME + StringApplication.FIELD.INVALID)
+    @Pattern(regexp = RegexValidation.VALIDATION.FULL_NAME, message = StringApplication.FIELD.FULL_NAME + StringApplication.FIELD.INVALID)
     String fullName;
     Gender gender;
     @NotNull

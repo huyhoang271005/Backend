@@ -3,9 +3,9 @@ package com.example.hello.Feature.Order.Scheduled;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Notification.NotificationDTO;
 import com.example.hello.Feature.Notification.NotificationService;
-import com.example.hello.Feature.Order.Service.OrderService;
-import com.example.hello.Middleware.AppProperties;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Feature.ProductsManager.Service.ProductAsyncTask;
+import com.example.hello.Infrastructure.Common.Constant.AppProperties;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.Order.Repository.OrderRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.time.temporal.ChronoUnit;
 public class OrderScheduled {
     OrderRepository orderRepository;
     NotificationService notificationService;
-    OrderService orderService;
+    ProductAsyncTask productAsyncTask;
     AppProperties appProperties;
 
     @Scheduled(fixedRate = 5*60*1000)
@@ -37,7 +37,7 @@ public class OrderScheduled {
         if(!orderIds.isEmpty()) {
             var users = orderRepository.findUserOrderByTimeAgo(timeAgo, OrderStatus.WAITING);
             orderRepository.updateOrderStatus(false, OrderStatus.CANCELED, timeAgo, Instant.now(), OrderStatus.WAITING);
-            orderService.updateProductWhenCancel(orderIds);
+            productAsyncTask.updateProductWhenCancel(orderIds);
             log.info("Cancel order scheduled successfully");
             log.info("Send notification canceled order scheduled successfully");
             if(!users.isEmpty()) {

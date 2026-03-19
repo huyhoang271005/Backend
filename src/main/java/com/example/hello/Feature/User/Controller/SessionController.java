@@ -1,6 +1,6 @@
 package com.example.hello.Feature.User.Controller;
 
-import com.example.hello.Middleware.ParamName;
+import com.example.hello.Infrastructure.Common.Constant.ParamName;
 import com.example.hello.Feature.User.Service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;

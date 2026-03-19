@@ -1,8 +1,8 @@
 package com.example.hello.Infrastructure.Cache;
 
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
-import com.example.hello.Middleware.ParamName;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Constant.ParamName;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Enum.UserStatus;
 import com.example.hello.Feature.User.Repository.UserRepository;
 import lombok.AccessLevel;

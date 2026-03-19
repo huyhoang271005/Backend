@@ -1,13 +1,13 @@
 package com.example.hello.Feature.User.Service;
 
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
-import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryResponse;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryService;
+import com.example.hello.Infrastructure.External.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.UserMapper;
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.User.dto.EmailResponse;
 import com.example.hello.Feature.User.dto.ProfileRequest;
 import com.example.hello.Feature.User.dto.ProfileResponse;

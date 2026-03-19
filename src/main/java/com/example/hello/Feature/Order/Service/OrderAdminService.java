@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Order.Service;
 
+import com.example.hello.Feature.ProductsManager.Service.ProductAsyncTask;
 import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
 import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Enum.OrderStatus;
@@ -8,9 +9,9 @@ import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.OrderMapper;
-import com.example.hello.Middleware.ListResponse;
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.ListResponse;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.Order.Repository.OrderRepository;
 import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
 import lombok.AccessLevel;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 public class OrderAdminService {
     OrderRepository orderRepository;
     VariantValueRepository variantValueRepository;
-    OrderService orderService;
+    ProductAsyncTask productAsyncTask;
     OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
@@ -104,7 +105,7 @@ public class OrderAdminService {
         else if(orderStatus == OrderStatus.CANCELED) {
             if(order.getOrderStatus() == OrderStatus.PENDING) {
                 order.setOrderStatus(OrderStatus.CANCELED);
-                orderService.updateProductWhenCancel(List.of(orderId));
+                productAsyncTask.updateProductWhenCancel(List.of(orderId));
                 log.info("Order {} was canceled", orderId);
             }
             else {

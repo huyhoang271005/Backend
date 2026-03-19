@@ -16,4 +16,12 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             order by c.updatedAt desc
             """)
     Page<Category> getAll(Pageable pageable);
+
+    @Query("""
+            select c
+            from Product p
+            join p.category c
+            where p.productId = :productId
+            """)
+    Category findByProduct_ProductId(UUID productId);
 }

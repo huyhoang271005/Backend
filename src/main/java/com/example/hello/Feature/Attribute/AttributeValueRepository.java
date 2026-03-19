@@ -1,5 +1,7 @@
 package com.example.hello.Feature.Attribute;
 
+import com.example.hello.Entity.Attribute;
+import com.example.hello.Feature.ProductsManager.dto.AttributeValuesByProductId;
 import com.example.hello.Feature.ProductsManager.dto.ProductAttributesInfo;
 import com.example.hello.Entity.AttributeValue;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +21,13 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
             where p.productId in :listProductId
             """)
     List<ProductAttributesInfo> getProductAttributes(List<UUID> listProductId);
+
+    @Query("""
+            select a as attribute, av as attributeValue
+            from AttributeValue av
+            join av.attribute a
+            join av.product p
+            where p.productId = :productId
+            """)
+    List<AttributeValuesByProductId> getAttributeValueByProductId(UUID productId);
 }

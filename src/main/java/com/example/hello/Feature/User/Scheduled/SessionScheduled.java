@@ -1,7 +1,7 @@
 package com.example.hello.Feature.User.Scheduled;
 
 import com.example.hello.Feature.User.Repository.SessionRepository;
-import com.example.hello.Infrastructure.Jwt.JwtProperties;
+import com.example.hello.Infrastructure.Security.Jwt.JwtProperties;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

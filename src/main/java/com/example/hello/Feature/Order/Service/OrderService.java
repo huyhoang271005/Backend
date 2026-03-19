@@ -1,10 +1,8 @@
 package com.example.hello.Feature.Order.Service;
 
+import com.example.hello.Feature.ProductsManager.Service.ProductAsyncTask;
 import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
 import com.example.hello.Feature.Order.dto.OrderInfo;
-import com.example.hello.Feature.Order.dto.OrderItemInfo;
-import com.example.hello.Feature.ProductsManager.dto.VariantInfo;
-import com.example.hello.Entity.Product;
 import com.example.hello.Entity.Variant;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Enum.PaymentMethod;
@@ -15,26 +13,23 @@ import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.OrderMapper;
-import com.example.hello.Middleware.ListResponse;
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.ListResponse;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.Order.Repository.OrderRepository;
 import com.example.hello.Feature.Contact.ContactRepository;
 import com.example.hello.Feature.User.Repository.UserRepository;
 import com.example.hello.Feature.ProductsManager.Repository.VariantRepository;
 import com.example.hello.Feature.Cart.CartItemRepository;
 import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
-import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
-import com.example.hello.Feature.Order.Repository.OrderItemRepository;
-import com.example.hello.SseEmitter.SseService;
-import com.example.hello.SseEmitter.SseTopicName;
+import com.example.hello.Infrastructure.External.SseEmitter.SseService;
+import com.example.hello.Infrastructure.External.SseEmitter.SseTopicName;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,50 +53,8 @@ public class OrderService {
     VariantValueRepository variantValueRepository;
     OrderMapper orderMapper;
     SseService sseService;
-    ProductRepository productRepository;
-    OrderItemRepository orderItemRepository;
+    ProductAsyncTask productAsyncTask;
 
-    @Async
-    public void countTotalSalesByProductIds(List<UUID> variantIds) {
-        var productIds = productRepository.findByVariantIds(variantIds);
-        var products = productRepository.findAllById(productIds)
-                .stream()
-                .collect(Collectors.toMap(Product::getProductId, Function.identity()));
-        var variants = variantRepository.findVariantInfoByProductIds(productIds)
-                .stream()
-                .collect(Collectors.groupingBy(VariantInfo::getProductId));
-        productIds.forEach(productId -> {
-           var sold = variants.get(productId)
-                   .stream()
-                   .mapToInt(VariantInfo::getSold)
-                   .sum();
-           products.get(productId).setTotalSales(sold);
-
-        });
-        productRepository.saveAll(products.values());
-        log.info("Updated total sales by product ids: {}", productIds);
-    }
-    @Async
-    public void updateProductWhenCancel(List<UUID> orderIds) {
-        var variantInfos = orderItemRepository.getOrderItemsVariant(orderIds);
-        var variantInfosGroup = variantInfos.stream()
-                .collect(Collectors
-                        .toMap(OrderItemInfo::getVariantId, Function.identity()));
-        var variantIds = variantInfos.stream()
-                .map(OrderItemInfo::getVariantId)
-                .distinct()
-                .toList();
-        var variants = variantRepository.findAllById(variantIds);
-        variants.forEach(variant -> {
-            variant.setSold(variant.getSold() -
-                    variantInfosGroup.get(variant.getVariantId()).getQuantity());
-            variant.setStock(variant.getStock() +
-                    variantInfosGroup.get(variant.getVariantId()).getQuantity());
-        });
-        variantRepository.saveAll(variants);
-        log.info("Updated variant when cancel successfully");
-        countTotalSalesByProductIds(variantIds);
-    }
     @Transactional
     public Response<Map<String, UUID>> addOrder(UUID userId, OrderDTO  orderDTO) {
         var user = userRepository.findById(userId).orElseThrow(
@@ -173,7 +126,7 @@ public class OrderService {
             log.info("Cart sse sent successfully");
         }
         //Update totalSales
-        countTotalSalesByProductIds(orderDTO.getOrderItemDTOList().stream()
+        productAsyncTask.countTotalSalesByProductIds(orderDTO.getOrderItemDTOList().stream()
                 .map(OrderItemDTO::getVariantId)
                 .toList());
         return new Response<>(
@@ -277,7 +230,7 @@ public class OrderService {
             if(order.getOrderStatus() == OrderStatus.WAITING){
                 log.info("Order {} was set status cancelled", orderId);
                 order.setOrderStatus(OrderStatus.CANCELED);
-                updateProductWhenCancel(List.of(orderId));
+                productAsyncTask.updateProductWhenCancel(List.of(orderId));
             }
             else {
                 log.error("Order {} cant cancelled with status {}", orderId, order.getOrderStatus());

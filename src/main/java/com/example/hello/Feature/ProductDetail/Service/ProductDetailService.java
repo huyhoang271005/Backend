@@ -11,9 +11,9 @@ import com.example.hello.Feature.ProductsManager.dto.AttributeValueDTO;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Mapper.CartItemMapper;
 import com.example.hello.Mapper.ProductMapper;
-import com.example.hello.Middleware.ListResponse;
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.ListResponse;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
 import com.example.hello.Feature.Attribute.AttributeValueRepository;
 import com.example.hello.Feature.Cart.CartItemRepository;
@@ -53,10 +53,10 @@ public class ProductDetailService {
 
     @Transactional(readOnly = true)
     public Response<ProductDetailResponse> getProductDetail(UUID productId) {
-        var product = productRepository.findById(productId).orElseThrow(
-                ()-> new EntityNotFoundException(StringApplication.FIELD.PRODUCT +
-                        StringApplication.FIELD.NOT_EXIST)
-        );
+        var productCompletable = CompletableFuture.supplyAsync(() ->
+                        productRepository.findById(productId).orElseThrow(
+                                ()-> new EntityNotFoundException(StringApplication.FIELD.PRODUCT +
+                                        StringApplication.FIELD.NOT_EXIST)));
         var attributeValuesCompletable = CompletableFuture
                 .supplyAsync(() -> attributeValueRepository.getProductAttributes(List.of(productId)).stream()
                         .collect(Collectors.groupingBy(ProductAttributesInfo::getAttributeId)),
@@ -68,8 +68,9 @@ public class ProductDetailService {
                                 .stream()
                                 .collect(Collectors.groupingBy(VariantValueInfo::getVariantId)),
                 applicationTaskExecutor);
-        CompletableFuture.allOf(attributeValuesCompletable, variantsCompletable, variantValuesCompletable)
+        CompletableFuture.allOf(productCompletable, attributeValuesCompletable, variantsCompletable, variantValuesCompletable)
                 .join();
+        var product = productCompletable.join();
         log.info("Found product detail successfully");
         var attributeValues = attributeValuesCompletable.join();
         log.info("Found attribute values successfully");

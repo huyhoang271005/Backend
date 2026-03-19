@@ -1,0 +1,94 @@
+package com.example.hello.Infrastructure.Security.Config;
+
+import com.example.hello.Feature.Authentication.Service.Oauth2LoginSuccessHandle;
+import com.example.hello.Feature.Authentication.UserDetail.MyUserDetailsService;
+import com.example.hello.Infrastructure.Exception.CustomAccessDeniedHandler;
+import com.example.hello.Infrastructure.Exception.CustomAuthenticationEntryPoint;
+import com.example.hello.Infrastructure.Security.Filter.DeviceTypeFilter;
+import com.example.hello.Infrastructure.Security.Filter.JwtAuthenticationFilter;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.header.HeaderWriterFilter;
+
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
+public class SecurityConfig {
+    JwtAuthenticationFilter jwtAuthenticationFilter;
+    DeviceTypeFilter deviceTypeFilter;
+    CustomAccessDeniedHandler customAccessDeniedHandler;
+    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    MyUserDetailsService  myUserDetailsService;
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, Oauth2LoginSuccessHandle oauth2LoginSuccessHandle) throws Exception {
+        http
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        ))
+                .cors(cors ->{})
+                .logout(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(requests -> {
+                    requests.requestMatchers("/auth/**", "/ws/**",
+                                    "/sse/**", "/payment-return/**", "/swagger-ui/**", "/v3/**",
+                                    "/login/oauth2/**", "/favicon.ico")
+                            .permitAll();
+                    requests.requestMatchers(EndpointRequest.to("health"))
+                            .hasAnyAuthority("GET_HEALTH")
+                            .anyRequest().authenticated();
+                })
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler))
+                .userDetailsService(myUserDetailsService)
+                .addFilterBefore(deviceTypeFilter, HeaderWriterFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2Login ->
+                        oauth2Login.successHandler(oauth2LoginSuccessHandle))
+                .oauth2ResourceServer(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public HttpFirewall httpFirewall() {
+        return new DefaultHttpFirewall();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.httpFirewall(httpFirewall());
+    }
+}

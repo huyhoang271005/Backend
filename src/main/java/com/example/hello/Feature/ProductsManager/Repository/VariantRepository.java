@@ -17,4 +17,6 @@ public interface VariantRepository extends JpaRepository<Variant, UUID> {
             where p.productId in :productIds
             """)
     List<VariantInfo> findVariantInfoByProductIds( List<UUID> productIds);
+
+    List<Variant> findByProduct_ProductId(UUID productId);
 }

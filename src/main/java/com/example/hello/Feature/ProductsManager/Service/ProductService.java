@@ -1,18 +1,20 @@
 package com.example.hello.Feature.ProductsManager.Service;
 
 import com.example.hello.Entity.*;
+import com.example.hello.Feature.Attribute.AttributeValueRepository;
 import com.example.hello.Feature.Order.Repository.OrderItemRepository;
+import com.example.hello.Feature.ProductsManager.Repository.VariantValueRepository;
 import com.example.hello.Feature.ProductsManager.dto.*;
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryResponse;
-import com.example.hello.Infrastructure.Cloudinary.CloudinaryService;
-import com.example.hello.Infrastructure.Cloudinary.FolderCloudinary;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryResponse;
+import com.example.hello.Infrastructure.External.Cloudinary.CloudinaryService;
+import com.example.hello.Infrastructure.External.Cloudinary.FolderCloudinary;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
 import com.example.hello.Mapper.ProductMapper;
 import com.example.hello.Mapper.VariantMapper;
-import com.example.hello.Middleware.Response;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.dto.Response;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
 import com.example.hello.Feature.Category.CategoryRepository;
 import com.example.hello.Feature.Brand.BrandRepository;
@@ -38,12 +40,14 @@ import java.util.stream.Collectors;
 public class ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
+    AttributeValueRepository attributeValueRepository;
     BrandRepository brandRepository;
     CloudinaryService cloudinaryService;
     AddVariantService addVariantService;
     ProductMapper productMapper;
     VariantMapper variantMapper;
     VariantRepository variantRepository;
+    VariantValueRepository variantValueRepository;
     OrderItemRepository orderItemRepository;
     @Qualifier("applicationTaskExecutor")
     AsyncTaskExecutor applicationTaskExecutor;
@@ -159,41 +163,47 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Response<ProductDTO> getProduct(UUID productId) {
+        var productCompletable = CompletableFuture.supplyAsync(() ->
+                productRepository.findById(productId)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST)), applicationTaskExecutor);
+        var categoryCompletable = CompletableFuture.supplyAsync(() ->
+                categoryRepository.findByProduct_ProductId(productId), applicationTaskExecutor);
+        var brandCompletable = CompletableFuture.supplyAsync(() ->
+                brandRepository.findByProduct_ProductId(productId), applicationTaskExecutor);
+        var attributesCompletable = CompletableFuture.supplyAsync(() ->
+                attributeValueRepository.getAttributeValueByProductId(productId), applicationTaskExecutor);
+        var variantsCompletable = CompletableFuture.supplyAsync(() ->
+                variantRepository.findByProduct_ProductId(productId), applicationTaskExecutor);
+        var variantValuesCompletable = CompletableFuture.supplyAsync(() ->
+                variantValueRepository.getAttributeValueByProductId(productId), applicationTaskExecutor);
+        CompletableFuture.allOf(productCompletable, categoryCompletable, brandCompletable, attributesCompletable,
+               variantsCompletable, variantValuesCompletable).join();
         //Get product
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        StringApplication.FIELD.PRODUCT + StringApplication.FIELD.NOT_EXIST));
+        Product product = productCompletable.join();
         log.info("Foud product successfully");
-        var categoryCompletable = CompletableFuture.supplyAsync(product::getCategory, applicationTaskExecutor);
-        var brandCompletable = CompletableFuture.supplyAsync(product::getBrand, applicationTaskExecutor);
-        var attributeMapCompletable = CompletableFuture.supplyAsync(() -> product.getAttributeValues()
-                        .stream()
-                        .collect(Collectors.groupingBy(AttributeValue::getAttribute)),
-                                applicationTaskExecutor
-                );
-        var variantsCompletable = CompletableFuture.supplyAsync(product::getVariants, applicationTaskExecutor);
-        CompletableFuture.allOf(categoryCompletable,brandCompletable,attributeMapCompletable, variantsCompletable)
-                .join();
         //Build product detail
         ProductDetailDTO productDetail = productMapper.toProductDTO(product);
         productDetail.setCategoryId(categoryCompletable.join().getCategoryId());
         productDetail.setBrandId(brandCompletable.join().getBrandId());
         //Group AttributeValues by Attribute
-        Map<Attribute, List<AttributeValue>> attributeMap = attributeMapCompletable.join();
+        Map<Attribute, List<AttributeValuesByProductId>> attributeMap = attributesCompletable.join()
+                .stream()
+                .collect(Collectors.groupingBy(AttributeValuesByProductId::getAttribute));
 
         //Build attributes list
         List<AttributeDTO> attributes = attributeMap.entrySet().stream()
                 .map(entry -> {
                     Attribute attribute = entry.getKey();
-                    List<AttributeValue> values = entry.getValue();
+                    List<AttributeValuesByProductId> values = entry.getValue();
 
                     return AttributeDTO.builder()
                             .attributeId(attribute.getAttributeId())
                             .attributeName(attribute.getAttributeName())
                             .attributeValues(values.stream()
                                     .map(av -> AttributeValueDTO.builder()
-                                            .attributeValueId(String.valueOf(av.getAttributeValueId()))
-                                            .attributeValueName(av.getValue())
+                                            .attributeValueId(String.valueOf(av.getAttributeValue().getAttributeValueId()))
+                                            .attributeValueName(av.getAttributeValue().getValue())
                                             .build())
                                     .toList())
                             .build();
@@ -206,14 +216,15 @@ public class ProductService {
         List<VariantDTO> variants = variantCurrent.stream()
                 .map(variantMapper::toVariantDTO)
                 .toList();
-
+        var variantValues = variantValuesCompletable.join().stream()
+                .collect(Collectors.groupingBy(VariantValueByProductId::getVariantId));
         //Build VariantValues
         List<VariantValueDTO> variantValuesDTO = new ArrayList<>();
         variantCurrent.forEach(variant -> {
-            var v = variant.getVariantValues();
+            var v = variantValues.get(variant.getVariantId());
             var variantValue = v.stream().map(vv -> VariantValueDTO.builder()
                     .variantId(String.valueOf(variant.getVariantId()))
-                    .attributeValueId(String.valueOf(vv.getAttributeValue().getAttributeValueId()))
+                    .attributeValueId(String.valueOf(vv.getVariantValue().getVariantValueId()))
                     .build())
                     .toList();
             variantValuesDTO.addAll(variantValue);

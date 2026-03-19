@@ -1,7 +1,7 @@
 package com.example.hello.Feature.Authentication.dto;
 
-import com.example.hello.Middleware.Constant;
-import com.example.hello.Middleware.StringApplication;
+import com.example.hello.Infrastructure.Common.Validation.RegexValidation;
+import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @Pattern(regexp = Constant.VALIDATION.PASSWORD , message = StringApplication.FIELD.PASSWORD +  StringApplication.FIELD.INVALID)
+    @Pattern(regexp = RegexValidation.VALIDATION.PASSWORD , message = StringApplication.FIELD.PASSWORD +  StringApplication.FIELD.INVALID)
     String password;
     @NotBlank(message = StringApplication.FIELD.EMAIL + StringApplication.FIELD.NOT_EMPTY)
     @Email(message = StringApplication.FIELD.EMAIL + StringApplication.FIELD.INVALID)

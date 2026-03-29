@@ -4,6 +4,7 @@ import com.example.hello.Feature.Feedback.dto.FeedbackReplyDTO;
 import com.example.hello.Feature.Feedback.dto.FeedbackRequest;
 import com.example.hello.Feature.Feedback.Service.FeedbackReplyService;
 import com.example.hello.Feature.Feedback.Service.FeedbackService;
+import com.example.hello.Feature.Feedback.dto.FeedbackResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +30,28 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getFeedbackCandidates(orderId));
     }
 
+    @GetMapping("orders/{orderId}")
+    public ResponseEntity<?> getFeedbacksOrders(@PathVariable UUID orderId,
+                                               @AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(feedbackService.getFeedbacksOrder(userId, orderId));
+    }
+
     @PostMapping
     public ResponseEntity<?> addFeedback(@Valid @RequestBody FeedbackRequest feedbackRequest,
                                          @AuthenticationPrincipal UUID userId) {
         return ResponseEntity.ok(feedbackService.addFeedback(userId, feedbackRequest));
     }
 
+    @PatchMapping("{feedbackId}")
+    public ResponseEntity<?> updateFeedback(@PathVariable UUID feedbackId,
+                                            @RequestBody FeedbackResponse feedbackResponse,
+                                            @AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(feedbackService.updateFeedback(feedbackId, userId, feedbackResponse));
+    }
+
     @GetMapping("{productId}")
-    public ResponseEntity<?> getFeedbacks(@PathVariable UUID productId,  Pageable pageable) {
-        return ResponseEntity.ok(feedbackService.getFeedbacks(productId, pageable));
+    public ResponseEntity<?> getFeedbacksProduct(@PathVariable UUID productId,  Pageable pageable) {
+        return ResponseEntity.ok(feedbackService.getFeedbacksProduct(productId, pageable));
     }
 
     @PreAuthorize("hasAuthority('REPLY_FEEDBACK')")

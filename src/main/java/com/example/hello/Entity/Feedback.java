@@ -3,7 +3,7 @@ package com.example.hello.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,7 +32,7 @@ public class Feedback {
     String comment;
 
     @Column(name = "created_at")
-    @CreationTimestamp
+    @UpdateTimestamp
     Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

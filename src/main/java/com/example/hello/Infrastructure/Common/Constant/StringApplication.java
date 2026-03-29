@@ -23,10 +23,11 @@ public class StringApplication {
         public static final String USER_NOT_LOGIN = "Người dùng chưa đăng nhập";
         public static final String UPLOAD_ERROR = "Ảnh tải lên không hợp lệ";
         public static final String UPLOAD_IO_ERROR = "Lỗi xử lý ảnh";
-        public static final String DELETE_IO_ERROR = "Lỗi xoá ảnh";
     }
 
     public static class FIELD {
+        public static final String ROOM = "Cuộc trò chuyện";
+        public static final String MESSAGE = "Tin nhắn";
         public static final String APP_NAME = "Bách hoá xanh";
         public static final String FEEDBACK = "Đánh giá";
         public static final String CANT_CANCEL = "Không thể huỷ";
@@ -68,16 +69,14 @@ public class StringApplication {
         public static final String LOGIN_NEW_DEVICE = "Đăng nhập trên thiết bị mới";
         public static final String ADD_NEW_EMAIL = "Thêm email mới";
         public static final String DATE = "Ngày";
-        public static final String TIME = "Thời gian";
-        public static final String GENDER = "Giới tính";
         public static final String TOKEN = "Khoá";
         public static final String ACCESS_TOKEN = "Access token";
         public static final String REFRESH_TOKEN = "Refresh token";
     }
 
     public static class ROOM_CHAT {
-        public static final String GLOBAL = "Cộng đồng";
-        public static final String MY_CLOUD = "Kho lưu trữ";
+        public static final String USER_NOT_FOUND = "Người dùng không tồn tại";
+        public static final String CANT_CHAT_WITH_ME = "Không thể nhắn tin với chính mình";
     }
 
     public static class NOTIFICATION{

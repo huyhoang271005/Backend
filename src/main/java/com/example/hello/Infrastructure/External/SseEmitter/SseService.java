@@ -47,8 +47,7 @@ public class SseService {
             removeEmitter(key, emitter);
         }
         emitter.onCompletion(() -> removeEmitter(key, emitter));
-        emitter.onTimeout(() -> removeEmitter(key, emitter));
-        emitter.onError((e) -> removeEmitter(key, emitter));
+        emitter.onTimeout(emitter::complete);
 
         return emitter;
     }

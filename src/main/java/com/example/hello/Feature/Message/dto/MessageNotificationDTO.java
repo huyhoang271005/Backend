@@ -1,9 +1,7 @@
-package com.example.hello.Feature.RoomChat.dto;
+package com.example.hello.Feature.Message.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,9 +9,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SenderDTO {
-    UUID userId;
+public class MessageNotificationDTO {
+    String message;
     String fullName;
-    String imageUrl;
-    Boolean isMe;
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class WebSocketController {
+public class MessageController {
     SimpMessagingTemplate template;
     MessageService messageService;
 
@@ -31,6 +31,15 @@ public class WebSocketController {
     public void readMessage(@Payload MessageDTO messageDTO,
                             Principal principal){
         var userId = UUID.fromString(principal.getName());
-        messageService.readMessage(userId, messageDTO.getRoomId());
+        messageDTO = messageService.readMessage(userId, messageDTO);
+        template.convertAndSend("/topic/room/" + messageDTO.getRoomId(), messageDTO);
+    }
+
+    @MessageMapping("/chat.revoke")
+    public void revokeMessage(@Payload MessageDTO messageDTO,
+                                Principal principal){
+        var userId = UUID.fromString(principal.getName());
+        messageDTO = messageService.revokeMessage(userId, messageDTO);
+        template.convertAndSend("/topic/room/" + messageDTO.getRoomId(), messageDTO);
     }
 }

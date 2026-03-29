@@ -13,7 +13,8 @@ public interface FeedbackReplyRepository extends JpaRepository<FeedbackReply, UU
     @Query("""
             select u.username as username, u.profile.imageUrl as imageUrl,
                         fr.feedbackReplyId as feedbackReplyId, fr.message as message,
-                        f.feedbackId as feedbackId, fr.createdAt as createdAt
+                        f.feedbackId as feedbackId, fr.createdAt as createdAt,
+                        u.role.roleName as roleName
             from FeedbackReply fr
             join fr.user u
             join fr.feedback f

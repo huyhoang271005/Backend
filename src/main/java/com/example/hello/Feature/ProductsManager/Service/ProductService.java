@@ -224,7 +224,7 @@ public class ProductService {
             var v = variantValues.get(variant.getVariantId());
             var variantValue = v.stream().map(vv -> VariantValueDTO.builder()
                     .variantId(String.valueOf(variant.getVariantId()))
-                    .attributeValueId(String.valueOf(vv.getVariantValue().getVariantValueId()))
+                    .attributeValueId(String.valueOf(vv.getVariantValue().getAttributeValue().getAttributeValueId()))
                     .build())
                     .toList();
             variantValuesDTO.addAll(variantValue);

@@ -1,6 +1,7 @@
 package com.example.hello.Feature.Order.Repository;
 
 import com.example.hello.Feature.Order.dto.GetOrderAndUserId;
+import com.example.hello.Feature.Order.dto.GetUserAndOrderId;
 import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Entity.Order;
 import com.example.hello.Entity.User;
@@ -47,7 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             select o as order, oi.price as price, oi.originalPrice as originalPrice,
                 oi.quantity as quantity, v.imageUrl as imageUrl, p.productName as productName,
-                v.variantId as variantId
+                v.variantId as variantId, u.userId as userId
             from OrderItem oi
             join oi.order o
             join oi.variant v
@@ -65,12 +66,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
 
     @Query("""
-            select u
+            select u as user, o.orderId as orderId
             from Order o
             join o.user u
             where o.createdAt <= :timeAgo and o.orderStatus = :orderStatus
             """)
-    List<User> findUserOrderByTimeAgo(Instant timeAgo, OrderStatus orderStatus);
+    List<GetUserAndOrderId> findUserOrderByTimeAgo(Instant timeAgo, OrderStatus orderStatus);
 
     @Modifying
     @Query("""
@@ -97,4 +98,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             where oi.orderItemId = :orderItemId
             """)
     Optional<GetOrderAndUserId> findOrderAndUserIdByOrderItemId(UUID orderItemId);
+
+    @Modifying
+    @Query("""
+            update
+            Order o
+            set o.orderStatus = :orderStatus
+            where o.orderId = :orderId
+            """)
+    void updateOrderStatusByOrderId(OrderStatus orderStatus, UUID orderId);
 }

@@ -10,4 +10,5 @@ public interface FeedbackReplyInfo {
     UUID getFeedbackId();
     String getMessage();
     Instant getCreatedAt();
+    String getRoleName();
 }

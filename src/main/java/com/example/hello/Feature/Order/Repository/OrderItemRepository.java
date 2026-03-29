@@ -22,6 +22,15 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
     List<OrderItemInfo> getOrderItemsFeedback(UUID orderId);
 
     @Query("""
+            select count(*)
+            from OrderItem oi
+            left join oi.feedbackOrderItems foi
+            join oi.order o
+            where foi is null and o.orderId = :orderId
+            """)
+    Integer countOrderItemsFeedback(UUID orderId);
+
+    @Query("""
             select v.variantId as variantId, oi.orderItemId as orderItemId,
                         oi.quantity as quantity
             from OrderItem oi

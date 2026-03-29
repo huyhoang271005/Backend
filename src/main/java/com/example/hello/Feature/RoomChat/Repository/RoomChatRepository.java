@@ -1,7 +1,8 @@
 package com.example.hello.Feature.RoomChat.Repository;
 
 import com.example.hello.Entity.RoomChat;
-import com.example.hello.Entity.User;
+import com.example.hello.Feature.Message.dto.UserProfileInfo;
+import com.example.hello.Feature.RoomChat.dto.RoomChatInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,11 +17,6 @@ public interface RoomChatRepository extends JpaRepository<RoomChat, UUID> {
             select rc
             from RoomChat rc
             where (
-                select count(urc)
-                from UserRoomChat urc
-                where urc.roomChat = rc
-            ) = :size
-            and (
                 select count(distinct urc.user.userId)
                 from UserRoomChat urc
                 where urc.roomChat = rc
@@ -30,23 +26,21 @@ public interface RoomChatRepository extends JpaRepository<RoomChat, UUID> {
     Optional<RoomChat> findRoomChatByUserIdInAndSize(List<UUID> userIds, Integer size);
 
     @Query("""
-            select distinct rc
+            select rc.roomChatId as roomChatId, rc.roomName as roomChatName, urc.roomChatStatus roomChatStatus,
+                        urc.deletedAt as deletedAt
             from RoomChat rc
             join rc.userRoomChats urc
             join urc.user u
             where u.userId = :userId
             order by rc.updatedAt desc
             """)
-    Page<RoomChat> findRoomChatByUserId(UUID userId, Pageable pageable);
+    Page<RoomChatInfo> findRoomChatByUserId(UUID userId, Pageable pageable);
 
     @Query("""
-            select u
+            select u as user, u.profile.fullName as fullName
             from UserRoomChat urc
             join urc.user u
             where urc.roomChat.roomChatId = :roomChatId
             """)
-    List<User> getUsersByRoomChatId(UUID roomChatId);
-
-    Boolean existsByRoomName(String roomName);
-    Optional<RoomChat> findByRoomName(String roomName);
+    List<UserProfileInfo> getUsersByRoomChatId(UUID roomChatId);
 }

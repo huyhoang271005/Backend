@@ -45,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByRole_RoleId(UUID roleRoleId);
 
     @Query("""
-            select u.username as username, p.imageUrl as imageUrl, u.role.roleName as roleName
+            select p.fullName as fullName, p.imageUrl as imageUrl, u.role.roleName as roleName
             from User u
             join u.profile p
             where u.userId = :userId

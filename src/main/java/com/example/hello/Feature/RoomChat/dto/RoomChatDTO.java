@@ -16,10 +16,12 @@ import java.util.UUID;
 public class RoomChatDTO {
     UUID roomChatId;
     String roomChatName;
+    String roleName;
     String ImageUrl;
     List<UUID> userIds;
     String lastMessage;
     UUID senderId;
     Instant lastMessageTime;
     Integer messageSentCount;
+    RoomChatStatus roomChatStatus;
 }

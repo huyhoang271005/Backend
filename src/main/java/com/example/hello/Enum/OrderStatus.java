@@ -11,7 +11,8 @@ public enum OrderStatus {
     CANCELED,
     DELIVERING,
     DELIVERED,
-    COMPLETED;
+    COMPLETED,
+    HAS_FEEDBACK,;
 
     @JsonCreator
     public static OrderStatus forValue(String value) {

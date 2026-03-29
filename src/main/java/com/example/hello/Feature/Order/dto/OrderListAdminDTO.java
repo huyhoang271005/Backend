@@ -17,6 +17,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderListAdminDTO {
     UUID orderId;
+    UUID userId;
     OrderStatus orderStatus;
     String contactName;
     String phone;

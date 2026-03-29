@@ -1,6 +1,5 @@
 package com.example.hello.Feature.Message.dto;
 
-import com.example.hello.Feature.Message.MessageStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -17,6 +16,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageDTO {
     UUID messageStatusId;
+    UUID messageId;
     @NotNull
     UUID roomId;
     @NotNull
@@ -25,4 +25,5 @@ public class MessageDTO {
     String content;
     Instant time;
     MessageStatus status;
+    MessageAction action;
 }

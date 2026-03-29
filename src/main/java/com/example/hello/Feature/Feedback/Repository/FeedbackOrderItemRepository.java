@@ -1,5 +1,6 @@
 package com.example.hello.Feature.Feedback.Repository;
 
+import com.example.hello.Entity.Feedback;
 import com.example.hello.Feature.Feedback.dto.FeedbackValidator;
 import com.example.hello.Entity.FeedbackOrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,4 @@ public interface FeedbackOrderItemRepository extends JpaRepository<FeedbackOrder
     where oi.orderItemId in :orderItemIds
     """)
     Optional<FeedbackValidator> validateOrderItemFeedback(List<UUID> orderItemIds);
-
 }

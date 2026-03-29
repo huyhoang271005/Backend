@@ -56,6 +56,7 @@ public class OrderAdminService {
                 .map(uuid -> {
                     var order = orders.get(uuid);
                     var orderAdmin = orderMapper.toOrderListAdminDTO(order.getFirst().getOrder());
+                    orderAdmin.setUserId(order.getFirst().getUserId());
                     orderAdmin.setOrderItemDTOList(order.stream()
                             .map(orderInfo -> {
                                 var orderItemDTO = orderMapper.toOrderItemDTO(orderInfo);

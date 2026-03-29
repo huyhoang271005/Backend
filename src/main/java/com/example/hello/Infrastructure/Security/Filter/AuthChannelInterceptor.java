@@ -7,13 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
-
-import java.nio.file.attribute.UserPrincipal;
 
 @Component
 @RequiredArgsConstructor
@@ -28,18 +27,24 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         // Kiểm tra nếu là frame CONNECT (lúc bắt đầu kết nối)
-        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (accessor != null && (StompCommand.SEND.equals(accessor.getCommand())
+        || StompCommand.CONNECT.equals(accessor.getCommand()))) {
             // Lấy token từ header (Ví dụ: Authorization: Bearer <token>)
             String authHeader = accessor.getFirstNativeHeader("Authorization");
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
 
-                // Giả sử bạn có hàm validateToken trả về UsernamePasswordAuthenticationToken
-                UserPrincipal user = () -> jwtComponent.getUserIdFromToken(token).toString();
-
-                // Quan trọng: Gán user vào accessor
-                accessor.setUser(user);
+                try {
+                    var userId = jwtComponent.getUserIdFromToken(token).toString();
+                    accessor.setUser(() -> userId);
+                }
+                catch (Exception e) {
+                    throw new MessageDeliveryException("AUTH_REQUIRED:REFRESH_TOKEN");
+                }
+            }
+            else {
+                throw new MessageDeliveryException("MISSING_TOKEN");
             }
         }
         return message;

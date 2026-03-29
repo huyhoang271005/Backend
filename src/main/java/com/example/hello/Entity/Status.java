@@ -1,6 +1,6 @@
 package com.example.hello.Entity;
 
-import com.example.hello.Feature.Message.MessageStatus;
+import com.example.hello.Feature.Message.dto.MessageStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

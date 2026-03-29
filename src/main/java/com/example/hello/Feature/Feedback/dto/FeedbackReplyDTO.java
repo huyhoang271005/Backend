@@ -17,5 +17,6 @@ public class FeedbackReplyDTO {
     String imageUrl;
     UUID feedbackReplyId;
     String message;
+    String roleName;
     Instant createdAt;
 }

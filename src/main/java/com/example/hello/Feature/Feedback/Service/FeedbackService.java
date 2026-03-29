@@ -1,13 +1,10 @@
 package com.example.hello.Feature.Feedback.Service;
 
+import com.example.hello.Feature.Feedback.dto.*;
 import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
-import com.example.hello.Feature.Feedback.dto.FeedbackReplyInfo;
 import com.example.hello.Feature.Order.dto.OrderItemInfo;
 import com.example.hello.Entity.FeedbackOrderItem;
 import com.example.hello.Enum.OrderStatus;
-import com.example.hello.Feature.Feedback.dto.FeedbackCandidatesDTO;
-import com.example.hello.Feature.Feedback.dto.FeedbackRequest;
-import com.example.hello.Feature.Feedback.dto.FeedbackResponse;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
@@ -27,6 +24,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,6 +51,8 @@ public class FeedbackService {
     FeedbackReplyRepository feedbackReplyRepository;
     OrderRepository orderRepository;
     FeedbackReplyMapper feedbackReplyMapper;
+    @Qualifier("applicationTaskExecutor")
+    AsyncTaskExecutor applicationTaskExecutor;
 
     @Transactional(readOnly = true)
     public Response<List<FeedbackCandidatesDTO>> getFeedbackCandidates(UUID orderId){
@@ -164,6 +166,9 @@ public class FeedbackService {
             throw new ConflictException(StringApplication.FIELD.REQUEST +
                     StringApplication.FIELD.INVALID);
         }
+        if(orderItemRepository.countOrderItemsFeedback(order.getOrderId()) == 0){
+            order.setOrderStatus(OrderStatus.HAS_FEEDBACK);
+        }
         var feedback = feedbackMapper.toFeedback(feedbackRequest);
         feedback.setOrder(order);
         feedback.setProduct(product);
@@ -186,8 +191,8 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public Response<ListResponse<FeedbackResponse>> getFeedbacks(UUID productId, Pageable pageable){
-        var feedbacksPage = feedbackRepository.getFeedbackInfo(productId, pageable);
+    public Response<ListResponse<FeedbackResponse>> getFeedbacksProduct(UUID productId, Pageable pageable){
+        var feedbacksPage = feedbackRepository.getFeedbackProductInfo(productId, pageable);
         log.info("Found feedbacks successfully");
         var feedbacks = feedbacksPage.getContent()
                 .stream()
@@ -211,6 +216,45 @@ public class FeedbackService {
                         feedbacksPage.hasNext(),
                         feedbacks
                 )
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Response<List<FeedbackResponse>> getFeedbacksOrder(UUID userId, UUID orderId){
+        var feedback = feedbackRepository.getFeedbackOrderInfo(orderId, userId);
+        var feedbackReply = feedbackReplyRepository.getFeedbackRepliesByFeedbackIds(feedback
+                        .stream()
+                        .map(FeedbackInfo::getFeedbackId)
+                        .toList())
+                .stream()
+                .collect(Collectors.toMap(FeedbackReplyInfo::getFeedbackId, Function.identity()));
+        var feedbackDto = feedback.stream()
+                .map(feedbackInfo -> {
+                    var feedbackResponse = feedbackMapper.toFeedbackResponse(feedbackInfo);
+                    feedbackResponse.setReply(feedbackReplyMapper.toFeedbackReplyDTO(
+                            feedbackReply.get(feedbackInfo.getFeedbackId())
+                    ));
+                    return feedbackResponse;
+                })
+                .toList();
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                feedbackDto
+        );
+    }
+
+    @Transactional
+    public Response<Void> updateFeedback(UUID feedbackId, UUID userId, FeedbackResponse feedbackResponse){
+        var feedback = feedbackRepository.findByFeedbackIdAndOrder_User_UserId(feedbackId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.FEEDBACK +
+                        StringApplication.FIELD.NOT_EXIST));
+        feedback.setComment(feedbackResponse.getComment());
+        feedback.setRating(feedbackResponse.getRating());
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                null
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.example.hello.Entity;
 
+import com.example.hello.Feature.RoomChat.dto.RoomChatStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +29,13 @@ public class UserRoomChat {
     @Column(name = "joined_at")
     @CreationTimestamp
     Instant joinedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    RoomChatStatus roomChatStatus;
+
+    @Column(name = "deleted_at")
+    Instant deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -20,9 +20,6 @@ import com.example.hello.Infrastructure.Common.Constant.AppProperties;
 import com.example.hello.Mapper.SessionMapper;
 import com.example.hello.Infrastructure.Common.Constant.ParamName;
 import com.example.hello.Infrastructure.Common.Constant.StringApplication;
-import com.example.hello.Feature.RoomChat.RoomChatName;
-import com.example.hello.Feature.RoomChat.Repository.RoomChatRepository;
-import com.example.hello.Feature.RoomChat.Repository.UserRoomChatRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
@@ -39,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -62,8 +60,6 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
     SessionCacheService sessionCacheService;
     TokenRepository tokenRepository;
     AppProperties appProperties;
-    UserRoomChatRepository userRoomChatRepository;
-    RoomChatRepository roomChatRepository;
     SessionMapper sessionMapper;
     EmailSenderService emailSenderService;
     NotificationService notificationService;
@@ -106,8 +102,9 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
                         new EntityNotFoundException(StringApplication.FIELD.ROLE
                                 + StringApplication.FIELD.NOT_EXIST));
                 log.info("Oauth2 created new user");
+                var username = generateSecureUsername(name, email);
                 var currentUser = User.builder()
-                        .username(UUID.randomUUID().toString())
+                        .username(username)
                         .password(UUID.randomUUID().toString())
                         .role(role)
                         .userStatus(UserStatus.ACTIVE)
@@ -211,18 +208,37 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, tokenCookie.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, deviceCookie.toString());
-            var userRoomChat = userRoomChatRepository.existsByRoomChat_RoomNameAndUser(RoomChatName.GLOBAL.name(), user);
-            if(!userRoomChat){
-                roomChatRepository.findByRoomName(RoomChatName.GLOBAL.name())
-                        .ifPresent(roomChat -> userRoomChatRepository.save(UserRoomChat.builder()
-                                .roomChat(roomChat)
-                                .user(user)
-                                .build()));
-            }
             getRedirectStrategy().sendRedirect(request, response, appProperties.getFrontendUrl() + "/home?login=true");
         } catch (Exception e) {
             log.error("Error while sending redirect to {}", request.getRequestURI(), e);
             response.sendRedirect(appProperties.getFrontendUrl() + "/auth/login");
         }
+    }
+
+    public String generateSecureUsername(String displayName, String email) {
+        String base;
+        if (displayName != null && !displayName.isEmpty()) {
+            base = slugify(displayName);
+        } else {
+            base = "user" + (email.length() > 3 ? email.substring(0, 3) : "id");
+        }
+
+        String finalUsername;
+        boolean exists;
+
+        do {
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            finalUsername = base + "_" + suffix;
+            exists = userRepository.existsByUsername(finalUsername);
+        } while (exists);
+
+        return finalUsername;
+    }
+
+    private String slugify(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{M}", "") // Xóa dấu tiếng Việt
+                .replaceAll("[^a-zA-Z0-9]", "") // Xóa ký tự đặc biệt
+                .toLowerCase();
     }
 }

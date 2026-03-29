@@ -1,6 +1,7 @@
 package com.example.hello.Feature.RoomChat;
 
 import com.example.hello.Feature.RoomChat.dto.RoomChatDTO;
+import com.example.hello.Feature.RoomChat.dto.RoomChatStatus;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +27,18 @@ public class RoomChatController {
         return ResponseEntity.ok().body(roomChatService.addRoomChat(userId, roomChatDTO));
     }
 
+    @DeleteMapping("/{roomChatId}")
+    public ResponseEntity<?> deleteRoomChat(@AuthenticationPrincipal UUID userId,
+                                            @PathVariable UUID roomChatId) {
+        return ResponseEntity.ok().body(roomChatService.deleteRoomChat(userId, roomChatId));
+    }
+
+    @PatchMapping("/{roomChatId}")
+    public ResponseEntity<?> updateRoomChat(@AuthenticationPrincipal UUID userId,
+                                            @PathVariable UUID roomChatId,
+                                            @RequestBody RoomChatStatus roomChatStatus){
+        return ResponseEntity.ok(roomChatService.changeStatusRoomChat(userId, roomChatId, roomChatStatus));
+    }
     @GetMapping
     public ResponseEntity<?> getRoomChats(@AuthenticationPrincipal UUID userId,
                                           Pageable pageable) {
@@ -43,5 +56,18 @@ public class RoomChatController {
                                                  @PathVariable UUID roomChatId,
                                                  Pageable pageable) {
         return ResponseEntity.ok(roomChatService.getMessages(userId, roomChatId, pageable));
+    }
+
+    @PatchMapping("{roomChatId}/unread")
+    public ResponseEntity<?> unreadRoomChat(@AuthenticationPrincipal UUID userId,
+                                            @PathVariable UUID roomChatId) {
+        return ResponseEntity.ok(roomChatService.unreadMessage(userId, roomChatId));
+    }
+
+    @DeleteMapping("{roomChatId}/messages/{messageId}")
+    public ResponseEntity<?> deleteMessage(@AuthenticationPrincipal UUID userId,
+                                           @PathVariable UUID roomChatId,
+                                           @PathVariable UUID messageId) {
+        return ResponseEntity.ok(roomChatService.deleteMessage(userId, roomChatId, messageId));
     }
 }

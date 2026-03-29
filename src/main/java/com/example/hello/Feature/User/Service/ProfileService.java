@@ -72,7 +72,7 @@ public class ProfileService {
         user.setUsername(profileRequest.getUsername());
         var profile = user.getProfile();
         profile.setGender(profileRequest.getGender());
-        profile.setBirthday(profile.getBirthday());
+        profile.setBirthday(profileRequest.getBirthday());
         profile.setFullName(profileRequest.getFullName());
         if(avatar != null) {
             if(profile.getImageId() != null){
@@ -95,7 +95,10 @@ public class ProfileService {
         var user = userRepository.findById(userId).orElseThrow(
                 () -> new EntityNotFoundException(StringApplication.FIELD.USER + StringApplication.FIELD.NOT_EXIST)
         );
-        cloudinaryService.deleteImages(List.of(user.getProfile().getImageId()));
+        var imageId = user.getProfile().getImageId();
+        if(imageId != null){
+            cloudinaryService.deleteImages(List.of(imageId));
+        }
         userRepository.deleteById(userId);
         return new Response<>(
                 true,

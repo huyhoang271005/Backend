@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface OrderInfo {
     Order getOrder();
+    UUID getUserId();
     UUID getVariantId();
     String getProductName();
     String getImageUrl();

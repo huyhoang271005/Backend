@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
@@ -25,4 +26,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                    order by m.createdAt desc
             """)
     List<MessageListInfo> findByRoomChatIds(List<UUID> roomChatIds);
+
+    Optional<Message> findFirstByRoomChat_RoomChatIdOrderByCreatedAtDesc(UUID roomChatId);
 }

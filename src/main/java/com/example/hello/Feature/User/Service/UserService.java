@@ -16,7 +16,7 @@ import com.example.hello.Feature.Cart.CartItemRepository;
 import com.example.hello.Feature.Message.Repository.StatusRepository;
 import com.example.hello.Feature.Notification.Repository.UserNotificationRepository;
 import com.example.hello.Feature.User.Repository.UserRepository;
-import com.example.hello.Feature.Message.MessageStatus;
+import com.example.hello.Feature.Message.dto.MessageStatus;
 import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -170,7 +170,7 @@ public class UserService {
         var userNotificationCountCompletable = CompletableFuture.supplyAsync(() ->
                 userNotificationRepository.countByUser_UserIdAndIsRead(userId, false),  applicationTaskExecutor);
         var messageCountCompletable = CompletableFuture.supplyAsync(() ->
-                statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SEND), applicationTaskExecutor);
+                statusRepository.countByUser_UserIdAndMessageStatus(userId, MessageStatus.SENT), applicationTaskExecutor);
         CompletableFuture.allOf(homeInfoCompletable, cartItemCountCompletable, userNotificationCountCompletable, messageCountCompletable)
                 .join();
         var homeInfo = homeInfoCompletable.join();

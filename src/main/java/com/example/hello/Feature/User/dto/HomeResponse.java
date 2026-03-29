@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 public class HomeResponse {
     String appName;
     String imageUrl;
-    String username;
+    String fullName;
     String roleName;
     Integer readNotifications;
     Integer cartsCount;

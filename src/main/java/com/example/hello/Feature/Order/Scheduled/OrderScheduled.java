@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -41,13 +42,14 @@ public class OrderScheduled {
             log.info("Cancel order scheduled successfully");
             log.info("Send notification canceled order scheduled successfully");
             if(!users.isEmpty()) {
-                notificationService.sendNotification(users,
+                users.forEach(user ->
+                        notificationService.sendNotification(List.of(user.getUser()),
                         NotificationDTO.builder()
                                 .title(StringApplication.FIELD.ORDER)
                                 .message(StringApplication.FIELD.ORDER +
                                         StringApplication.NOTIFICATION.CANCELED_BY_SYSTEM)
-                                .linkUrl(appProperties.getFrontendUrl() + "/orders")
-                                .build());
+                                .linkUrl(appProperties.getFrontendUrl() + "/orders?orderId=" + user.getOrderId())
+                                .build()));
             }
         }
     }

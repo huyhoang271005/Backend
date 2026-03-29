@@ -17,6 +17,7 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDTO {
+    UUID orderId;
     UUID contactId;
     String contactName;
     String phone;

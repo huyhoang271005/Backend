@@ -20,6 +20,7 @@ public class UserController {
     UserService userService;
 
 
+    @PreAuthorize("hasAnyAuthority('GET_USERS')")
     @GetMapping("users")
     ResponseEntity<?> getUsers(@RequestParam(required = false) String email, Pageable pageable) {
         return ResponseEntity.ok(userService.getUsers(email, pageable));

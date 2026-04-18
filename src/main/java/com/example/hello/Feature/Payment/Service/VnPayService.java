@@ -3,6 +3,7 @@ package com.example.hello.Feature.Payment.Service;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Payment.Model.PaymentResponse;
 import com.example.hello.Feature.Payment.Model.VnPayProperties;
+import com.example.hello.Feature.Payment.PaymentReturnDto;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Common.Constant.AppProperties;
@@ -65,7 +66,8 @@ public class VnPayService {
         vnp_Params.put("vnp_Amount", String.valueOf(vnp_Amount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId +
+                ". So tien: " + amount + "đ");
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", appProperties.getBackendUrl() + vnPayProperties.getReturnUrl());
@@ -74,6 +76,8 @@ public class VnPayService {
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         vnp_Params.put("vnp_CreateDate", formatter.format(cld.getTime()));
+        cld.add(Calendar.MINUTE, 15);
+        vnp_Params.put("vnp_ExpireDate", formatter.format(cld.getTime()));
 
         // 1. Sắp xếp tham số theo alphabet (Bắt buộc)
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
@@ -104,6 +108,8 @@ public class VnPayService {
             }
         }
 
+        log.info("Hash data {}", hashData);
+
         // 3. Tính toán SecureHash từ hashData đã build
         String vnp_SecureHash = VnPayUtils.hmacSHA512(vnPayProperties.getHashSecret(), hashData.toString());
 
@@ -122,7 +128,8 @@ public class VnPayService {
     }
 
     @Transactional
-    public Boolean paymentReturn(HttpServletRequest request){
+    public PaymentReturnDto paymentReturn(HttpServletRequest request){
+        log.info("Payment return is {}?{}", request.getRequestURL(), request.getQueryString());
         Map<String, String> params = new HashMap<>();
         request.getParameterMap().forEach(
                 (key, value) -> params.put(key, value[0])
@@ -134,13 +141,17 @@ public class VnPayService {
                         StringApplication.FIELD.NOT_EXIST)
         );
         log.info("Response code is {}", responseCode);
+        var paymentDto = PaymentReturnDto.builder()
+                .orderId(order.getOrderId())
+                .build();
         if ("00".equals(responseCode)) {
             order.setOrderStatus(OrderStatus.PENDING);
             order.setPaymentAt(Instant.now());
-            return true;
+            paymentDto.setSuccess(true);
         } else {
             order.setOrderStatus(OrderStatus.WAITING);
-            return false;
+            paymentDto.setSuccess(false);
         }
+        return paymentDto;
     }
 }

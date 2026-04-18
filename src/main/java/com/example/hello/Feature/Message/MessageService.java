@@ -4,10 +4,12 @@ import com.example.hello.Entity.Message;
 import com.example.hello.Entity.Status;
 import com.example.hello.Feature.Message.Repository.MessageRepository;
 import com.example.hello.Feature.Message.Repository.StatusRepository;
-import com.example.hello.Feature.Message.dto.MessageAction;
 import com.example.hello.Feature.Message.dto.MessageDTO;
 import com.example.hello.Feature.Message.dto.MessageNotificationDTO;
 import com.example.hello.Feature.Message.dto.MessageStatus;
+import com.example.hello.Feature.Message.dto.MessageType;
+import com.example.hello.Feature.Order.Repository.OrderItemRepository;
+import com.example.hello.Feature.ProductsManager.Repository.ProductRepository;
 import com.example.hello.Feature.RoomChat.Repository.UserRoomChatRepository;
 import com.example.hello.Feature.RoomChat.dto.RoomChatStatus;
 import com.example.hello.Infrastructure.Common.Constant.StringApplication;
@@ -36,18 +38,32 @@ public class MessageService {
     MessageRepository messageRepository;
     RoomChatRepository roomChatRepository;
     SseService sseService;
-    private final UserRoomChatRepository userRoomChatRepository;
+    UserRoomChatRepository userRoomChatRepository;
+    OrderItemRepository orderItemRepository;
+    ProductRepository productRepository;
 
     @Transactional
     public MessageDTO saveMessage(UUID senderId, MessageDTO messageDTO) {
         var roomChat = roomChatRepository.findById(messageDTO.getRoomId()).orElseThrow(
                 () -> new EntityNotFoundException("Room chat not found with id " + messageDTO.getRoomId())
         );
+        log.info("message content is {}", messageDTO.getContent());
         roomChat.setUpdatedAt(Instant.now());
+        var firstStr = messageDTO.getContent().split(" ")[0];
+        if(messageDTO.getType() == MessageType.ORDER){
+            orderItemRepository.findByOrder_OrderId(UUID.fromString(firstStr))
+                    .ifPresent(orderItem -> messageDTO.setContent(firstStr + " " + orderItem.getVariant().getImageUrl()));
+        }
+        else if (messageDTO.getType() == MessageType.PRODUCT){
+            productRepository.findById(UUID.fromString(messageDTO.getContent().split(" ")[0]))
+                    .ifPresent(product -> messageDTO.setContent(firstStr + " " + product.getImageUrl() +
+                            " " + product.getProductName()));
+        }
         var message = Message.builder()
                 .content(messageDTO.getContent())
                 .senderId(senderId)
                 .roomChat(roomChat)
+                .type(messageDTO.getType())
                 .build();
         messageRepository.save(message);
         log.info("Message save success.");
@@ -109,7 +125,7 @@ public class MessageService {
         log.info("Room chat id is {}", messageDTO.getRoomId());
         statusRepository.readMessage(MessageStatus.READ, userId, messageDTO.getRoomId());
         log.info("Read message success");
-        messageDTO.setAction(MessageAction.READ);
+        messageDTO.setStatus(MessageStatus.READ);
         return messageDTO;
     }
 
@@ -124,7 +140,7 @@ public class MessageService {
                     StringApplication.FIELD.INVALID);
         }
         messageRepository.delete(message);
-        messageDTO.setAction(MessageAction.REVOKE);
+        messageDTO.setStatus(MessageStatus.REVOKE);
 
         return messageDTO;
     }

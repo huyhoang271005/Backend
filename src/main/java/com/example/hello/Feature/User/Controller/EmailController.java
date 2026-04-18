@@ -28,7 +28,7 @@ public class EmailController {
 
     @PreAuthorize("hasAuthority('ADD_EMAIL_ADMIN')")
     @PostMapping("{userId}")
-    ResponseEntity<?> extendEmail(@Valid @RequestBody EmailRequest emailRequest,
+    ResponseEntity<?> addEmailAdmin(@Valid @RequestBody EmailRequest emailRequest,
                                   @PathVariable UUID userId) {
         return ResponseEntity.ok(emailService.addEmail(userId, emailRequest));
     }

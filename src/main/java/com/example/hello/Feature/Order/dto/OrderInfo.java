@@ -1,6 +1,7 @@
 package com.example.hello.Feature.Order.dto;
 
 import com.example.hello.Entity.Order;
+import com.example.hello.Enum.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,4 +18,5 @@ public interface OrderInfo {
     Integer getQuantity();
     Instant getUpdatedAt();
     Instant getCreatedAt();
+    PaymentMethod getPaymentMethod();
 }

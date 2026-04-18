@@ -125,7 +125,7 @@ public class ProductDetailService {
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        Sort.by(Sort.Direction.DESC, "createdAt")));
+                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "createdAt"))));
         log.info("Found product list successfully");
         return new Response<>(
                 true,

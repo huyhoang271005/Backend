@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -155,6 +156,8 @@ public class RoomChatService {
                     }
                     return roomChatDTOCurrent;
                 })
+                .sorted(Comparator.comparing(RoomChatDTO::getLastMessageTime,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
         return new Response<>(
                 true,
@@ -225,6 +228,7 @@ public class RoomChatService {
                         .messageStatusId(messageStatusInfo.getMessageStatusId())
                         .messageId(messageStatusInfo.getMessageId())
                         .status(messageStatusInfo.getMessageStatus())
+                        .type(messageStatusInfo.getMessageType())
                         .build())
                 .toList();
         return new Response<>(

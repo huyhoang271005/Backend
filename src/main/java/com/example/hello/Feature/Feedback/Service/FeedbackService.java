@@ -249,6 +249,10 @@ public class FeedbackService {
         var feedback = feedbackRepository.findByFeedbackIdAndOrder_User_UserId(feedbackId, userId)
                 .orElseThrow(() -> new EntityNotFoundException(StringApplication.FIELD.FEEDBACK +
                         StringApplication.FIELD.NOT_EXIST));
+        var product = feedback.getProduct();
+        product.setRatingAvg((product.getRatingAvg() * product.getRatingCount() -
+                feedback.getRating() + feedbackResponse.getRating()) /
+                product.getRatingCount());
         feedback.setComment(feedbackResponse.getComment());
         feedback.setRating(feedbackResponse.getRating());
         return new Response<>(

@@ -18,7 +18,8 @@ import java.util.UUID;
 public interface StatusRepository extends JpaRepository<Status, UUID> {
     @Query("""
             select m as message, s.messageStatus as messageStatus, s.updatedAt as updatedAt,
-                        s.messageStatusId as messageStatusId, m.messageId as messageId
+                        s.messageStatusId as messageStatusId, m.messageId as messageId, 
+                        m.type as messageType
             from Status s
             join s.user u
             join s.message m

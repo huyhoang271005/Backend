@@ -274,11 +274,10 @@ public class ProductService {
             imageDelete.add(product.getImageId());
         }
         cloudinaryService.deleteImages(imageDelete);
-        var orderItems = orderItemRepository.findByVariant_VariantIdIn(variants
+        orderItemRepository.deleteAllById(variants
                 .stream()
                 .map(Variant::getVariantId)
                 .toList());
-        orderItemRepository.deleteAll(orderItems);
         variantRepository.deleteAll(variants);
         log.info("Variant in product {} successfully deleted", productId);
         productRepository.delete(product);

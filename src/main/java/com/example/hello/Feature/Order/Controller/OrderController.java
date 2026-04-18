@@ -1,7 +1,6 @@
 package com.example.hello.Feature.Order.Controller;
 
 import com.example.hello.Enum.OrderStatus;
-import com.example.hello.Feature.Feedback.Service.FeedbackService;
 import com.example.hello.Feature.Order.dto.OrderDTO;
 import com.example.hello.Feature.Order.Service.OrderService;
 import lombok.AccessLevel;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RequestMapping("orders")
 public class OrderController {
     OrderService orderService;
-    FeedbackService feedbackService;
 
     @PostMapping
     public ResponseEntity<?> addOrder(@AuthenticationPrincipal UUID userId,
@@ -34,6 +32,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrder(userId, orderId));
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> getOrderCount(@AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(orderService.getCountOrders(userId));
+    }
+
     @PatchMapping("{orderId}")
     public ResponseEntity<?> updateStatusOrder(@AuthenticationPrincipal UUID userId,
                                                @PathVariable UUID orderId,
@@ -43,7 +46,8 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<?> getOrders(@AuthenticationPrincipal UUID userId,
+                                       @RequestParam(required = false) String searchInput,
                                        Pageable pageable) {
-        return ResponseEntity.ok(orderService.getOrders(userId, pageable));
+        return ResponseEntity.ok(orderService.getOrders(userId, searchInput, pageable));
     }
 }

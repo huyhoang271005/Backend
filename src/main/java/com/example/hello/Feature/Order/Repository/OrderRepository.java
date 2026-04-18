@@ -4,8 +4,8 @@ import com.example.hello.Feature.Order.dto.GetOrderAndUserId;
 import com.example.hello.Feature.Order.dto.GetUserAndOrderId;
 import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Entity.Order;
-import com.example.hello.Entity.User;
 import com.example.hello.Enum.OrderStatus;
+import com.example.hello.Feature.Order.dto.OrdersCountInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,16 +34,18 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             select o as order, oi.price as price, oi.originalPrice as originalPrice,
                 oi.quantity as quantity, v.imageUrl as imageUrl, p.productName as productName,
-                v.variantId as variantId, o.createdAt as createdAt
+                v.variantId as variantId, o.createdAt as createdAt, o.paymentMethod as paymentMethod,
+                o.updatedAt as updatedAt
+                
             from OrderItem oi
             join oi.order o
             join oi.variant v
             join o.user u
             join v.product p
-            where u.userId = :userId
-            order by o.createdAt desc
+            where u.userId = :userId and
+            (cast(o.orderId as string) = :searchInput or p.productName like %:searchInput% or :searchInput is null)
             """)
-    Page<OrderInfo> getOrdersInfo(UUID userId, Pageable pageable);
+    Page<OrderInfo> getOrdersInfo(UUID userId, String searchInput, Pageable pageable);
 
     @Query("""
             select o as order, oi.price as price, oi.originalPrice as originalPrice,
@@ -99,12 +101,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             """)
     Optional<GetOrderAndUserId> findOrderAndUserIdByOrderItemId(UUID orderItemId);
 
-    @Modifying
     @Query("""
-            update
-            Order o
-            set o.orderStatus = :orderStatus
-            where o.orderId = :orderId
+            select o.orderStatus as orderStatus, count(o) as orderCount
+            from Order o
+            join o.user u
+            where u.userId = :userId or :userId is null
+            group by o.orderStatus
             """)
-    void updateOrderStatusByOrderId(OrderStatus orderStatus, UUID orderId);
+    List<OrdersCountInfo> CountOrdersByUserId(UUID userId);
 }

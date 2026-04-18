@@ -25,5 +25,5 @@ public class MessageDTO {
     String content;
     Instant time;
     MessageStatus status;
-    MessageAction action;
+    MessageType type;
 }

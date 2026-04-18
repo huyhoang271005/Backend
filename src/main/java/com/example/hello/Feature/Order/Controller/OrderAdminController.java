@@ -2,6 +2,7 @@ package com.example.hello.Feature.Order.Controller;
 
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Feature.Order.Service.OrderAdminService;
+import com.example.hello.Feature.Order.Service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequestMapping("admin/orders")
 public class OrderAdminController {
     OrderAdminService orderAdminService;
+    OrderService orderService;
 
     @PreAuthorize("hasAuthority('GET_ORDERS_ADMIN')")
     @GetMapping
@@ -32,5 +34,11 @@ public class OrderAdminController {
     public ResponseEntity<?> updateOrderStatus(@PathVariable UUID orderId,
                                                @RequestBody OrderStatus orderStatus){
         return ResponseEntity.ok(orderAdminService.updateOrderStatus(orderId, orderStatus));
+    }
+
+    @PreAuthorize("hasAnyAuthority('GET_ORDERS_ADMIN')")
+    @GetMapping("count")
+    public ResponseEntity<?> getOrderCountAdmin(){
+        return ResponseEntity.ok(orderService.getCountOrders(null));
     }
 }

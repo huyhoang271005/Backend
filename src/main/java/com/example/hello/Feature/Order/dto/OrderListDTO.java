@@ -1,6 +1,7 @@
 package com.example.hello.Feature.Order.dto;
 
 import com.example.hello.Enum.OrderStatus;
+import com.example.hello.Enum.PaymentMethod;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,5 +19,7 @@ public class OrderListDTO {
     UUID orderId;
     OrderStatus orderStatus;
     Instant createdAt;
+    Instant updatedAt;
+    PaymentMethod paymentMethod;
     List<OrderItemDTO> orderItemDTOList;
 }

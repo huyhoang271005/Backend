@@ -1,14 +1,11 @@
 package com.example.hello.Feature.Order.Service;
 
+import com.example.hello.Feature.Order.dto.*;
 import com.example.hello.Feature.ProductsManager.Service.ProductAsyncTask;
 import com.example.hello.Feature.ProductsManager.dto.AttributeValueByVariantId;
-import com.example.hello.Feature.Order.dto.OrderInfo;
 import com.example.hello.Entity.Variant;
 import com.example.hello.Enum.OrderStatus;
 import com.example.hello.Enum.PaymentMethod;
-import com.example.hello.Feature.Order.dto.OrderDTO;
-import com.example.hello.Feature.Order.dto.OrderItemDTO;
-import com.example.hello.Feature.Order.dto.OrderListDTO;
 import com.example.hello.Infrastructure.Exception.ConflictException;
 import com.example.hello.Infrastructure.Exception.EntityNotFoundException;
 import com.example.hello.Infrastructure.Exception.UnprocessableEntityException;
@@ -33,10 +30,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -110,6 +105,14 @@ public class OrderService {
                 })
                 .toList();
         order.setOrderItems(orderItem);
+        if(order.getPaymentMethod() != PaymentMethod.COD){
+            var total = orderItem.stream()
+                    .map(orderItem1 -> orderItem1.getPrice().multiply(BigDecimal.valueOf(orderItem1.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            if(total.compareTo(BigDecimal.valueOf(10000)) < 0){
+                throw new ConflictException(StringApplication.ERROR.PAYMENT_ONLINE);
+            }
+        }
         orderRepository.save(order);
         log.info("Order item generated successfully");
         var cartItemIds = new ArrayList<UUID>();
@@ -191,6 +194,8 @@ public class OrderService {
                             .orderId(uuid)
                             .orderStatus(order.getFirst().getOrder().getOrderStatus())
                             .createdAt(order.getFirst().getCreatedAt())
+                            .updatedAt(order.getFirst().getUpdatedAt())
+                            .paymentMethod(order.getFirst().getPaymentMethod())
                             .orderItemDTOList(order
                                     .stream()
                                     .map(orderInfo -> {
@@ -204,12 +209,13 @@ public class OrderService {
                                     .toList())
                             .build();
                 })
+                .sorted(Comparator.comparing(OrderListDTO::getUpdatedAt).reversed())
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public Response<ListResponse<OrderListDTO>> getOrders(UUID userId, Pageable pageable) {
-        var orderItems = orderRepository.getOrdersInfo(userId, pageable);
+    public Response<ListResponse<OrderListDTO>> getOrders(UUID userId, String searchInput, Pageable pageable) {
+        var orderItems = orderRepository.getOrdersInfo(userId, searchInput, pageable);
         return new Response<>(
                 true,
                 StringApplication.FIELD.SUCCESS,
@@ -257,6 +263,15 @@ public class OrderService {
                 true,
                 StringApplication.FIELD.SUCCESS,
                 null
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Response<List<OrdersCountInfo>> getCountOrders(UUID userId) {
+        return new Response<>(
+                true,
+                StringApplication.FIELD.SUCCESS,
+                orderRepository.CountOrdersByUserId(userId)
         );
     }
 }

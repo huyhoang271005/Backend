@@ -1,5 +1,6 @@
 package com.example.hello.Entity;
 
+import com.example.hello.Feature.Message.dto.MessageType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +37,10 @@ public class Message {
     @Column(name = "created_at")
     @CreationTimestamp
     Instant createdAt;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    MessageType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")

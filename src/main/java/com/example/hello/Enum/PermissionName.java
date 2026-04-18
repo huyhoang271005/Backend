@@ -35,5 +35,6 @@ public enum PermissionName {
     REPLY_FEEDBACK,
     ADD_ROOM_CHAT,
     GET_HEALTH,
-    CLEAR_CACHE
+    CLEAR_CACHE,
+    GET_SUMMARY_REPORT
 }

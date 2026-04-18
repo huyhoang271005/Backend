@@ -25,7 +25,8 @@ public class PaymentReturn {
         var payment = vnPayService.paymentReturn(request);
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION,
-                        appProperties.getFrontendUrl() + "/payment?success=" + payment)
+                        appProperties.getFrontendUrl() + "/payment?success=" + payment.getSuccess() +
+                        "&&orderId=" + payment.getOrderId())
                 .build();
     }
 }

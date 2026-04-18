@@ -25,4 +25,6 @@ public interface UserRoomChatRepository extends JpaRepository<UserRoomChat, UUID
     Boolean existsByRoomChat_RoomNameAndUser(String roomName, User user);
 
     Optional<UserRoomChat> findByRoomChat_RoomChatIdAndUser_UserId(UUID roomChatId, UUID userId);
+
+    Boolean existsByRoomChat_RoomChatIdAndUser_UserId(UUID roomChatId, UUID userId);
 }

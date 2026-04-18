@@ -8,6 +8,7 @@ public class StringApplication {
         public static final String CHECK_EMAIL = "Vui lòng kiểm tra email của bạn";
     }
     public static class ERROR {
+        public static final String PAYMENT_ONLINE = "Giá tiền thanh toán trực tuyến tối thiểu là 10000đ";
         public static final String FEEDBACK_REPLY = "Đánh giá đã được phản hồi";
         public static final String PHONE = "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0";
         public static final String NUMBER = "Số lượng phải lớn hơn 0 và không âm";
@@ -28,7 +29,7 @@ public class StringApplication {
     public static class FIELD {
         public static final String ROOM = "Cuộc trò chuyện";
         public static final String MESSAGE = "Tin nhắn";
-        public static final String APP_NAME = "Bách hoá xanh";
+        public static final String APP_NAME = "Hưng Linh Mart 24h";
         public static final String FEEDBACK = "Đánh giá";
         public static final String CANT_CANCEL = "Không thể huỷ";
         public static final String ORDER = "Đơn hàng";
@@ -85,6 +86,6 @@ public class StringApplication {
         public static final String WARNING_TITLE = "Cảnh báo";
         public static final String WARNING_DEVICE_MESSAGE = "Phát hiện phiên đăng nhập mới, nhấn vào đây để kiếm tra các phiên đăng nhập!";
         public static final String WELCOME_MESSAGE0 = "Chào mừng người dùng ";
-        public static final String WELCOME_MESSAGE1 = " đến với bách hoá xanh, hãy trải nghiệm và cho chúng tôi những đánh giá tích cực :D";
+        public static final String WELCOME_MESSAGE1 = " đến với " + FIELD.APP_NAME + ", hãy trải nghiệm và cho chúng tôi những đánh giá tích cực :D";
     }
 }

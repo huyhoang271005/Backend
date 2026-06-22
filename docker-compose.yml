@@ -63,15 +63,16 @@ services:
   tunnel:
     container_name: cloudflare-tunnel
     image: cloudflare/cloudflared:latest
+    network_mode: "host"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "host.docker.internal:127.0.0.1"
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     logging:
       driver: "json-file"
       options:
         max-size: "5m"
         max-file: "2"
-    restart: always
+    restart: unless-stopped
 
 volumes:
   sql_data:

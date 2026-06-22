@@ -33,6 +33,7 @@ spring:
           auth: true
           ssl:
             enable: true
+            trust: ${MAIL_HOST}
   jpa:
     show-sql: false
     open-in-view: false

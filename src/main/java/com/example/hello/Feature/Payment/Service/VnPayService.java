@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -73,11 +75,14 @@ public class VnPayService {
         vnp_Params.put("vnp_ReturnUrl", appProperties.getBackendUrl() + vnPayProperties.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", ip);
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        vnp_Params.put("vnp_CreateDate", formatter.format(cld.getTime()));
-        cld.add(Calendar.MINUTE, 15);
-        vnp_Params.put("vnp_ExpireDate", formatter.format(cld.getTime()));
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        String vnp_CreateDate = now.format(formatter);
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+        String vnp_ExpireDate = now.plusMinutes(15).format(formatter);
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
         // 1. Sắp xếp tham số theo alphabet (Bắt buộc)
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());

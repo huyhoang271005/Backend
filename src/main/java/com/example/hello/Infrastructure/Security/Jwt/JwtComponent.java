@@ -34,8 +34,8 @@ public class JwtComponent {
         // Đọc private.pem
         InputStream privateStream = new ClassPathResource("private.pem").getInputStream();
         String privateKeyContent = new String(privateStream.readAllBytes())
-                .replaceAll("-----BEGIN PRIVATE KEY-----", "")
-                .replaceAll("-----END PRIVATE KEY-----", "")
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
         byte[] privateBytes = Base64.getDecoder().decode(privateKeyContent);
         var privateSpec = new PKCS8EncodedKeySpec(privateBytes);
@@ -43,8 +43,8 @@ public class JwtComponent {
         // Đọc public.pem
         InputStream pubStream = new ClassPathResource("public.pem").getInputStream();
         String publicKeyContent = new String(pubStream.readAllBytes())
-                .replaceAll("-----BEGIN PUBLIC KEY-----", "")
-                .replaceAll("-----END PUBLIC KEY-----", "")
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s+", "");
         byte[] publicBytes = Base64.getDecoder().decode(publicKeyContent);
         var publicSpec = new X509EncodedKeySpec(publicBytes);

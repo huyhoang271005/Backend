@@ -3,6 +3,7 @@ package com.example.hello.Feature.ProductsManager.dto;
 import com.example.hello.Infrastructure.Common.Constant.StringApplication;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDetailDTO {
     UUID productId;
-    @NotNull
+    @NotBlank
     String productName;
     String description;
     String imageUrl;

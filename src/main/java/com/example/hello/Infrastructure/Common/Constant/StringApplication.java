@@ -20,7 +20,6 @@ public class StringApplication {
         public static final String VERIFIED_EMAIL_MUST_EXIST = "Cần tồn tại ít nhất 1 email đã được xác thực";
         public static final String ACCOUNT_LOCKED = "Tài khoản đã bị khoá";
         public static final String ACCOUNT_PENDING = "Tài khoản đang chờ được xác thực";
-        public static final String CANT_LOGIN = "Tài khoản của bạn hiện không thể đăng nhập";
         public static final String USER_NOT_LOGIN = "Người dùng chưa đăng nhập";
         public static final String UPLOAD_ERROR = "Ảnh tải lên không hợp lệ";
         public static final String UPLOAD_IO_ERROR = "Lỗi xử lý ảnh";

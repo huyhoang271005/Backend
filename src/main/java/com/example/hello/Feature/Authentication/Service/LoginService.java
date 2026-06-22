@@ -165,7 +165,13 @@ public class LoginService {
         }
         catch (LockedException e) {
             //Đá exception khi trạng thái user khác active
-            throw new ConflictException(StringApplication.ERROR.CANT_LOGIN);
+            return new Response<>(
+                    true,
+                    StringApplication.ERROR.ACCOUNT_PENDING,
+                    LoginResponse.builder()
+                            .verifiedEmail(false)
+                            .build()
+            );
         }
         catch (DisabledException e) {
             //Trả dữ liệu về user khi email chưa được xác thực

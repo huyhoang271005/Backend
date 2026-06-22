@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -52,6 +53,7 @@ import java.util.UUID;
 public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHandler {
     JwtComponent jwtComponent;
     JwtProperties jwtProperties;
+    PasswordEncoder passwordEncoder;
     EmailRepository emailRepository;
     UserRepository userRepository;
     RoleRepository roleRepository;
@@ -105,7 +107,7 @@ public class Oauth2LoginSuccessHandle extends SimpleUrlAuthenticationSuccessHand
                 var username = generateSecureUsername(name, email);
                 var currentUser = User.builder()
                         .username(username)
-                        .password(UUID.randomUUID().toString())
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                         .role(role)
                         .userStatus(UserStatus.ACTIVE)
                         .profile(profile)

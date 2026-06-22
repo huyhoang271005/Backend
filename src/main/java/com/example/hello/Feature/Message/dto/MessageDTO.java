@@ -22,6 +22,7 @@ public class MessageDTO {
     @NotNull
     UUID senderId;
     @NotBlank
+    @NotNull
     String content;
     Instant time;
     MessageStatus status;
